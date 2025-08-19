@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Server, Code, CreditCard, Search } from 'lucide-react'
+import { Home, Server, Code, CreditCard, Search, User } from 'lucide-react'
 
 export interface SidebarProps {
   className?: string
@@ -13,6 +13,7 @@ const navItems = [
   { href: '/api', label: 'API', icon: Code },
   { href: '/subscription', label: 'Subscription', icon: CreditCard },
   { href: '/xray', label: 'XRay', icon: Search },
+  { href: '/account', label: 'Account', icon: User },
 ]
 
 export default function Sidebar({ className = '', onNavigate }: SidebarProps) {

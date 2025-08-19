@@ -16,6 +16,8 @@ export type Translation = {
     openSource: string
     download: string
     contact: string
+    login: string
+    register: string
   }
   termsTitle: string
   termsPoints: string[]
@@ -41,6 +43,8 @@ export const translations: Record<'en' | 'zh', Translation> = {
       openSource: 'Open Source',
       download: 'Download',
       contact: 'Contact',
+      login: 'Login',
+      register: 'Register',
     },
     termsTitle: 'Terms of Service',
     termsPoints: [
@@ -69,6 +73,8 @@ export const translations: Record<'en' | 'zh', Translation> = {
       openSource: '开源项目',
       download: '下载',
       contact: '联系我们',
+      login: '登录',
+      register: '注册',
     },
     termsTitle: '服务条款',
     termsPoints: [
