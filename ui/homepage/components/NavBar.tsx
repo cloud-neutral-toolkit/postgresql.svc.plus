@@ -23,6 +23,8 @@ export default function NavBar() {
           <a href="#open-sources" className="hover:text-purple-300">{nav.openSource}</a>
           <a href="#download" className="hover:text-purple-300">{nav.download}</a>
           <a href="#contact" className="hover:text-purple-300">{nav.contact}</a>
+          <a href="/login" className="hover:text-purple-300">{nav.login}</a>
+          <a href="/register" className="hover:text-purple-300">{nav.register}</a>
           <LanguageToggle />
         </div>
 
@@ -80,6 +82,20 @@ export default function NavBar() {
             className="block py-2 text-white hover:text-purple-300"
           >
             {nav.contact}
+          </a>
+          <a
+            href="/login"
+            onClick={() => setMenuOpen(false)}
+            className="block py-2 text-white hover:text-purple-300"
+          >
+            {nav.login}
+          </a>
+          <a
+            href="/register"
+            onClick={() => setMenuOpen(false)}
+            className="block py-2 text-white hover:text-purple-300"
+          >
+            {nav.register}
           </a>
           <div className="pt-2">
             <LanguageToggle />
