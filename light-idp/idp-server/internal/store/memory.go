@@ -22,3 +22,23 @@ func (m *MemoryStore) Get(id string) (models.User, error) {
 	}
 	return u, nil
 }
+
+func (m *MemoryStore) SaveRefreshToken(id, token string) error {
+	u, ok := m.users[id]
+	if !ok {
+		u = models.User{ID: id}
+	}
+	u.RefreshToken = token
+	m.users[id] = u
+	return nil
+}
+
+func (m *MemoryStore) RevokeRefreshToken(id string) error {
+	u, ok := m.users[id]
+	if !ok {
+		return ErrNotFound
+	}
+	u.RefreshToken = ""
+	m.users[id] = u
+	return nil
+}
