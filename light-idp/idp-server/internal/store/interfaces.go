@@ -11,4 +11,6 @@ var ErrNotFound = errors.New("not found")
 type UserStore interface {
 	Create(models.User) error
 	Get(id string) (models.User, error)
+	SaveRefreshToken(id, token string) error
+	RevokeRefreshToken(id string) error
 }

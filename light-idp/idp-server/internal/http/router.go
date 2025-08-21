@@ -5,14 +5,14 @@ import (
 
 	"light-idp/internal/middleware"
 	"light-idp/internal/oidc"
+	"light-idp/internal/store"
 )
 
 func NewRouter() *http.ServeMux {
 	mux := http.NewServeMux()
+	oidc.SetStore(store.NewMemoryStore())
 	mux.HandleFunc("/authorize", oidc.HandleAuthorize)
-	mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
-		oidc.HandleToken(w, r)
-	})
+	mux.HandleFunc("/token", oidc.HandleToken)
 	mux.HandleFunc("/userinfo", oidc.HandleUserInfo)
 	mux.HandleFunc("/.well-known/openid-configuration", oidc.HandleDiscovery)
 	mux.HandleFunc("/jwks", oidc.HandleJWKS)
