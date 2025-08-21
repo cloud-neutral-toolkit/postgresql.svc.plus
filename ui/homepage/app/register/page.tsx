@@ -1,36 +1,11 @@
-'use client'
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+"use client";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
-  const router = useRouter()
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    router.push('/login')
-  }
-
-  return (
-    <div className="p-4">
-      <h1 className="text-xl font-bold mb-4">Register</h1>
-      <form onSubmit={onSubmit} className="flex flex-col gap-2 max-w-sm">
-        <input
-          value={username}
-          onChange={e => setUsername(e.target.value)}
-          placeholder="Username"
-          className="border p-2"
-        />
-        <input
-          type="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          placeholder="Password"
-          className="border p-2"
-        />
-        <button type="submit" className="bg-blue-500 text-white p-2">Register</button>
-      </form>
-    </div>
-  )
+  const router = useRouter();
+  useEffect(() => {
+    router.replace("/panel/ldp/users");
+  }, [router]);
+  return null;
 }
