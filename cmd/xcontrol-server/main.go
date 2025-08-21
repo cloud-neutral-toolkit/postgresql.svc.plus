@@ -2,13 +2,10 @@ package main
 
 import (
 	"context"
-	"io/fs"
 	"log/slog"
-	"net/http"
 	"os"
 	"strings"
 
-	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
 	"github.com/redis/go-redis/v9"
 	"github.com/spf13/cobra"
@@ -18,7 +15,6 @@ import (
 	"xcontrol/server/api"
 	"xcontrol/server/config"
 	"xcontrol/server/proxy"
-	"xcontrol/ui"
 )
 
 var (
@@ -84,24 +80,8 @@ var rootCmd = &cobra.Command{
 			logger.Warn("redis addr not provided")
 		}
 
-		uiFS, err := fs.Sub(ui.Assets, "dist")
-		if err != nil {
-			logger.Error("ui assets", "err", err)
-			return
-		}
-
 		r := server.New(
 			api.RegisterRoutes(conn, cfg.Sync.Repo.Proxy),
-			func(r *gin.Engine) {
-				fileServer := http.FileServer(http.FS(uiFS))
-				r.NoRoute(func(c *gin.Context) {
-					if strings.HasPrefix(c.Request.URL.Path, "/api") {
-						c.AbortWithStatus(http.StatusNotFound)
-						return
-					}
-					fileServer.ServeHTTP(c.Writer, c.Request)
-				})
-			},
 		)
 
 		r.Run() // listen and serve on 0.0.0.0:8080
