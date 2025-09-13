@@ -30,9 +30,14 @@ export default function Navbar() {
       label: nav.openSource.title,
       children: [
         {
-          key: 'featuresCode',
-          label: `${nav.openSource.features} & ${nav.openSource.code}`,
-          href: 'https://github.com/XProxyTeam/XControl',
+          key: 'features',
+          label: nav.openSource.features,
+          href: '#features',
+        },
+        {
+          key: 'projects',
+          label: nav.openSource.projects,
+          href: '#open-sources',
         },
         {
           key: 'download',
@@ -113,8 +118,6 @@ export default function Navbar() {
                       <a
                         key={child.key}
                         href={child.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
                         className={`block px-4 py-2 hover:bg-white/10 whitespace-nowrap ${
                           activeItem === child.key ? 'text-purple-300' : ''
                         }`}
@@ -186,8 +189,6 @@ export default function Navbar() {
                     <a
                       key={child.key}
                       href={child.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
                       onClick={() => {
                         setMenuOpen(false)
                         setActiveMenu(item.key)

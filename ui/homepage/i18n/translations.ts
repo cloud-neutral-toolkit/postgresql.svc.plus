@@ -15,7 +15,7 @@ export type Translation = {
     openSource: {
       title: string
       features: string
-      code: string
+      projects: string
       download: string
     }
     services: {
@@ -53,7 +53,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
       openSource: {
         title: 'Open Source',
         features: 'Features',
-        code: 'Code',
+        projects: 'Projects',
         download: 'Download',
       },
       services: {
@@ -94,7 +94,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
       openSource: {
         title: '开源项目',
         features: '功能特性',
-        code: '代码',
+        projects: '开源项目',
         download: '下载',
       },
       services: {
