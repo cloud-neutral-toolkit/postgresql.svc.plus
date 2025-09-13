@@ -5,13 +5,13 @@ import DownloadSection from '@components/DownloadSection'
 import Terms from '@components/Terms'
 import Contact from '@components/Contact'
 import Footer from '@components/Footer'
-import NavBar from '@components/NavBar'
+import Navbar from '@components/Navbar'
 import { AskAIButton } from '@components/AskAIButton'
 
 export default function Page() {
   return (
     <>
-      <NavBar />
+        <Navbar />
       <main className="pt-24">
         <Hero />
         <Features />
