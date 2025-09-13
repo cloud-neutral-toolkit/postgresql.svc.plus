@@ -36,12 +36,12 @@ const projects = [
     link: 'https://github.com/svc-design/XScopeHub',
   },
   {
-    name: 'XOpsAgent',
+    name: 'Navi',
     desc: {
-      en: 'AIOps-powered intelligent monitoring, anomaly detection and RCA.',
-      zh: 'AIOps 智能监控、异常检测与根因分析。',
+      en: 'Guiding your tasks, helping you get things done faster.',
+      zh: '引导你的任务，帮助你更快完成工作。',
     },
-    link: 'https://github.com/svc-design/XOpsAgent',
+    link: 'https://github.com/svc-design/Navi',
   },
   {
     name: 'XStream',

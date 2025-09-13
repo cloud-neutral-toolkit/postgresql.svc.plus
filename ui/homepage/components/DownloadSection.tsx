@@ -7,7 +7,10 @@ const downloads = [
   { name: 'KubeGuard', links: ['macOS', 'Windows', 'Linux'] },
   { name: 'XConfig', links: ['macOS', 'Windows', 'Linux'] },
   { name: 'XScopeHub', links: [['GitHub', 'https://github.com/svc-design/XScopeHub']] },
-  { name: 'XOpsAgent', links: ['macOS', 'Windows', 'Linux'] },
+  {
+    name: 'Navi',
+    links: ['macOS', 'Windows', 'Linux', ['GitHub', 'https://github.com/svc-design/Navi']],
+  },
   {
     name: 'XStream',
     links: [
