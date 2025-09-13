@@ -12,12 +12,23 @@ export type Translation = {
   downloadSubtitle: string
   footerLinks: [string, string, string]
   nav: {
-    features: string
-    openSource: string
-    download: string
-    contact: string
-    login: string
-    register: string
+    openSource: {
+      title: string
+      features: string
+      code: string
+      download: string
+    }
+    services: {
+      title: string
+      artifact: string
+      docs: string
+    }
+    account: {
+      title: string
+      register: string
+      login: string
+      demo: string
+    }
   }
   termsTitle: string
   termsPoints: string[]
@@ -39,12 +50,23 @@ export const translations: Record<'en' | 'zh', Translation> = {
     downloadSubtitle: 'Select your platform',
     footerLinks: ['Privacy Policy', 'Terms of Service', 'Contact Us'],
     nav: {
-      features: 'Features',
-      openSource: 'Open Source',
-      download: 'Download',
-      contact: 'Contact',
-      login: 'Login',
-      register: 'Register',
+      openSource: {
+        title: 'Open Source',
+        features: 'Features',
+        code: 'Code',
+        download: 'Download',
+      },
+      services: {
+        title: 'Services',
+        artifact: 'Artifact / Mirror',
+        docs: 'Docs / Solutions',
+      },
+      account: {
+        title: 'Account',
+        register: 'Register',
+        login: 'Login',
+        demo: 'Demo',
+      },
     },
     termsTitle: 'Terms of Service',
     termsPoints: [
@@ -69,12 +91,23 @@ export const translations: Record<'en' | 'zh', Translation> = {
     downloadSubtitle: '选择适合的平台',
     footerLinks: ['隐私政策', '服务条款', '联系我们'],
     nav: {
-      features: '功能特性',
-      openSource: '开源项目',
-      download: '下载',
-      contact: '联系我们',
-      login: '登录',
-      register: '注册',
+      openSource: {
+        title: '开源项目',
+        features: '功能特性',
+        code: '代码',
+        download: '下载',
+      },
+      services: {
+        title: '服务',
+        artifact: 'Artifact / 镜像',
+        docs: '文档 / 解决方案',
+      },
+      account: {
+        title: '账户',
+        register: '注册',
+        login: '登录',
+        demo: '演示',
+      },
     },
     termsTitle: '服务条款',
     termsPoints: [
