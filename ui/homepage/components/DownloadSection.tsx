@@ -6,7 +6,7 @@ const downloads = [
   { name: 'XCloudFlow', links: ['macOS', 'Windows', 'Linux'] },
   { name: 'KubeGuard', links: ['macOS', 'Windows', 'Linux'] },
   { name: 'XConfig', links: ['macOS', 'Windows', 'Linux'] },
-  { name: 'XCodeAgent', links: ['GitHub Only'] },
+  { name: 'XScopeHub', links: [['GitHub', 'https://github.com/svc-design/XScopeHub']] },
   { name: 'XOpsAgent', links: ['macOS', 'Windows', 'Linux'] },
   {
     name: 'XStream',

@@ -28,12 +28,12 @@ const projects = [
     link: 'https://github.com/svc-design/XConfig',
   },
   {
-    name: 'XCodeAgent',
+    name: 'XScopeHub',
     desc: {
-      en: 'AI-driven GitHub Issue to Pull Request generator and code patching tool.',
-      zh: 'AI 驱动的 GitHub Issue 自动转 PR 与代码补丁工具。',
+      en: 'Observability suite: Vector/OTel → OpenObserve → nearline ETL → Postgres/Timescale + pgvector & Apache AGE for 10-min active call graph; includes DeepFlow, node_exporter, process-exporter, Vector agents.',
+      zh: '观测套件：Vector/OTel → OpenObserve → 近线 ETL → Postgres/Timescale + pgvector 与 Apache AGE 实现 10 分钟活跃调用图；集成 DeepFlow、node_exporter、process-exporter、Vector 代理。',
     },
-    link: 'https://github.com/svc-design/XCodeAgent',
+    link: 'https://github.com/svc-design/XScopeHub',
   },
   {
     name: 'XOpsAgent',
