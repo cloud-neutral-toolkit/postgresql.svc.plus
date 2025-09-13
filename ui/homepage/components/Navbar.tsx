@@ -106,25 +106,27 @@ export default function Navbar() {
                   {item.label}
                 </button>
                 <div
-                  className={`absolute ${dropdownPosition} mt-2 hidden group-hover:block bg-black/80 backdrop-blur rounded-md shadow-lg border border-white/10 py-2`}
+                  className={`absolute ${dropdownPosition} top-full pt-2 opacity-0 translate-y-1 transform transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto`}
                 >
-                  {item.children.map((child) => (
-                    <a
-                      key={child.key}
-                      href={child.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`block px-4 py-2 hover:bg-white/10 whitespace-nowrap ${
-                        activeItem === child.key ? 'text-purple-300' : ''
-                      }`}
-                      onClick={() => {
-                        setActiveMenu(item.key)
-                        setActiveItem(child.key)
-                      }}
-                    >
-                      {child.label}
-                    </a>
-                  ))}
+                  <div className="bg-black/80 backdrop-blur rounded-md shadow-lg border border-white/10 py-2">
+                    {item.children.map((child) => (
+                      <a
+                        key={child.key}
+                        href={child.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`block px-4 py-2 hover:bg-white/10 whitespace-nowrap ${
+                          activeItem === child.key ? 'text-purple-300' : ''
+                        }`}
+                        onClick={() => {
+                          setActiveMenu(item.key)
+                          setActiveItem(child.key)
+                        }}
+                      >
+                        {child.label}
+                      </a>
+                    ))}
+                  </div>
                 </div>
               </div>
             )
