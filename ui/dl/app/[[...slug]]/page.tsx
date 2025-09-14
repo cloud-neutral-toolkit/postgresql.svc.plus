@@ -1,6 +1,6 @@
 export const dynamic = "force-static";
-export const dynamicParams = true;
-export async function generateStaticParams() { return []; }
+export const dynamicParams = false;
+export async function generateStaticParams() { return [{ slug: [] }]; }
 
 import CardGrid from "../../components/CardGrid";
 import FileTable from "../../components/FileTable";
@@ -8,6 +8,8 @@ import Breadcrumbs from "../../components/Breadcrumbs";
 import MarkdownPanel from "../../components/MarkdownPanel";
 import CopyButton from "../../components/CopyButton";
 import { formatDate } from "../../utils/format";
+
+const BASE_URL = "https://dl.svc.plus";
 
 interface DirItem {
   name: string;
@@ -18,14 +20,17 @@ interface DirItem {
 }
 
 async function getManifest() {
-  const res = await fetch("/manifest.json", { cache: "no-store" });
-  if (!res.ok) { throw new Error("Failed to load manifest"); }
-  return res.json();
+  try {
+    const res = await fetch(`${BASE_URL}/manifest.json`, { cache: "no-store" });
+    if (!res.ok) throw new Error("Failed to load manifest");
+    return res.json();
+  } catch {
+    return { roots: [] } as { roots: any[] };
+  }
 }
 
-
 async function getDir(path: string) {
-  const res = await fetch(`${path}dir.json`, { cache: 'no-store' });
+  const res = await fetch(`${BASE_URL}${path}dir.json`, { cache: 'no-store' });
   if (!res.ok) {
     throw new Error('Failed to load dir');
   }
