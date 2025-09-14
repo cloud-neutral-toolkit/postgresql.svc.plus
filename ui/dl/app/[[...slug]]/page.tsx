@@ -1,6 +1,9 @@
 export const dynamic = "force-static";
 export const dynamicParams = false;
-export const generateStaticParams = () => [{ slug: [] }];
+export async function generateStaticParams() {
+  return [{ slug: [] }];
+}
+
 
 import CardGrid from "../../components/CardGrid";
 import FileTable from "../../components/FileTable";
