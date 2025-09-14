@@ -53,7 +53,7 @@ export default function Navbar() {
         {
           key: 'artifact',
           label: nav.services.artifact,
-          href: '#',
+          href: 'https://dl.svc.plus/',
         },
         {
           key: 'docs',
@@ -114,21 +114,26 @@ export default function Navbar() {
                   className={`absolute ${dropdownPosition} top-full pt-2 opacity-0 translate-y-1 transform transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto`}
                 >
                   <div className="bg-black/80 backdrop-blur rounded-md shadow-lg border border-white/10 py-2">
-                    {item.children.map((child) => (
-                      <a
-                        key={child.key}
-                        href={child.href}
-                        className={`block px-4 py-2 hover:bg-white/10 whitespace-nowrap ${
-                          activeItem === child.key ? 'text-purple-300' : ''
-                        }`}
-                        onClick={() => {
-                          setActiveMenu(item.key)
-                          setActiveItem(child.key)
-                        }}
-                      >
-                        {child.label}
-                      </a>
-                    ))}
+                    {item.children.map((child) => {
+                      const isExternal = child.href.startsWith('http')
+                      return (
+                        <a
+                          key={child.key}
+                          href={child.href}
+                          className={`block px-4 py-2 hover:bg-white/10 whitespace-nowrap ${
+                            activeItem === child.key ? 'text-purple-300' : ''
+                          }`}
+                          onClick={() => {
+                            setActiveMenu(item.key)
+                            setActiveItem(child.key)
+                          }}
+                          target={isExternal ? '_blank' : undefined}
+                          rel={isExternal ? 'noopener noreferrer' : undefined}
+                        >
+                          {child.label}
+                        </a>
+                      )
+                    })}
                   </div>
                 </div>
               </div>
@@ -185,22 +190,27 @@ export default function Navbar() {
               </button>
               {openSection === item.key && (
                 <div className="pl-4">
-                  {item.children.map((child) => (
-                    <a
-                      key={child.key}
-                      href={child.href}
-                      onClick={() => {
-                        setMenuOpen(false)
-                        setActiveMenu(item.key)
-                        setActiveItem(child.key)
-                      }}
-                      className={`block py-1 text-white hover:text-purple-300 ${
-                        activeItem === child.key ? 'text-purple-300' : ''
-                      }`}
-                    >
-                      {child.label}
-                    </a>
-                  ))}
+                  {item.children.map((child) => {
+                    const isExternal = child.href.startsWith('http')
+                    return (
+                      <a
+                        key={child.key}
+                        href={child.href}
+                        onClick={() => {
+                          setMenuOpen(false)
+                          setActiveMenu(item.key)
+                          setActiveItem(child.key)
+                        }}
+                        className={`block py-1 text-white hover:text-purple-300 ${
+                          activeItem === child.key ? 'text-purple-300' : ''
+                        }`}
+                        target={isExternal ? '_blank' : undefined}
+                        rel={isExternal ? 'noopener noreferrer' : undefined}
+                      >
+                        {child.label}
+                      </a>
+                    )
+                  })}
                 </div>
               )}
             </div>
