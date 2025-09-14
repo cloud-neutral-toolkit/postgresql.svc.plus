@@ -7,9 +7,9 @@ NODE_MAJOR ?= 22
 export PATH := $(GO_BIN):$(PATH)
 
 .PHONY: install install-openresty install-redis install-postgresql install-pgvector install-zhparser init-db \
-        build build-server build-homepage build-panel \
-        start start-openresty start-server start-homepage start-panel \
-        stop stop-server stop-homepage stop-panel stop-openresty restart
+	build build-server build-homepage build-panel build-dl \
+	start start-openresty start-server start-homepage start-panel start-dl \
+	stop stop-server stop-homepage stop-panel stop-dl stop-openresty restart
 
 # -----------------------------------------------------------------------------
 # Dependency installation
@@ -94,7 +94,7 @@ init-db:
 # Build targets
 # -----------------------------------------------------------------------------
 
-build: build-cli build-server build-homepage build-panel
+build: build-cli build-server build-homepage build-panel build-dl
 
 build-cli:
 	$(MAKE) -C client build
@@ -108,11 +108,14 @@ build-homepage:
 build-panel:
 	$(MAKE) -C ui/panel build
 
+build-dl:
+	$(MAKE) -C ui/dl build
+
 # -----------------------------------------------------------------------------
 # Run targets
 # -----------------------------------------------------------------------------
 
-start: start-openresty start-server start-homepage start-panel
+start: start-openresty start-server start-homepage start-panel start-dl
 
 start-server:
 	$(MAKE) -C server start
@@ -123,7 +126,10 @@ start-homepage:
 start-panel:
 	$(MAKE) -C ui/panel start
 
-stop: stop-server stop-homepage stop-panel stop-openresty
+start-dl:
+	$(MAKE) -C ui/dl start
+
+stop: stop-server stop-homepage stop-panel stop-dl stop-openresty
 
 stop-server:
 	$(MAKE) -C server stop
@@ -133,6 +139,9 @@ stop-homepage:
 
 stop-panel:
 	$(MAKE) -C ui/panel stop
+
+stop-dl:
+	$(MAKE) -C ui/dl stop
 
 start-openresty:
 ifeq ($(OS),Darwin)
