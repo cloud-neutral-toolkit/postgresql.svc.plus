@@ -1,0 +1,44 @@
+name: Build and Deploy Docs
+
+on:
+  push:
+    paths:
+      - 'docs/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install deps
+        run: cd docs && npm ci
+      - name: Import chapters
+        run: cd docs && node scripts/import-from-chapters.js
+      - name: Build site
+        run: cd docs && npm run build
+      - name: Generate PDFs
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc wkhtmltopdf rsync
+          cd docs/out
+          mkdir -p pdf
+          find . -name index.html -type f | while read file; do
+            slug=$(dirname "$file")
+            [ "$slug" = "." ] && slug="index"
+            wkhtmltopdf "$file" "pdf/${slug}.pdf"
+          done
+      - name: Deploy
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          WEB_ROOT: ${{ secrets.WEB_ROOT }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          rsync -avz -e "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" docs/out/ $SSH_USER@$SSH_HOST:$WEB_ROOT
