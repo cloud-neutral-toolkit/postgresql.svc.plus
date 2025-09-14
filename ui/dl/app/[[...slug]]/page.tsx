@@ -1,6 +1,6 @@
 export const dynamic = "force-static";
 export const dynamicParams = false;
-export async function generateStaticParams() { return [{ slug: [] }]; }
+export const generateStaticParams = () => [{ slug: [] }];
 
 import CardGrid from "../../components/CardGrid";
 import FileTable from "../../components/FileTable";
@@ -9,7 +9,10 @@ import MarkdownPanel from "../../components/MarkdownPanel";
 import CopyButton from "../../components/CopyButton";
 import { formatDate } from "../../utils/format";
 
-const BASE_URL = "https://dl.svc.plus";
+// Base URL for object storage hosting `manifest.json` and per-directory
+// `dir.json` files. It can be overridden at build time with the
+// `NEXT_PUBLIC_DL_BASE_URL` environment variable.
+const BASE_URL = process.env.NEXT_PUBLIC_DL_BASE_URL || "https://dl.svc.plus";
 
 interface DirItem {
   name: string;
@@ -57,9 +60,9 @@ export default async function Page({ params }: { params: { slug?: string[] } }) 
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="flex-1">
             <div className="mb-4 flex gap-2">
-              <CopyButton text={`wget -r --no-parent https://dl.svc.plus${path}`} />
+              <CopyButton text={`wget -r --no-parent ${BASE_URL}${path}`} />
               {first && (
-                <CopyButton text={`curl -LO https://dl.svc.plus${first.href}`} />
+                <CopyButton text={`curl -LO ${BASE_URL}${first.href}`} />
               )}
             </div>
             <FileTable basePath={path} items={dir.items} />
