@@ -3,3 +3,26 @@ hf_cache/
 server/server/
 docs/init-bak-20250813.sql
 !light-idp/idp-server/internal/models/
+
+# macOS
+.DS_Store
+ui/.DS_Store
+ui/*/.DS_Store
+
+# Node.js dependencies
+ui/dl/node_modules/
+ui/docs/node_modules/
+
+# Next.js build output
+ui/dl/.next/
+ui/dl/out/
+
+# Contentlayer cache
+ui/docs/.contentlayer/
+
+# Lock files (如果不希望追踪)
+ui/docs/yarn.lock
+
+# Yarn lock in dl (如果你只保留根目录的 lock)
+ui/dl/yarn.lock
+
