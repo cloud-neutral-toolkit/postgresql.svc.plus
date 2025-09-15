@@ -10,7 +10,7 @@ build time; runtime servers are not required.
 | Route | Description | Page File | Components | Data Source |
 |-------|-------------|-----------|------------|-------------|
 | `/` | Site home with entry cards to Downloads and Docs | `app/page.tsx` | custom `Card` components | static |
-| `/download/` | Downloads home displaying top‑level folders | `app/download/page.tsx` | `CardGrid` | `dl.svc.plus` top‑level JSON fetched at build time |
+| `/download/` | Downloads browser with sidebar of roots and card grid of subfolders | `app/download/page.tsx` | `DownloadBrowser`, `CardGrid` | `dl.svc.plus` `manifest.json` + per-root `dir.json` |
 | `/download/<name>/[...path]` | File listing for any nested folder | `app/download/[name]/[[...path]]/page.tsx` | `FileTable` | per‑folder JSON fetched at build time |
 | `/docs/` | Docs home listing available ebooks | `app/docs/page.tsx` | optional `DocCard` grid | local `content/` processed by Contentlayer |
 | `/docs/<name>` | Reading page for a single ebook | `app/docs/[name]/page.tsx` | reader layout with side TOC | `content/<name>/**` Markdown files |
@@ -35,6 +35,7 @@ ui/
     components/
       CardGrid.tsx
       FileTable.tsx
+      DownloadBrowser.tsx
   docs/
     components/                # (optional) shared doc components
 ```
@@ -58,6 +59,7 @@ ui/
    each known directory including the empty path.
 5. Implement `generateMetadata` to set titles and OpenGraph info for each folder.
 6. Render a `FileTable` with breadcrumb navigation and sorting by name/size/time.
+7. Downloads home consumes `https://dl.svc.plus/manifest.json` and per-root `dir.json` at runtime to build the sidebar and card grid.
 
 ### Docs
 1. Store Markdown under `content/<doc>/<chapter>.md`.
