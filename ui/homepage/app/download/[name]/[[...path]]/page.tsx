@@ -1,15 +1,19 @@
-import FileTable from '../../../components/download/FileTable'
-import MarkdownPanel from '../../../components/download/MarkdownPanel'
-import type { DirListing } from '../../../types/download'
-import { formatDate } from '../../../lib/format'
-import type { Crumb } from '../../../components/download/Breadcrumbs'
+import FileTable from '../../../../components/download/FileTable'
+import MarkdownPanel from '../../../../components/download/MarkdownPanel'
+import type { DirListing } from '../../../../types/download'
+import { formatDate } from '../../../../lib/format'
+import type { Crumb } from '../../../../components/download/Breadcrumbs'
 
 const BASE_URL = process.env.NEXT_PUBLIC_DL_BASE_URL || 'https://dl.svc.plus'
 
 async function getManifest() {
-  const res = await fetch(`${BASE_URL}/manifest.json`, { cache: 'no-store' })
-  if (!res.ok) return { roots: [] } as { roots: any[] }
-  return res.json()
+  try {
+    const res = await fetch(`${BASE_URL}/manifest.json`, { cache: 'no-store' })
+    if (!res.ok) return { roots: [] } as { roots: any[] }
+    return res.json()
+  } catch {
+    return { roots: [] } as { roots: any[] }
+  }
 }
 
 async function getDir(path: string) {
@@ -31,14 +35,22 @@ export default async function DownloadListing({ params }: { params: { name: stri
   const segs = [name, ...path]
   const fullPath = '/' + segs.join('/') + '/'
   try {
-    const dir: DirListing & { tldr?: string; readme?: string; updated_at?: string } = await getDir(fullPath)
+    const dir: DirListing & {
+      tldr?: string
+      readme?: string
+      updated_at?: string
+      items?: DirListing['entries']
+    } = await getDir(fullPath)
     const breadcrumb: Crumb[] = segs.map((seg, idx) => ({
       label: seg,
       href: '/download/' + segs.slice(0, idx + 1).join('/'),
     }))
     return (
       <main className="p-4 max-w-6xl mx-auto">
-        <FileTable listing={{ path: dir.path, entries: dir.items }} breadcrumb={breadcrumb} />
+        <FileTable
+          listing={{ path: dir.path, entries: dir.entries ?? dir.items ?? [] }}
+          breadcrumb={breadcrumb}
+        />
         <div className="mt-4 grid gap-4 lg:grid-cols-2">
           {dir.tldr && <MarkdownPanel url={dir.tldr} title="TL;DR" />}
           {dir.readme && <MarkdownPanel url={dir.readme} title="Docs" />}
