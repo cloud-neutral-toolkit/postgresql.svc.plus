@@ -1,6 +1,6 @@
 # dl.svc.plus
 
-Static download portal built with Next.js. It reads `manifest.json` and per-directory `dir.json` files to render an index and detail views.
+Static download portal built with Next.js. It powers the `dl.svc.plus` section of the homepage and reads `manifest.json` and per-directory `dir.json` files (with optional `tldr.md` and `README.md`) to render card and detail views for public downloads.
 
 ## Development
 
