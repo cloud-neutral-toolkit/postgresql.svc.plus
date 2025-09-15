@@ -76,18 +76,18 @@ export default function Features() {
   const t = translations[language]
 
   return (
-    <section id="features" className="py-20 bg-gray-900 text-white">
+    <section id="features" className="py-20 bg-gray-50 text-gray-900">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-2">{t.featuresTitle}</h2>
-          <p className="text-gray-400">{t.featuresSubtitle}</p>
+          <p className="text-gray-600">{t.featuresSubtitle}</p>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((f, i) => (
-            <div key={i} className="bg-gray-800 rounded-xl p-6 hover:bg-gray-700 transition">
+            <div key={i} className="bg-white rounded-xl p-6 hover:bg-gray-100 transition">
               <div className="text-4xl mb-4">{f.icon}</div>
               <h3 className="text-xl font-semibold mb-2">{f.title[language]}</h3>
-              <p className="text-gray-400">{f.desc[language]}</p>
+              <p className="text-gray-600">{f.desc[language]}</p>
             </div>
           ))}
         </div>

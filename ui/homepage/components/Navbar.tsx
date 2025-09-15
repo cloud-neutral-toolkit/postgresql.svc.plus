@@ -90,22 +90,22 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-black/30 backdrop-blur border-b border-white/10">
+    <nav className="fixed top-0 w-full z-50 bg-white/70 backdrop-blur border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-        <a href="#" className="text-xl font-bold text-white flex items-center gap-2">
+        <a href="#" className="text-xl font-bold text-gray-900 flex items-center gap-2">
           <img src="/icons/cloudnative_32.png" alt="logo" className="w-6 h-6" />
           CloudNative Suite
         </a>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-6 text-sm text-white">
+        <div className="hidden md:flex items-center gap-6 text-sm text-gray-900">
           {navItems.map((item) => {
             const dropdownPosition = item.key === 'account' ? 'right-0' : 'left-0'
             return (
               <div key={item.key} className="relative group">
                 <button
-                  className={`hover:text-purple-300 ${
-                    activeMenu === item.key ? 'text-purple-300' : ''
+                  className={`hover:text-purple-600 ${
+                    activeMenu === item.key ? 'text-purple-600' : ''
                   }`}
                 >
                   {item.label}
@@ -113,15 +113,15 @@ export default function Navbar() {
                 <div
                   className={`absolute ${dropdownPosition} top-full pt-2 opacity-0 translate-y-1 transform transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto`}
                 >
-                  <div className="bg-black/80 backdrop-blur rounded-md shadow-lg border border-white/10 py-2">
+                  <div className="bg-white rounded-md shadow-lg border border-gray-200 py-2">
                     {item.children.map((child) => {
                       const isExternal = child.href.startsWith('http')
                       return (
                         <a
                           key={child.key}
                           href={child.href}
-                          className={`block px-4 py-2 hover:bg-white/10 whitespace-nowrap ${
-                            activeItem === child.key ? 'text-purple-300' : ''
+                          className={`block px-4 py-2 hover:bg-gray-100 whitespace-nowrap ${
+                            activeItem === child.key ? 'text-purple-600' : ''
                           }`}
                           onClick={() => {
                             setActiveMenu(item.key)
@@ -144,7 +144,7 @@ export default function Navbar() {
 
         {/* Mobile Hamburger Button */}
         <button
-          className="md:hidden flex items-center text-white focus:outline-none"
+          className="md:hidden flex items-center text-gray-900 focus:outline-none"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle menu"
         >
@@ -166,13 +166,13 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {menuOpen && (
-        <div className="md:hidden bg-black/80 backdrop-blur border-t border-white/10 px-4 pb-4">
+        <div className="md:hidden bg-white/95 backdrop-blur border-t border-gray-200 px-4 pb-4">
           {navItems.map((item) => (
             <div key={item.key}>
               <button
                 onClick={() => toggleSection(item.key)}
-                className={`w-full flex justify-between items-center py-2 text-white ${
-                  openSection === item.key || activeMenu === item.key ? 'text-purple-300' : ''
+                className={`w-full flex justify-between items-center py-2 text-gray-900 ${
+                  openSection === item.key || activeMenu === item.key ? 'text-purple-600' : ''
                 }`}
               >
                 <span>{item.label}</span>
@@ -201,8 +201,8 @@ export default function Navbar() {
                           setActiveMenu(item.key)
                           setActiveItem(child.key)
                         }}
-                        className={`block py-1 text-white hover:text-purple-300 ${
-                          activeItem === child.key ? 'text-purple-300' : ''
+                        className={`block py-1 text-gray-900 hover:text-purple-600 ${
+                          activeItem === child.key ? 'text-purple-600' : ''
                         }`}
                         target={isExternal ? '_blank' : undefined}
                         rel={isExternal ? 'noopener noreferrer' : undefined}

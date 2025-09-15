@@ -7,12 +7,12 @@ export default function Footer() {
   const t = translations[language].footerLinks
 
   return (
-    <footer className="bg-gray-950 text-white py-12 px-4">
+    <footer className="bg-gray-100 text-gray-900 py-12 px-4">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
         <div className="flex gap-6 text-sm">
-          <a href="#privacy" className="hover:text-purple-300">{t[0]}</a>
-          <a href="#terms" className="hover:text-purple-300">{t[1]}</a>
-          <a href="#contact" className="hover:text-purple-300">{t[2]}</a>
+          <a href="#privacy" className="hover:text-purple-600">{t[0]}</a>
+          <a href="#terms" className="hover:text-purple-600">{t[1]}</a>
+          <a href="#contact" className="hover:text-purple-600">{t[2]}</a>
         </div>
         <div className="flex gap-4 text-xl">
           <a href="#" title="Twitter">🐦</a>

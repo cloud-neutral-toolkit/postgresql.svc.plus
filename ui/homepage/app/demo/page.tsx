@@ -7,7 +7,7 @@ export default function DemoPage() {
   const { account } = translations[language].nav
 
   return (
-    <div className="min-h-screen flex items-center justify-center text-white">
+    <div className="min-h-screen flex items-center justify-center">
       <h1 className="text-2xl font-bold">{account.demo}</h1>
     </div>
   )

@@ -58,19 +58,19 @@ export default function OpenSource() {
   const t = translations[language]
 
   return (
-    <section id="open-sources" className="py-20 bg-gray-950 text-white">
+    <section id="open-sources" className="py-20 bg-gray-100 text-gray-900">
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-3xl font-bold text-center mb-12">{t.openSourceTitle}</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((p) => (
-            <div key={p.name} className="bg-gray-800 rounded-xl p-6">
+            <div key={p.name} className="bg-white rounded-xl p-6">
               <h3 className="text-xl font-semibold mb-2">{p.name}</h3>
-              <p className="text-gray-400 mb-4">{p.desc[language]}</p>
+              <p className="text-gray-600 mb-4">{p.desc[language]}</p>
               <a
                 href={p.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-blue-400 underline hover:text-blue-300"
+                className="text-sm text-blue-600 underline hover:text-blue-500"
               >
                 GitHub →
               </a>

@@ -8,7 +8,7 @@ export default function LanguageToggle() {
     <select
       value={language}
       onChange={(e) => setLanguage(e.target.value as 'en' | 'zh')}
-      className="bg-gray-800 text-white border border-gray-600 px-2 py-1 rounded text-sm"
+      className="bg-gray-100 text-gray-900 border border-gray-300 px-2 py-1 rounded text-sm"
     >
       <option value="en">English</option>
       <option value="zh">中文</option>
