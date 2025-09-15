@@ -1,0 +1,36 @@
+name: Update Mirror Metadata
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "scripts/gen_mirror_manifest.py"
+
+jobs:
+  update-remote:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Copy generator script to remote
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.MIRROR_HOST }}
+          username: ${{ secrets.MIRROR_USER }}
+          key: ${{ secrets.MIRROR_SSH_KEY }}
+          source: "scripts/gen_mirror_manifest.py"
+          target: ${{ secrets.MIRROR_WORKDIR }} # e.g. /data/update-server
+          overwrite: true
+
+      - name: Run generator on remote
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.MIRROR_HOST }}
+          username: ${{ secrets.MIRROR_USER }}
+          key: ${{ secrets.MIRROR_SSH_KEY }}
+          script: |
+            set -euo pipefail
+            cd ${{ secrets.MIRROR_WORKDIR }}
+            python3 scripts/gen_mirror_manifest.py --root ${{ secrets.MIRROR_WORKDIR }} --base-url-prefix /
+            echo "Manifest updated at: $(date -u +%FT%TZ)"
