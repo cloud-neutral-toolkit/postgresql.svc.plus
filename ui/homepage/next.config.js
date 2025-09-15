@@ -1,8 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export', // 静态导出
   reactStrictMode: true,
-
   async rewrites() {
     return [
       {
