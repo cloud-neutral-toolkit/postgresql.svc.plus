@@ -53,7 +53,7 @@ export default function Navbar() {
         {
           key: 'artifact',
           label: nav.services.artifact,
-          href: 'https://dl.svc.plus/',
+          href: '/download',
         },
         {
           key: 'docs',

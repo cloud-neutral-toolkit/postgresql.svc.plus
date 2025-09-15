@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2020",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": false,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -19,35 +15,23 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "jsx": "preserve",
-    "baseUrl": ".", // 👈 设置为根目录
+    "baseUrl": ".",
     "paths": {
-      "@components/*": [
-        "components/*"
-      ], // 👈 添加别名路径
-      "@i18n/*": [
-        "i18n/*"
-      ],
-      "@lib/*": [
-        "lib/*"
-      ]
+      "@components/*": ["components/*"],
+      "@i18n/*": ["i18n/*"],
+      "@lib/*": ["lib/*"],
+      "@types/*": ["types/*"]
     },
-    "types": [
-      "node"
-    ],
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ]
+    "types": ["node"],
+    "plugins": [{ "name": "next" }]
   },
   "include": [
     "app",
     "components",
     "i18n",
     "lib",
+    "types",
     ".next/types/**/*.ts"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }
