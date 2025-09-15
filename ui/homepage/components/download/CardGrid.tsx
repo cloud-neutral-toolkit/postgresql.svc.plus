@@ -28,13 +28,7 @@ export default function CardGrid({ sections }: { sections: Section[] }) {
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row gap-2 mb-4 items-center">
-        <input
-          placeholder="Search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="border rounded p-2 max-w-xs"
-        />
+      <div className="sticky top-0 z-10 bg-white flex items-center mb-4 gap-2 border-b pb-2">
         <select
           className="border rounded p-2"
           value={sort}
@@ -43,12 +37,27 @@ export default function CardGrid({ sections }: { sections: Section[] }) {
           <option value="lastModified">Sort by Updated</option>
           <option value="title">Sort by Name</option>
         </select>
+        <div className="ml-auto">
+          <input
+            placeholder="Search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="border rounded p-2"
+          />
+        </div>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="columns-1 sm:columns-2 lg:columns-3 gap-4">
         {filtered.map((section) => (
-          <Link key={section.key} href={section.href} className="block border rounded p-4 hover:shadow">
-            <h3 className="font-semibold mb-2">{section.title}</h3>
-            <div className="text-sm text-gray-600">
+          <Link
+            key={section.key}
+            href={section.href}
+            className="mb-4 block break-inside-avoid border rounded p-4 hover:shadow"
+          >
+            <div className="text-4xl font-bold mb-2">
+              {section.title.charAt(0).toUpperCase()}
+            </div>
+            <div className="text-sm font-semibold mb-2">{section.title}</div>
+            <div className="text-xs text-gray-600">
               {section.lastModified && <p>Updated: {formatDate(section.lastModified)}</p>}
               {section.count !== undefined && <p>Items: {section.count}</p>}
             </div>
