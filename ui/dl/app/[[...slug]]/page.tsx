@@ -33,7 +33,9 @@ async function getDir(path: string) {
   return res.json();
 }
 
-export function generateStaticParams() {
+// Pre-render the root listing during the static export. Additional paths are
+// handled entirely on the client, so only an empty slug is needed here.
+export async function generateStaticParams() {
   return [{ slug: [] }];
 }
 
