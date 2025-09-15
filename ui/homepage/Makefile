@@ -72,6 +72,9 @@ test:
 
 build: init
 	yarn config set npmRegistryServer https://registry.npmmirror.com
+	@echo "📥 Fetching download index..."
+	@mkdir -p public/dl-index
+	@curl -fsSL https://dl.svc.plus/all.json -o public/dl-index/all.json
 	@echo "🔨 Building homepage..."
 	yarn next build
 
