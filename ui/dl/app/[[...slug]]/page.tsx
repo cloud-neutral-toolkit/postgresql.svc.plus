@@ -1,9 +1,3 @@
-export const dynamic = "force-static";
-export const dynamicParams = false;
-export async function generateStaticParams() {
-  return [{ slug: [] }];
-}
-
 import CardGrid from "../../components/CardGrid";
 import FileTable from "../../components/FileTable";
 import Breadcrumbs from "../../components/Breadcrumbs";
@@ -32,12 +26,19 @@ async function getManifest() {
 }
 
 async function getDir(path: string) {
-  const res = await fetch(`${BASE_URL}${path}dir.json`, { cache: 'no-store' });
+  const res = await fetch(`${BASE_URL}${path}dir.json`, { cache: "no-store" });
   if (!res.ok) {
-    throw new Error('Failed to load dir');
+    throw new Error("Failed to load dir");
   }
   return res.json();
 }
+
+export function generateStaticParams() {
+  return [{ slug: [] }];
+}
+
+export const dynamicParams = false;
+export const dynamic = "force-static";
 
 export default async function Page({ params }: { params: { slug?: string[] } }) {
   const segs = params.slug ?? [];

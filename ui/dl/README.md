@@ -11,14 +11,11 @@ yarn dev
 
 Set `NEXT_PUBLIC_DL_BASE_URL` to the object storage endpoint (including
 the bucket path) before starting the dev server if you want to load data
-from a location other than the default `https://dl.svc.plus`. For
-example:
+from a location other than the default `https://dl.svc.plus`. For example:
 
 ```bash
 NEXT_PUBLIC_DL_BASE_URL=https://storage.example.com/my-bucket yarn dev
 ```
-
-from a location other than the default `https://dl.svc.plus`.
 
 
 ## Build & Deploy
@@ -36,6 +33,4 @@ point the exported site at your own storage endpoint and bucket, e.g.:
 ```bash
 NEXT_PUBLIC_DL_BASE_URL=https://storage.example.com/my-bucket yarn build
 ```
-
-point the exported site at your own storage endpoint and bucket.
 
