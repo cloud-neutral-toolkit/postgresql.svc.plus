@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "tsx ../../scripts/fetch-dl-index.ts",
     "build": "next build",
     "export": "next build",
     "start": "next start",
@@ -23,6 +24,7 @@
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.4.3",
+    "tsx": "^4.7.1",
     "typescript": "^5.4.2"
   }
 }

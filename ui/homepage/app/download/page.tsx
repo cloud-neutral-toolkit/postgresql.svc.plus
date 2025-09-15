@@ -1,22 +1,34 @@
 import DownloadBrowser from '../../components/download/DownloadBrowser'
+import listings from '../../public/dl-index/all.json'
+import type { DirListing } from '../../types/download'
 
-const BASE_URL = process.env.NEXT_PUBLIC_DL_BASE_URL || 'https://dl.svc.plus'
-
-interface ManifestRoot {
-  name: string
+interface Section {
+  key: string
+  title: string
   href: string
-  updated_at?: string
-  item_count?: number
-  summary?: string
+  lastModified?: string
+  count?: number
+  root: string
 }
 
-async function getManifest() {
-  const res = await fetch(`${BASE_URL}/manifest.json`, { cache: 'no-store' })
-  if (!res.ok) throw new Error('failed to load manifest')
-  return res.json() as Promise<{ roots: ManifestRoot[] }>
-}
-
-export default async function DownloadHome() {
-  const manifest = await getManifest().catch(() => ({ roots: [] }))
-  return <DownloadBrowser roots={manifest.roots} />
+export default function DownloadHome() {
+  const sectionsMap: Record<string, Section[]> = {}
+  const root = (listings as DirListing[]).find((l) => l.path === '')
+  if (root) {
+    for (const entry of root.entries.filter((e) => e.type === 'dir')) {
+      const child = (listings as DirListing[]).find((l) => l.path === `${entry.name}/`)
+      const secs: Section[] = (child?.entries || [])
+        .filter((e) => e.type === 'dir')
+        .map((e) => ({
+          key: `${entry.name}/${e.name}`,
+          title: e.name,
+          href: `/download/${entry.name}/${e.name}`,
+          lastModified: e.lastModified,
+          count: (e as any).count,
+          root: entry.name,
+        }))
+      sectionsMap[entry.name] = secs
+    }
+  }
+  return <DownloadBrowser sectionsMap={sectionsMap} />
 }
