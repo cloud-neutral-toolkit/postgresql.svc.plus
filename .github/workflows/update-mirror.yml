@@ -13,24 +13,68 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Copy generator script to remote
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.MIRROR_HOST }}
-          username: ${{ secrets.MIRROR_USER }}
-          key: ${{ secrets.MIRROR_SSH_KEY }}
-          source: "scripts/gen_mirror_manifest.py"
-          target: ${{ secrets.MIRROR_WORKDIR }} # e.g. /data/update-server
-          overwrite: true
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          set -euo pipefail
+          install -m 700 -d ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts
 
-      - name: Run generator on remote
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.MIRROR_HOST }}
-          username: ${{ secrets.MIRROR_USER }}
-          key: ${{ secrets.MIRROR_SSH_KEY }}
-          script: |
-            set -euo pipefail
-            cd ${{ secrets.MIRROR_WORKDIR }}
-            python3 scripts/gen_mirror_manifest.py --root ${{ secrets.MIRROR_WORKDIR }} --base-url-prefix /
-            echo "Manifest updated at: $(date -u +%FT%TZ)"
+      - name: Sync generator script to remote host
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          set -euo pipefail
+          ssh root@"$VPS_HOST" 'mkdir -p /scripts'
+          rsync -av scripts/gen_mirror_manifest.py root@"$VPS_HOST":/scripts/gen_mirror_manifest.py
+
+      - name: Run generator on remote host
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          set -euo pipefail
+          ssh root@"$VPS_HOST" <<'EOF'
+          set -euo pipefail
+          python3 /scripts/gen_mirror_manifest.py --root /data/update-server --base-url-prefix / --exclude docs
+          EOF
+
+      - name: Configure systemd watcher on remote host
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          set -euo pipefail
+          ssh root@"$VPS_HOST" <<'EOF'
+          set -euo pipefail
+          cat <<'SERVICE' >/etc/systemd/system/update-mirror.service
+          [Unit]
+          Description=Generate mirror manifest
+          After=network-online.target
+          Wants=network-online.target
+
+          [Service]
+          Type=oneshot
+          ExecStart=/usr/bin/python3 /scripts/gen_mirror_manifest.py --root /data/update-server --base-url-prefix / --exclude docs
+          WorkingDirectory=/
+          SERVICE
+
+          cat <<'PATHUNIT' >/etc/systemd/system/update-mirror.path
+          [Unit]
+          Description=Watch /data/update-server for changes to trigger mirror manifest generation
+
+          [Path]
+          PathChanged=/data/update-server
+          PathModified=/data/update-server
+          Unit=update-mirror.service
+
+          [Install]
+          WantedBy=multi-user.target
+          PATHUNIT
+
+          systemctl daemon-reload
+          systemctl enable --now update-mirror.path
+          systemctl restart update-mirror.path
+          EOF
