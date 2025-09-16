@@ -5,7 +5,7 @@ import { ExternalLink, FileText, Monitor, type LucideIcon } from 'lucide-react'
 
 import Breadcrumbs, { Crumb } from '../../../components/download/Breadcrumbs'
 import { formatDate } from '../../../lib/format'
-import { docResources, getDocResource } from '../resources'
+import { getDocResource, getDocResources } from '../resources'
 
 type ViewMode = 'pdf' | 'html'
 
@@ -31,12 +31,13 @@ function buildBreadcrumbs(slug: string, docTitle: string): Crumb[] {
   ]
 }
 
-export function generateStaticParams() {
-  return docResources.map((doc) => ({ name: doc.slug }))
+export async function generateStaticParams() {
+  const docs = await getDocResources()
+  return docs.map((doc) => ({ name: doc.slug }))
 }
 
-export function generateMetadata({ params }: { params: { name: string } }): Metadata {
-  const doc = getDocResource(params.name)
+export async function generateMetadata({ params }: { params: { name: string } }): Promise<Metadata> {
+  const doc = await getDocResource(params.name)
   if (!doc) {
     return { title: 'Documentation' }
   }
@@ -46,14 +47,14 @@ export function generateMetadata({ params }: { params: { name: string } }): Meta
   }
 }
 
-export default function DocPage({
+export default async function DocPage({
   params,
   searchParams,
 }: {
   params: { name: string }
   searchParams?: { view?: string | string[] }
 }) {
-  const doc = getDocResource(params.name)
+  const doc = await getDocResource(params.name)
   if (!doc) {
     notFound()
   }
@@ -93,10 +94,17 @@ export default function DocPage({
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div className="space-y-2">
               <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">
-                {doc.category || 'Documentation'} {doc.version ? `• ${doc.version}` : ''}
+                {doc.category || 'Documentation'}
+                {doc.version ? ` • ${doc.version}` : doc.variant ? ` • ${doc.variant}` : ''}
               </p>
               <h1 className="text-3xl font-bold text-gray-900 md:text-4xl">{doc.title}</h1>
               <p className="max-w-3xl text-sm text-gray-600 md:text-base">{doc.description}</p>
+              {(doc.variant || doc.language) && (
+                <div className="flex flex-wrap gap-3 text-xs text-gray-500">
+                  {doc.variant && <span className="rounded-full bg-gray-100 px-3 py-1">Release {doc.variant}</span>}
+                  {doc.language && <span className="rounded-full bg-gray-100 px-3 py-1">Language {doc.language}</span>}
+                </div>
+              )}
               {doc.tags && doc.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2 pt-2">
                   {doc.tags.map((tag) => (

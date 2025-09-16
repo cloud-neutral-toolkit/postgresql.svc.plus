@@ -2,17 +2,27 @@ import Link from 'next/link'
 import { ArrowUpRight } from 'lucide-react'
 
 import { formatDate } from '../../lib/format'
-import { docResources } from './resources'
+import { getDocResources } from './resources'
 
-function formatMeta({ category, version }: { category?: string; version?: string }) {
+function formatMeta({
+  category,
+  version,
+  variant,
+}: {
+  category?: string
+  version?: string
+  variant?: string
+}) {
   const parts = [] as string[]
   if (category) parts.push(category)
   if (version) parts.push(version)
+  else if (variant) parts.push(variant)
   return parts.join(' • ')
 }
 
-export default function DocsHome() {
-  const resources = [...docResources].sort((a, b) => {
+export default async function DocsHome() {
+  const manifest = await getDocResources()
+  const resources = [...manifest].sort((a, b) => {
     const aTime = a.updatedAt ? new Date(a.updatedAt).getTime() : 0
     const bTime = b.updatedAt ? new Date(b.updatedAt).getTime() : 0
     return bTime - aTime
@@ -31,58 +41,64 @@ export default function DocsHome() {
         </header>
 
         <section>
-          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-            {resources.map((resource) => {
-              const meta = formatMeta(resource)
-              return (
-                <Link
-                  key={resource.slug}
-                  href={`/docs/${resource.slug}`}
-                  className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg"
-                >
-                  <div className="relative h-32 w-full overflow-hidden bg-gradient-to-br from-purple-50 via-white to-purple-100">
-                    <div className="absolute inset-0 flex flex-col justify-between p-4">
-                      <div>
-                        {meta && (
-                          <span className="inline-flex items-center rounded-full bg-white/80 px-3 py-1 text-xs font-medium text-purple-700 shadow-sm">
-                            {meta}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center justify-between text-xs text-purple-500">
-                        {resource.updatedAt && <span>Updated {formatDate(resource.updatedAt)}</span>}
-                        {resource.estimatedMinutes && <span>{resource.estimatedMinutes} min read</span>}
+          {resources.length === 0 ? (
+            <div className="rounded-3xl border border-dashed border-gray-300 bg-white/70 p-10 text-center text-sm text-gray-500">
+              Documentation resources are not available at the moment. Please check back later.
+            </div>
+          ) : (
+            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+              {resources.map((resource) => {
+                const meta = formatMeta(resource)
+                return (
+                  <Link
+                    key={resource.slug}
+                    href={`/docs/${resource.slug}`}
+                    className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg"
+                  >
+                    <div className="relative h-32 w-full overflow-hidden bg-gradient-to-br from-purple-50 via-white to-purple-100">
+                      <div className="absolute inset-0 flex flex-col justify-between p-4">
+                        <div>
+                          {meta && (
+                            <span className="inline-flex items-center rounded-full bg-white/80 px-3 py-1 text-xs font-medium text-purple-700 shadow-sm">
+                              {meta}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center justify-between text-xs text-purple-500">
+                          {resource.updatedAt && <span>Updated {formatDate(resource.updatedAt)}</span>}
+                          {resource.estimatedMinutes && <span>{resource.estimatedMinutes} min read</span>}
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="flex flex-1 flex-col gap-4 p-6">
-                    <div className="space-y-2">
-                      <h2 className="text-lg font-semibold text-gray-900 transition group-hover:text-purple-700">
-                        {resource.title}
-                      </h2>
-                      <p className="text-sm text-gray-600">{resource.description}</p>
-                    </div>
-
-                    {resource.tags && resource.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {resource.tags.map((tag) => (
-                          <span key={tag} className="rounded-full bg-purple-50 px-3 py-1 text-xs font-medium text-purple-700">
-                            {tag}
-                          </span>
-                        ))}
+                    <div className="flex flex-1 flex-col gap-4 p-6">
+                      <div className="space-y-2">
+                        <h2 className="text-lg font-semibold text-gray-900 transition group-hover:text-purple-700">
+                          {resource.title}
+                        </h2>
+                        <p className="text-sm text-gray-600">{resource.description}</p>
                       </div>
-                    )}
 
-                    <div className="mt-auto flex items-center justify-between text-sm font-medium text-purple-600">
-                      <span>Open reader</span>
-                      <ArrowUpRight className="h-4 w-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                      {resource.tags && resource.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {resource.tags.map((tag) => (
+                            <span key={tag} className="rounded-full bg-purple-50 px-3 py-1 text-xs font-medium text-purple-700">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="mt-auto flex items-center justify-between text-sm font-medium text-purple-600">
+                        <span>Open reader</span>
+                        <ArrowUpRight className="h-4 w-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              )
-            })}
-          </div>
+                  </Link>
+                )
+              })}
+            </div>
+          )}
         </section>
       </div>
     </main>
