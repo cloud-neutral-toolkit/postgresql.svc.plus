@@ -1,29 +1,25 @@
-import CardGrid from '../../../../components/download/CardGrid'
-import Breadcrumbs, { Crumb } from '../../../../components/download/Breadcrumbs'
-import FileTable from '../../../../components/download/FileTable'
-import { formatDate } from '../../../../lib/format'
+import CardGrid from '../../../components/download/CardGrid'
+import Breadcrumbs, { Crumb } from '../../../components/download/Breadcrumbs'
+import FileTable from '../../../components/download/FileTable'
+import { formatDate } from '../../../lib/format'
 import {
   buildSectionsForListing,
   countFiles,
   findListing,
   formatSegmentLabel,
-} from '../../../../lib/download-data'
-import { getDownloadListings } from '../../../../lib/download-manifest'
-import type { DirListing } from '../../../../types/download'
+} from '../../../lib/download-data'
+import { getDownloadListings } from '../../../lib/download-manifest'
+import type { DirListing } from '../../../types/download'
 
 const allListings = getDownloadListings()
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
   return allListings
     .filter((listing) => listing.path)
-    .map((listing) => {
-      const segments = listing.path.split('/').filter(Boolean)
-      return { name: segments[0], path: segments.slice(1) }
-    })
+    .map((listing) => ({ segments: listing.path.split('/').filter(Boolean) }))
 }
 
 export const dynamicParams = false
-export const dynamic = 'force-static'
 
 function buildBreadcrumb(segments: string[]): Crumb[] {
   const items: Crumb[] = [{ label: 'Download', href: '/download' }]
@@ -49,12 +45,23 @@ function getLatestModified(listing: DirListing): string | undefined {
 export default function DownloadListing({
   params,
 }: {
-  params: { name: string; path?: string[] }
+  params: { segments: string[] }
 }) {
-  const { name, path = [] } = params
-  const segments = [name, ...path]
+  const rawSegments = params.segments ?? []
+  const segments = rawSegments
     .map((segment) => segment.trim().replace(/\/+$/g, ''))
     .filter((segment) => segment.length > 0)
+
+  if (segments.length === 0) {
+    return (
+      <main className="px-4 py-8 md:px-8">
+        <div className="mx-auto max-w-3xl rounded-2xl border border-dashed p-10 text-center text-sm text-red-500">
+          Directory not found.
+        </div>
+      </main>
+    )
+  }
+
   const listing = findListing(allListings, segments)
 
   if (!listing) {
@@ -74,7 +81,7 @@ export default function DownloadListing({
 
   const totalFiles = countFiles(listing, allListings)
   const latestModified = getLatestModified(listing)
-  const displayTitle = formatSegmentLabel(segments[segments.length - 1] ?? name)
+  const displayTitle = formatSegmentLabel(segments[segments.length - 1] ?? '')
   const relativePath = segments.join('/')
   const remotePath = `https://dl.svc.plus/${listing.path}`
 
