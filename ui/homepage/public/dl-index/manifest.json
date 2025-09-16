@@ -27,12 +27,6 @@
         "lastModified": "2025-07-29T05:17:40Z"
       },
       {
-        "name": "xray-core/",
-        "href": "/xray-core/",
-        "type": "dir",
-        "lastModified": "2025-09-01T02:36:59Z"
-      },
-      {
         "name": "xstream/",
         "href": "/xstream/",
         "type": "dir",
@@ -296,107 +290,6 @@
   {
     "path": "rpm/",
     "entries": []
-  },
-  {
-    "path": "xray-core/",
-    "entries": [
-      {
-        "name": "v25.8.29/",
-        "href": "/xray-core/v25.8.29/",
-        "type": "dir",
-        "lastModified": "2025-08-30T02:27:32Z"
-      },
-      {
-        "name": "v25.8.3/",
-        "href": "/xray-core/v25.8.3/",
-        "type": "dir",
-        "lastModified": "2025-08-15T05:27:05Z"
-      },
-      {
-        "name": "v25.8.31/",
-        "href": "/xray-core/v25.8.31/",
-        "type": "dir",
-        "lastModified": "2025-09-01T02:37:13Z"
-      }
-    ]
-  },
-  {
-    "path": "xray-core/v25.8.29/",
-    "entries": [
-      {
-        "name": "Xray-linux-64.zip",
-        "href": "/xray-core/v25.8.29/Xray-linux-64.zip",
-        "type": "file",
-        "size": 20188542,
-        "lastModified": "2025-08-30T02:27:13Z"
-      },
-      {
-        "name": "Xray-macos-64.zip",
-        "href": "/xray-core/v25.8.29/Xray-macos-64.zip",
-        "type": "file",
-        "size": 19866304,
-        "lastModified": "2025-08-30T02:27:14Z"
-      },
-      {
-        "name": "Xray-windows-64.zip",
-        "href": "/xray-core/v25.8.29/Xray-windows-64.zip",
-        "type": "file",
-        "size": 19762272,
-        "lastModified": "2025-08-30T02:27:18Z"
-      }
-    ]
-  },
-  {
-    "path": "xray-core/v25.8.3/",
-    "entries": [
-      {
-        "name": "Xray-linux-64.zip",
-        "href": "/xray-core/v25.8.3/Xray-linux-64.zip",
-        "type": "file",
-        "size": 18431780,
-        "lastModified": "2025-08-15T05:26:49Z"
-      },
-      {
-        "name": "Xray-macos-64.zip",
-        "href": "/xray-core/v25.8.3/Xray-macos-64.zip",
-        "type": "file",
-        "size": 18191431,
-        "lastModified": "2025-08-15T05:26:49Z"
-      },
-      {
-        "name": "Xray-windows-64.zip",
-        "href": "/xray-core/v25.8.3/Xray-windows-64.zip",
-        "type": "file",
-        "size": 18071359,
-        "lastModified": "2025-08-15T05:26:51Z"
-      }
-    ]
-  },
-  {
-    "path": "xray-core/v25.8.31/",
-    "entries": [
-      {
-        "name": "Xray-linux-64.zip",
-        "href": "/xray-core/v25.8.31/Xray-linux-64.zip",
-        "type": "file",
-        "size": 20200865,
-        "lastModified": "2025-09-01T02:36:57Z"
-      },
-      {
-        "name": "Xray-macos-64.zip",
-        "href": "/xray-core/v25.8.31/Xray-macos-64.zip",
-        "type": "file",
-        "size": 19875652,
-        "lastModified": "2025-09-01T02:36:53Z"
-      },
-      {
-        "name": "Xray-windows-64.zip",
-        "href": "/xray-core/v25.8.31/Xray-windows-64.zip",
-        "type": "file",
-        "size": 19776769,
-        "lastModified": "2025-09-01T02:36:56Z"
-      }
-    ]
   },
   {
     "path": "xstream/",
