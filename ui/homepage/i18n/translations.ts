@@ -1,3 +1,68 @@
+type CountTemplate = {
+  singular: string
+  plural: string
+}
+
+type DownloadTranslation = {
+  home: {
+    title: string
+    description: string
+    stats: {
+      categories: string
+      collections: string
+      files: string
+    }
+  }
+  browser: {
+    categoriesTitle: string
+    allButton: string
+    allHeading: string
+    allDescription: string
+    collectionDescription: string
+    itemCount: CountTemplate
+    empty: string
+  }
+  cardGrid: {
+    sortUpdated: string
+    sortName: string
+    searchPlaceholder: string
+    updatedLabel: string
+    itemsLabel: string
+  }
+  listing: {
+    notFound: string
+    headingDescription: string
+    stats: {
+      subdirectories: string
+      files: string
+      lastUpdated: string
+    }
+    collectionsTitle: string
+    collectionsCount: CountTemplate
+    empty: string
+    infoTitle: string
+    infoPath: string
+    infoSource: string
+    infoNotice: string
+  }
+  fileTable: {
+    sortName: string
+    sortUpdated: string
+    sortSize: string
+    filterPlaceholder: string
+    headers: {
+      name: string
+      size: string
+      updated: string
+      actions: string
+    }
+  }
+  copyButton: {
+    tooltip: string
+  }
+  breadcrumbRoot: string
+}
+
 export type Translation = {
   hero: {
     title: string
@@ -33,6 +98,7 @@ export type Translation = {
   termsTitle: string
   termsPoints: string[]
   contactTitle: string
+  download: DownloadTranslation
 }
 
 export const translations: Record<'en' | 'zh', Translation> = {
@@ -76,6 +142,71 @@ export const translations: Record<'en' | 'zh', Translation> = {
       'A future SaaS version for users who want one-click deployment with no setup required',
     ],
     contactTitle: 'Contact Us',
+    download: {
+      home: {
+        title: 'Download Center',
+        description: 'Browse offline packages, releases, and other curated resources hosted on dl.svc.plus.',
+        stats: {
+          categories: 'Top-level categories',
+          collections: 'Resource collections',
+          files: 'Files tracked',
+        },
+      },
+      browser: {
+        categoriesTitle: 'Categories',
+        allButton: 'All resources',
+        allHeading: 'All downloads',
+        allDescription: 'Browse the complete catalog of offline packages, releases, and artifacts.',
+        collectionDescription: 'Showing resources from the {{collection}} collection.',
+        itemCount: {
+          singular: '{{count}} item',
+          plural: '{{count}} items',
+        },
+        empty: 'No downloadable resources found for this category yet.',
+      },
+      cardGrid: {
+        sortUpdated: 'Sort by Updated',
+        sortName: 'Sort by Name',
+        searchPlaceholder: 'Search',
+        updatedLabel: 'Updated:',
+        itemsLabel: 'Items:',
+      },
+      listing: {
+        notFound: 'Directory not found.',
+        headingDescription: 'Explore downloads and artifacts available under the {{directory}} directory.',
+        stats: {
+          subdirectories: 'Subdirectories',
+          files: 'Files',
+          lastUpdated: 'Last updated',
+        },
+        collectionsTitle: 'Collections',
+        collectionsCount: {
+          singular: '{{count}} entry',
+          plural: '{{count}} entries',
+        },
+        empty: 'This directory does not contain downloadable artifacts yet.',
+        infoTitle: 'Directory info',
+        infoPath: 'Path',
+        infoSource: 'Source',
+        infoNotice: 'Data sourced from dl.svc.plus.',
+      },
+      fileTable: {
+        sortName: 'Name',
+        sortUpdated: 'Updated',
+        sortSize: 'Size',
+        filterPlaceholder: 'Filter ext (.tar.gz)',
+        headers: {
+          name: 'Name',
+          size: 'Size',
+          updated: 'Updated',
+          actions: 'Actions',
+        },
+      },
+      copyButton: {
+        tooltip: 'Copy link',
+      },
+      breadcrumbRoot: 'Download',
+    },
   },
   zh: {
     hero: {
@@ -117,5 +248,70 @@ export const translations: Record<'en' | 'zh', Translation> = {
       '未来将推出无需设置、一键部署的 SaaS 版本',
     ],
     contactTitle: '联系我们',
+    download: {
+      home: {
+        title: '下载中心',
+        description: '浏览托管于 dl.svc.plus 的离线安装包、发布版本和精选资源。',
+        stats: {
+          categories: '顶级分类',
+          collections: '资源集合',
+          files: '已收录文件',
+        },
+      },
+      browser: {
+        categoriesTitle: '分类',
+        allButton: '全部资源',
+        allHeading: '全部下载',
+        allDescription: '浏览所有离线安装包、发布版本和制品。',
+        collectionDescription: '当前展示 {{collection}} 分类下的资源。',
+        itemCount: {
+          singular: '{{count}} 项',
+          plural: '{{count}} 项',
+        },
+        empty: '当前分类暂时没有可下载的资源。',
+      },
+      cardGrid: {
+        sortUpdated: '按更新时间排序',
+        sortName: '按名称排序',
+        searchPlaceholder: '搜索',
+        updatedLabel: '更新于：',
+        itemsLabel: '数量：',
+      },
+      listing: {
+        notFound: '未找到对应的目录。',
+        headingDescription: '浏览 {{directory}} 目录下可用的下载内容和制品。',
+        stats: {
+          subdirectories: '子目录',
+          files: '文件',
+          lastUpdated: '最近更新',
+        },
+        collectionsTitle: '集合',
+        collectionsCount: {
+          singular: '{{count}} 个条目',
+          plural: '{{count}} 个条目',
+        },
+        empty: '该目录暂时没有可下载的内容。',
+        infoTitle: '目录信息',
+        infoPath: '路径',
+        infoSource: '来源',
+        infoNotice: '数据来源于 dl.svc.plus。',
+      },
+      fileTable: {
+        sortName: '名称',
+        sortUpdated: '更新时间',
+        sortSize: '大小',
+        filterPlaceholder: '按后缀过滤（如 .tar.gz）',
+        headers: {
+          name: '名称',
+          size: '大小',
+          updated: '更新时间',
+          actions: '操作',
+        },
+      },
+      copyButton: {
+        tooltip: '复制链接',
+      },
+      breadcrumbRoot: '下载',
+    },
   },
 }

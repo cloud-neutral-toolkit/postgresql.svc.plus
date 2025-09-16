@@ -1,5 +1,5 @@
-export function formatDate(date: string): string {
-  return new Date(date).toLocaleString()
+export function formatDate(date: string, locale?: string): string {
+  return new Date(date).toLocaleString(locale)
 }
 
 export function formatBytes(bytes: number): string {

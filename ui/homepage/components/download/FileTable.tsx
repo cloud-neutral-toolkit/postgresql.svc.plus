@@ -3,6 +3,8 @@
 import { useMemo, useState } from 'react'
 import Breadcrumbs, { Crumb } from './Breadcrumbs'
 import CopyButton from './CopyButton'
+import { useLanguage } from '@i18n/LanguageProvider'
+import { translations } from '@i18n/translations'
 import { formatBytes, formatDate } from '../../lib/format'
 import type { DirListing } from '../../types/download'
 
@@ -13,6 +15,10 @@ interface FileTableProps {
 }
 
 export default function FileTable({ listing, breadcrumb, showBreadcrumbs = true }: FileTableProps) {
+  const { language } = useLanguage()
+  const locale = language === 'zh' ? 'zh-CN' : 'en-US'
+  const t = translations[language].download.fileTable
+  const copyLabel = translations[language].download.copyButton.tooltip
   const [sort, setSort] = useState<'name' | 'lastModified' | 'size'>('name')
   const [ext, setExt] = useState('')
 
@@ -26,23 +32,23 @@ export default function FileTable({ listing, breadcrumb, showBreadcrumbs = true 
           case 'size':
             return (b.size || 0) - (a.size || 0)
           default:
-            return a.name.localeCompare(b.name)
+            return a.name.localeCompare(b.name, locale)
         }
       })
-  }, [listing.entries, sort, ext])
+  }, [listing.entries, sort, ext, locale])
 
   return (
     <div>
       {showBreadcrumbs && <Breadcrumbs items={breadcrumb} />}
       <div className="mb-2 flex flex-wrap gap-2">
         <select className="rounded border p-2" value={sort} onChange={(event) => setSort(event.target.value as any)}>
-          <option value="name">Name</option>
-          <option value="lastModified">Updated</option>
-          <option value="size">Size</option>
+          <option value="name">{t.sortName}</option>
+          <option value="lastModified">{t.sortUpdated}</option>
+          <option value="size">{t.sortSize}</option>
         </select>
         <input
           className="rounded border p-2"
-          placeholder="Filter ext (.tar.gz)"
+          placeholder={t.filterPlaceholder}
           value={ext}
           onChange={(event) => setExt(event.target.value)}
         />
@@ -50,10 +56,10 @@ export default function FileTable({ listing, breadcrumb, showBreadcrumbs = true 
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b">
-            <th className="py-2 text-left">Name</th>
-            <th className="w-24 py-2 text-left">Size</th>
-            <th className="w-48 py-2 text-left">Updated</th>
-            <th className="w-40 py-2 text-left">Actions</th>
+            <th className="py-2 text-left">{t.headers.name}</th>
+            <th className="w-24 py-2 text-left">{t.headers.size}</th>
+            <th className="w-48 py-2 text-left">{t.headers.updated}</th>
+            <th className="w-40 py-2 text-left">{t.headers.actions}</th>
           </tr>
         </thead>
         <tbody>
@@ -65,10 +71,10 @@ export default function FileTable({ listing, breadcrumb, showBreadcrumbs = true 
                 </a>
               </td>
               <td className="py-1">{formatBytes(item.size || 0)}</td>
-              <td className="py-1">{item.lastModified ? formatDate(item.lastModified) : '--'}</td>
+              <td className="py-1">{item.lastModified ? formatDate(item.lastModified, locale) : '--'}</td>
               <td className="py-1">
                 <div className="flex flex-wrap gap-2">
-                  <CopyButton text={`https://dl.svc.plus${item.href}`} />
+                  <CopyButton text={`https://dl.svc.plus${item.href}`} label={copyLabel} />
                 </div>
               </td>
             </tr>
