@@ -1,172 +1,185 @@
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
+import type { Metadata } from 'next'
+import { ExternalLink, FileText, Monitor, type LucideIcon } from 'lucide-react'
+
 import Breadcrumbs, { Crumb } from '../../../components/download/Breadcrumbs'
-import MarkdownPanel from '../../../components/download/MarkdownPanel'
 import { formatDate } from '../../../lib/format'
-import listings from '../../../public/dl-index/all.json'
-import type { DirListing } from '../../../types/download'
+import { docResources, getDocResource } from '../resources'
 
-interface DocFile {
-  path: string
-  href: string
-  title: string
-  segments: string[]
-  lastModified?: string
+type ViewMode = 'pdf' | 'html'
+
+interface ViewOption {
+  id: ViewMode
+  label: string
+  description: string
+  url: string
+  icon: LucideIcon
 }
 
-function formatSectionTitle(name: string): string {
-  return name
-    .split(/[-_]/g)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ')
+function normalizeViewParam(viewParam: string | string[] | undefined): ViewMode | undefined {
+  if (!viewParam) return undefined
+  const value = Array.isArray(viewParam) ? viewParam[0] : viewParam
+  if (value === 'pdf' || value === 'html') return value
+  return undefined
 }
 
-function collectDocFiles(listing: DirListing, all: DirListing[], base = ''): DocFile[] {
-  const files: DocFile[] = []
-  for (const entry of listing.entries) {
-    if (entry.type === 'file') {
-      const lower = entry.name.toLowerCase()
-      if (lower.endsWith('.md') || lower.endsWith('.mdx')) {
-        const relative = base ? `${base}/${entry.name}` : entry.name
-        const segments = relative
-          .split('/')
-          .map((segment) => segment.replace(/\.(md|mdx)$/i, ''))
-        files.push({
-          path: relative,
-          href: entry.href,
-          title: formatSectionTitle(segments[segments.length - 1]),
-          segments,
-          lastModified: entry.lastModified,
-        })
-      }
-    } else if (entry.type === 'dir') {
-      const child = all.find((l) => l.path === `${listing.path}${entry.name}/`)
-      if (child) {
-        const nextBase = base ? `${base}/${entry.name}` : entry.name
-        files.push(...collectDocFiles(child, all, nextBase))
-      }
-    }
-  }
-  return files.sort((a, b) => a.path.localeCompare(b.path))
-}
-
-function buildCrumbs(section: string, selected?: DocFile): Crumb[] {
-  const crumbs: Crumb[] = [
+function buildBreadcrumbs(slug: string, docTitle: string): Crumb[] {
+  return [
     { label: 'Docs', href: '/docs' },
-    { label: formatSectionTitle(section), href: `/docs/${section}` },
+    { label: docTitle, href: `/docs/${slug}` },
   ]
-
-  if (selected) {
-    const label = selected.segments.map((segment) => formatSectionTitle(segment)).join(' / ')
-    crumbs.push({ label, href: `/docs/${section}?file=${encodeURIComponent(selected.path)}` })
-  }
-
-  return crumbs
-}
-
-function normalizeFileParam(fileParam: string | string[] | undefined): string | undefined {
-  if (!fileParam) return undefined
-  if (Array.isArray(fileParam)) {
-    return fileParam[0]
-  }
-  return fileParam
 }
 
 export function generateStaticParams() {
-  const allListings = listings as DirListing[]
-  const docsRoot = allListings.find((l) => l.path === 'docs/')
-  if (!docsRoot) return [] as { name: string }[]
-  return docsRoot.entries
-    .filter((entry) => entry.type === 'dir')
-    .map((entry) => ({ name: entry.name }))
+  return docResources.map((doc) => ({ name: doc.slug }))
 }
 
-export const dynamic = 'force-dynamic'
+export function generateMetadata({ params }: { params: { name: string } }): Metadata {
+  const doc = getDocResource(params.name)
+  if (!doc) {
+    return { title: 'Documentation' }
+  }
+  return {
+    title: `${doc.title} | Documentation`,
+    description: doc.description,
+  }
+}
 
 export default function DocPage({
   params,
   searchParams,
 }: {
   params: { name: string }
-  searchParams?: { file?: string | string[] }
+  searchParams?: { view?: string | string[] }
 }) {
-  const allListings = listings as DirListing[]
-  const docListing = allListings.find((l) => l.path === `docs/${params.name}/`)
-
-  if (!docListing) {
-    return (
-      <main className="px-4 py-8">
-        <div className="max-w-3xl mx-auto text-center text-red-500">Documentation section not found.</div>
-      </main>
-    )
+  const doc = getDocResource(params.name)
+  if (!doc) {
+    notFound()
   }
 
-  const docFiles = collectDocFiles(docListing, allListings)
-  if (docFiles.length === 0) {
-    return (
-      <main className="px-4 py-8">
-        <div className="max-w-3xl mx-auto text-center text-gray-600">
-          This section does not contain any Markdown documents yet.
-        </div>
-      </main>
-    )
+  const viewOptions: ViewOption[] = []
+  if (doc.pdfUrl) {
+    viewOptions.push({
+      id: 'pdf',
+      label: 'PDF',
+      description: 'Best for printing and full fidelity diagrams.',
+      url: doc.pdfUrl,
+      icon: FileText,
+    })
+  }
+  if (doc.htmlUrl) {
+    viewOptions.push({
+      id: 'html',
+      label: 'HTML',
+      description: 'Responsive reader mode optimised for browsers.',
+      url: doc.htmlUrl,
+      icon: Monitor,
+    })
   }
 
-  const selectedPath = normalizeFileParam(searchParams?.file)
-  const selected = selectedPath ? docFiles.find((file) => file.path === selectedPath) : docFiles[0]
-  const active = selected ?? docFiles[0]
-  const crumbs = buildCrumbs(params.name, active)
+  const normalizedView = normalizeViewParam(searchParams?.view)
+  const activeView = viewOptions.find((view) => view.id === normalizedView) ?? viewOptions[0]
+
+  const breadcrumbs = buildBreadcrumbs(doc.slug, doc.title)
+  const ActiveIcon = activeView?.icon
 
   return (
     <main className="px-4 py-8 md:px-8">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 lg:flex-row">
-        <aside className="lg:w-64">
-          <div className="sticky top-24 rounded-2xl border p-4 shadow-sm">
-            <h2 className="text-lg font-semibold">Contents</h2>
-            <ul className="mt-4 space-y-2 text-sm">
-              {docFiles.map((file) => {
-                const depth = Math.max(0, file.segments.length - 1)
-                const isActive = file.path === active.path
-                return (
-                  <li key={file.path}>
-                    <Link
-                      href={`/docs/${params.name}?file=${encodeURIComponent(file.path)}`}
-                      className={`block rounded px-2 py-1 transition-colors ${
-                        isActive ? 'bg-purple-100 text-purple-700' : 'hover:bg-gray-100'
-                      }`}
-                      style={{ paddingLeft: `${depth * 12 + 8}px` }}
-                    >
-                      <div className="font-medium">{file.title}</div>
-                      {file.segments.length > 1 && (
-                        <div className="text-xs text-gray-500">
-                          {file.segments
-                            .slice(0, -1)
-                            .map((segment) => formatSectionTitle(segment))
-                            .join(' / ')}
-                        </div>
-                      )}
-                    </Link>
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
-        </aside>
-        <div className="flex-1 space-y-4">
-          <Breadcrumbs items={crumbs} />
-          <div className="rounded-2xl border p-4 shadow-sm">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <h1 className="text-2xl font-bold">
-                {active.segments.map((segment) => formatSectionTitle(segment)).join(' / ')}
-              </h1>
-              {active.lastModified && (
-                <span className="text-xs text-gray-500">
-                  Updated {formatDate(active.lastModified)}
-                </span>
+      <div className="mx-auto flex max-w-6xl flex-col gap-6">
+        <Breadcrumbs items={breadcrumbs} />
+
+        <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div className="space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">
+                {doc.category || 'Documentation'} {doc.version ? `• ${doc.version}` : ''}
+              </p>
+              <h1 className="text-3xl font-bold text-gray-900 md:text-4xl">{doc.title}</h1>
+              <p className="max-w-3xl text-sm text-gray-600 md:text-base">{doc.description}</p>
+              {doc.tags && doc.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {doc.tags.map((tag) => (
+                    <span key={tag} className="rounded-full bg-purple-50 px-3 py-1 text-xs font-medium text-purple-700">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               )}
             </div>
+            <div className="flex flex-col items-start gap-2 text-sm text-gray-500 md:items-end">
+              {doc.updatedAt && <span>Updated {formatDate(doc.updatedAt)}</span>}
+              {doc.estimatedMinutes && <span>Approx. {doc.estimatedMinutes} minute read</span>}
+            </div>
           </div>
-          <MarkdownPanel url={`https://dl.svc.plus${active.href}`} title={active.title} />
-        </div>
+
+          {viewOptions.length > 0 && (
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              {viewOptions.map((view) => {
+                const isActive = activeView?.id === view.id
+                const Icon = view.icon
+                return (
+                  <Link
+                    key={view.id}
+                    href={`/docs/${doc.slug}?view=${view.id}`}
+                    className={`flex items-start gap-3 rounded-2xl border p-4 transition hover:border-purple-400 hover:shadow ${
+                      isActive ? 'border-purple-500 bg-purple-50/60 shadow' : 'border-gray-200'
+                    }`}
+                  >
+                    <div
+                      className={`flex h-8 w-8 items-center justify-center rounded-full ${
+                        isActive ? 'bg-purple-600 text-white' : 'bg-purple-100 text-purple-600'
+                      }`}
+                    >
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                        {view.label}
+                        {isActive && <span className="text-xs font-medium text-purple-600">Selected</span>}
+                      </div>
+                      <p className="text-xs text-gray-600">{view.description}</p>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          )}
+
+          {activeView && (
+            <div className="mt-6 flex flex-wrap items-center gap-3 text-sm">
+              {ActiveIcon && (
+                <span className="inline-flex items-center gap-2 rounded-full bg-purple-100 px-4 py-2 font-medium text-purple-700">
+                  <ActiveIcon className="h-4 w-4 text-purple-600" />
+                  {activeView.label} view selected
+                </span>
+              )}
+              <a
+                href={activeView.url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-purple-400 hover:text-purple-600"
+              >
+                <ExternalLink className="h-4 w-4" /> Open in new tab
+              </a>
+            </div>
+          )}
+        </section>
+
+        <section className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
+          {activeView ? (
+            <iframe
+              key={activeView.id}
+              src={activeView.url}
+              className="h-[80vh] w-full"
+              title={`${doc.title} (${activeView.label})`}
+            />
+          ) : (
+            <div className="p-10 text-center text-gray-500">
+              This resource does not provide an embeddable format yet. Use the download buttons above instead.
+            </div>
+          )}
+        </section>
       </div>
     </main>
   )
