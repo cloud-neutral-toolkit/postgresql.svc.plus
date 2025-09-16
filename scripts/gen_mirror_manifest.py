@@ -2,11 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-Generate mirror metadata for the ui/dl static download portal.
+Generate manifest metadata for the ui/dl static download portal.
 
-- Writes <root>/manifest.json
-- Writes <dir>/dir.json for every directory, recursively
-- Writes <root>/all.json aggregating all dir listings for homepage builds
+- Writes <root>/manifest.json aggregating directory listings (formerly all.json)
 
 Paths in JSON use leading "/" (URL-style) and directory hrefs end with "/".
 `sha256` for an item is set if a sibling "<file>.sha256sum" exists, or if the
@@ -15,7 +13,8 @@ directory contains "SHA256SUMS" (then that path is referenced).
 Usage:
   python3 scripts/gen_mirror_manifest.py \
     --root /data/update-server \
-    --base-url-prefix /
+    --base-url-prefix / \
+    [--exclude docs --exclude xray-core]
 
 This script is idempotent and safe to re-run.
 """
@@ -26,17 +25,7 @@ import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
-
-# Heuristic summaries for top-level buckets (optional sugar)
-SUMMARY_OVERRIDES = {
-    "offline-package": "Offline installers & air-gapped bundles",
-    "xray-core": "Xray-core releases",
-    "xstream": "XStream app releases (multi-platform)",
-    "otel": "OpenTelemetry collectors & tools",
-    "deb": "Debian packages",
-    "rpm": "RPM packages",
-}
+from typing import Dict, List, Optional, Set
 
 HIDE_NAMES = {".git", ".github", ".DS_Store"}
 
@@ -92,59 +81,47 @@ def guess_sha256_path(dir_path: Path, file_path: Path, root: Path, base_prefix: 
         return rel_url(root, sums2, base_prefix)
     return None
 
-def build_dir_json(dir_path: Path, root: Path, base_prefix: str) -> Dict:
-    # Path string with leading slash and trailing slash
-    path_str = rel_url(root, dir_path, base_prefix)
-    # Detect TLDR/README if present
-    tldr = dir_path / "tldr.md"
-    readme = dir_path / "README.md"
-    tldr_url = rel_url(root, tldr, base_prefix) if tldr.exists() else None
-    readme_url = rel_url(root, readme, base_prefix) if readme.exists() else None
+def should_exclude(path: Path, excluded: Set[Path]) -> bool:
+    if not excluded:
+        return False
+    resolved = path.resolve(strict=False)
+    for base in excluded:
+        if resolved == base:
+            return True
+        if base in resolved.parents:
+            return True
+    return False
 
-    # Items: include files and subdirs (non-hidden)
-    items: List[Dict] = []
-    try:
-        children = sorted([p for p in dir_path.iterdir() if not is_hidden(p.name)], key=lambda p: (p.is_file(), p.name))
-    except FileNotFoundError:
-        children = []
 
-    for child in children:
-        if child.name in METADATA_FILES:
+def normalize_excludes(raw_values: List[str], root: Path) -> Set[Path]:
+    normalized: Set[Path] = set()
+    for raw in raw_values:
+        if not raw:
             continue
-        if child.is_dir():
-            items.append({
-                "name": child.name + "/",
-                "updated_at": iso8601(latest_mtime(child)),
-                "href": rel_url(root, child, base_prefix),
-                "dir": True
-            })
-        elif child.is_file():
-            # file item
-            item = {
-                "name": child.name,
-                "size": child.stat().st_size,
-                "updated_at": iso8601(child.stat().st_mtime),
-                "href": rel_url(root, child, base_prefix),
-            }
-            sha = guess_sha256_path(dir_path, child, root, base_prefix)
-            if sha:
-                item["sha256"] = sha
-            items.append(item)
-
-    payload = {
-        "path": path_str,
-        "updated_at": iso8601(latest_mtime(dir_path)),
-        "items": items
-    }
-    if tldr_url:
-        payload["tldr"] = tldr_url
-    if readme_url:
-        payload["readme"] = readme_url
-    return payload
+        text = raw.strip()
+        if not text:
+            continue
+        candidate_path = Path(text)
+        if candidate_path.is_absolute():
+            resolved = candidate_path.resolve(strict=False)
+        else:
+            cleaned = text.strip("/")
+            relative = Path(cleaned) if cleaned else Path(".")
+            resolved = (root / relative).resolve(strict=False)
+        try:
+            resolved.relative_to(root)
+        except ValueError:
+            print(
+                f"Warning: exclude path '{raw}' is outside mirror root {root}, ignoring",
+                file=sys.stderr,
+            )
+            continue
+        normalized.add(resolved)
+    return normalized
 
 
-def build_dir_listing(dir_path: Path, root: Path, base_prefix: str) -> Dict:
-    """Build a DirListing structure for all.json."""
+def build_dir_listing(dir_path: Path, root: Path, base_prefix: str, excluded: Set[Path]) -> Dict:
+    """Build a DirListing structure for the manifest."""
     rel = str(dir_path.relative_to(root)).replace(os.sep, "/")
     if rel == ".":
         rel = ""
@@ -161,6 +138,8 @@ def build_dir_listing(dir_path: Path, root: Path, base_prefix: str) -> Dict:
 
     for child in children:
         if child.name in METADATA_FILES:
+            continue
+        if should_exclude(child, excluded):
             continue
         href = rel_url(root, child, base_prefix)
         if child.is_dir():
@@ -187,35 +166,6 @@ def build_dir_listing(dir_path: Path, root: Path, base_prefix: str) -> Dict:
 
     return {"path": rel, "entries": entries}
 
-def top_level_roots(root: Path) -> List[Path]:
-    # Consider top-level directories that are not hidden and not the UI output
-    candidates: List[Path] = []
-    for p in sorted(root.iterdir()):
-        if not p.is_dir():
-            continue
-        if is_hidden(p.name):
-            continue
-        # common build dirs to skip (keep it conservative)
-        if p.name in {"out", "ui", "node_modules"}:
-            continue
-        candidates.append(p)
-    return candidates
-
-def summarize_bucket(name: str) -> str:
-    return SUMMARY_OVERRIDES.get(name, f"{name} artifacts")
-
-def count_items_for_manifest(dir_path: Path) -> int:
-    # Count immediate visible children (files + dirs), excluding metadata files
-    try:
-        children = [
-            p
-            for p in dir_path.iterdir()
-            if not is_hidden(p.name) and p.name not in METADATA_FILES
-        ]
-    except FileNotFoundError:
-        return 0
-    return len(children)
-
 def write_json(path: Path, data: Dict):
     tmp = path.with_suffix(path.suffix + ".tmp")
     with tmp.open("w", encoding="utf-8") as f:
@@ -228,6 +178,12 @@ def main():
     ap.add_argument("--root", required=True, help="Filesystem root of the mirror (e.g., /data/update-server)")
     ap.add_argument("--base-url-prefix", default="/", help="URL prefix (default '/')")
     ap.add_argument("--quiet", action="store_true")
+    ap.add_argument(
+        "--exclude",
+        action="append",
+        default=[],
+        help="Relative paths (from root) to exclude from the manifest. Can be provided multiple times.",
+    )
     args = ap.parse_args()
 
     root = Path(args.root).resolve()
@@ -235,47 +191,39 @@ def main():
         print(f"Root does not exist: {root}", file=sys.stderr)
         sys.exit(2)
 
-    # 1) Build dir.json and collect listings for every directory
+    excluded = normalize_excludes(args.exclude, root)
+
+    # Build listings for every directory that is not excluded
     listings: List[Dict] = []
-    for current_dir, subdirs, files in os.walk(root):
+    for current_dir, subdirs, _ in os.walk(root):
         dir_path = Path(current_dir)
         # Skip hidden dirs
-        if is_hidden(dir_path.name) and dir_path != root:
+        if dir_path != root and is_hidden(dir_path.name):
+            subdirs[:] = []
             continue
-        payload = build_dir_json(dir_path, root, args.base_url_prefix)
-        out_path = dir_path / "dir.json"
-        write_json(out_path, payload)
-        listings.append(build_dir_listing(dir_path, root, args.base_url_prefix))
+        if should_exclude(dir_path, excluded):
+            subdirs[:] = []
+            continue
+
+        pruned_subdirs = [
+            d
+            for d in subdirs
+            if not is_hidden(d) and not should_exclude(dir_path / d, excluded)
+        ]
+        pruned_subdirs.sort()
+        subdirs[:] = pruned_subdirs
+
+        listings.append(
+            build_dir_listing(dir_path, root, args.base_url_prefix, excluded)
+        )
         if not args.quiet:
-            print(f"Wrote {out_path}")
+            rel_display = "." if dir_path == root else str(dir_path.relative_to(root))
+            print(f"Indexed {rel_display}")
 
-    # 2) Build manifest.json at root
-    roots = top_level_roots(root)
-    roots_payload = []
-    for r in roots:
-        href = rel_url(root, r, args.base_url_prefix)
-        if not href.endswith("/"):
-            href += "/"
-        roots_payload.append({
-            "name": r.name,
-            "href": href,
-            "updated_at": iso8601(latest_mtime(r)),
-            "item_count": count_items_for_manifest(r),
-            "summary": summarize_bucket(r.name),
-        })
-
-    manifest = {
-        "generated_at": iso8601(datetime.now(timezone.utc).timestamp()),
-        "roots": roots_payload
-    }
-    write_json(root / "manifest.json", manifest)
+    # Write manifest.json containing directory listings (previously all.json)
+    write_json(root / "manifest.json", listings)
     if not args.quiet:
         print(f"Wrote {root / 'manifest.json'}")
-
-    # 3) Build all.json at root for homepage builds
-    write_json(root / "all.json", listings)
-    if not args.quiet:
-        print(f"Wrote {root / 'all.json'}")
 
 if __name__ == "__main__":
     main()
