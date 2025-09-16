@@ -6,43 +6,37 @@
         "name": "deb/",
         "href": "/deb/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:21:39Z"
-      },
-      {
-        "name": "docs/",
-        "href": "/docs/",
-        "type": "dir",
-        "lastModified": "2025-09-15T12:13:17Z"
+        "lastModified": "2025-07-29T05:17:40Z"
       },
       {
         "name": "offline-package/",
         "href": "/offline-package/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:21:44Z"
+        "lastModified": "2025-09-14T12:49:17Z"
       },
       {
         "name": "otel/",
         "href": "/otel/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:21:46Z"
+        "lastModified": "2025-09-03T08:18:36Z"
       },
       {
         "name": "rpm/",
         "href": "/rpm/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:21:47Z"
+        "lastModified": "2025-07-29T05:17:40Z"
       },
       {
         "name": "xray-core/",
         "href": "/xray-core/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:21:51Z"
+        "lastModified": "2025-09-01T02:36:59Z"
       },
       {
         "name": "xstream/",
         "href": "/xstream/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:22:03Z"
+        "lastModified": "2025-08-15T06:26:59Z"
       }
     ]
   },
@@ -59,41 +53,37 @@
     ]
   },
   {
-    "path": "docs/",
-    "entries": []
-  },
-  {
     "path": "offline-package/",
     "entries": [
       {
         "name": "apisix-gateway/",
         "href": "/offline-package/apisix-gateway/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:21:40Z"
+        "lastModified": "2025-09-14T12:49:17Z"
       },
       {
         "name": "k3s/",
         "href": "/offline-package/k3s/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:21:41Z"
+        "lastModified": "2025-09-14T10:13:38Z"
       },
       {
         "name": "kong-gateway/",
         "href": "/offline-package/kong-gateway/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:21:42Z"
+        "lastModified": "2025-09-14T12:17:41Z"
       },
       {
         "name": "nginx-ingress/",
         "href": "/offline-package/nginx-ingress/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:21:43Z"
+        "lastModified": "2025-09-14T11:18:37Z"
       },
       {
         "name": "sealos/",
         "href": "/offline-package/sealos/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:21:44Z"
+        "lastModified": "2025-09-14T11:03:05Z"
       }
     ]
   },
@@ -255,7 +245,7 @@
         "name": "OpenTelemetry/",
         "href": "/otel/OpenTelemetry/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:21:46Z"
+        "lastModified": "2025-09-03T08:18:36Z"
       }
     ]
   },
@@ -266,7 +256,7 @@
         "name": "v0.133.0/",
         "href": "/otel/OpenTelemetry/v0.133.0/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:21:46Z"
+        "lastModified": "2025-09-03T08:19:08Z"
       }
     ]
   },
@@ -314,19 +304,19 @@
         "name": "v25.8.29/",
         "href": "/xray-core/v25.8.29/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:21:49Z"
+        "lastModified": "2025-08-30T02:27:32Z"
       },
       {
         "name": "v25.8.3/",
         "href": "/xray-core/v25.8.3/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:21:49Z"
+        "lastModified": "2025-08-15T05:27:05Z"
       },
       {
         "name": "v25.8.31/",
         "href": "/xray-core/v25.8.31/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:21:51Z"
+        "lastModified": "2025-09-01T02:37:13Z"
       }
     ]
   },
@@ -415,31 +405,31 @@
         "name": "android/",
         "href": "/xstream/android/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:21:53Z"
+        "lastModified": "2025-08-04T06:26:15Z"
       },
       {
         "name": "ios/",
         "href": "/xstream/ios/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:21:55Z"
+        "lastModified": "2025-08-04T06:26:20Z"
       },
       {
         "name": "linux/",
         "href": "/xstream/linux/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:21:57Z"
+        "lastModified": "2025-08-15T06:26:54Z"
       },
       {
         "name": "macos/",
         "href": "/xstream/macos/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:22:00Z"
+        "lastModified": "2025-08-15T06:26:57Z"
       },
       {
         "name": "windows/",
         "href": "/xstream/windows/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:22:03Z"
+        "lastModified": "2025-08-15T07:57:10Z"
       }
     ]
   },
@@ -450,7 +440,7 @@
         "name": "latest/",
         "href": "/xstream/android/latest/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:21:53Z"
+        "lastModified": "2025-08-04T06:26:24Z"
       }
     ]
   },
@@ -473,7 +463,7 @@
         "name": "latest/",
         "href": "/xstream/ios/latest/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:21:55Z"
+        "lastModified": "2025-08-04T06:26:30Z"
       }
     ]
   },
@@ -496,13 +486,13 @@
         "name": "latest/",
         "href": "/xstream/linux/latest/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:21:56Z"
+        "lastModified": "2025-08-04T06:26:25Z"
       },
       {
         "name": "stable/",
         "href": "/xstream/linux/stable/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:21:57Z"
+        "lastModified": "2025-08-15T06:27:05Z"
       }
     ]
   },
@@ -537,19 +527,19 @@
         "name": "docs/",
         "href": "/xstream/macos/docs/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:21:58Z"
+        "lastModified": "2025-07-30T05:23:59Z"
       },
       {
         "name": "latest/",
         "href": "/xstream/macos/latest/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:21:59Z"
+        "lastModified": "2025-08-04T06:26:26Z"
       },
       {
         "name": "stable/",
         "href": "/xstream/macos/stable/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:22:00Z"
+        "lastModified": "2025-08-15T06:27:07Z"
       }
     ]
   },
@@ -595,25 +585,25 @@
         "name": "latest/",
         "href": "/xstream/windows/latest/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:22:02Z"
+        "lastModified": "2025-08-04T06:26:26Z"
       },
       {
         "name": "stable/",
         "href": "/xstream/windows/stable/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:22:02Z"
+        "lastModified": "2025-08-15T06:27:09Z"
       },
       {
         "name": "win10/",
         "href": "/xstream/windows/win10/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:22:03Z"
+        "lastModified": "2025-08-15T07:57:09Z"
       },
       {
         "name": "win11/",
         "href": "/xstream/windows/win11/",
         "type": "dir",
-        "lastModified": "2025-09-15T10:22:03Z"
+        "lastModified": "2025-08-15T07:57:10Z"
       }
     ]
   },
