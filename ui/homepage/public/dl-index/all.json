@@ -1,0 +1,189 @@
+[
+  {
+    "path": "",
+    "entries": [
+      {
+        "name": "offline-package",
+        "href": "/offline-package/",
+        "type": "dir",
+        "lastModified": "2024-07-01T12:00:00Z"
+      },
+      {
+        "name": "utilities",
+        "href": "/utilities/",
+        "type": "dir",
+        "lastModified": "2024-06-15T10:00:00Z"
+      },
+      {
+        "name": "docs",
+        "href": "/docs/",
+        "type": "dir",
+        "lastModified": "2024-05-10T08:00:00Z"
+      }
+    ]
+  },
+  {
+    "path": "offline-package/",
+    "entries": [
+      {
+        "name": "k3s",
+        "href": "/offline-package/k3s/",
+        "type": "dir",
+        "lastModified": "2024-07-01T12:00:00Z"
+      },
+      {
+        "name": "rke2",
+        "href": "/offline-package/rke2/",
+        "type": "dir",
+        "lastModified": "2024-06-20T09:00:00Z"
+      },
+      {
+        "name": "bundle-readme.md",
+        "href": "/offline-package/bundle-readme.md",
+        "type": "file",
+        "size": 2048,
+        "lastModified": "2024-05-01T00:00:00Z"
+      }
+    ]
+  },
+  {
+    "path": "offline-package/k3s/",
+    "entries": [
+      {
+        "name": "v1.28.0",
+        "href": "/offline-package/k3s/v1.28.0/",
+        "type": "dir",
+        "lastModified": "2024-07-01T12:00:00Z"
+      },
+      {
+        "name": "v1.27.0",
+        "href": "/offline-package/k3s/v1.27.0/",
+        "type": "dir",
+        "lastModified": "2024-06-10T12:00:00Z"
+      },
+      {
+        "name": "k3s-offline.tar.gz",
+        "href": "/offline-package/k3s/k3s-offline.tar.gz",
+        "type": "file",
+        "size": 524288000,
+        "lastModified": "2024-07-01T12:00:00Z",
+        "sha256": "/offline-package/k3s/sha256sum.txt"
+      }
+    ]
+  },
+  {
+    "path": "offline-package/k3s/v1.28.0/",
+    "entries": [
+      {
+        "name": "k3s-linux-amd64.tar.gz",
+        "href": "/offline-package/k3s/v1.28.0/k3s-linux-amd64.tar.gz",
+        "type": "file",
+        "size": 104857600,
+        "lastModified": "2024-07-01T12:00:00Z",
+        "sha256": "/offline-package/k3s/v1.28.0/sha256sum.txt"
+      },
+      {
+        "name": "k3s-windows.zip",
+        "href": "/offline-package/k3s/v1.28.0/k3s-windows.zip",
+        "type": "file",
+        "size": 209715200,
+        "lastModified": "2024-07-01T12:00:00Z"
+      }
+    ]
+  },
+  {
+    "path": "offline-package/k3s/v1.27.0/",
+    "entries": [
+      {
+        "name": "k3s-linux-amd64.tar.gz",
+        "href": "/offline-package/k3s/v1.27.0/k3s-linux-amd64.tar.gz",
+        "type": "file",
+        "size": 104857600,
+        "lastModified": "2024-06-10T12:00:00Z"
+      }
+    ]
+  },
+  {
+    "path": "offline-package/rke2/",
+    "entries": [
+      {
+        "name": "v1.27.0",
+        "href": "/offline-package/rke2/v1.27.0/",
+        "type": "dir",
+        "lastModified": "2024-06-20T09:00:00Z"
+      }
+    ]
+  },
+  {
+    "path": "offline-package/rke2/v1.27.0/",
+    "entries": [
+      {
+        "name": "rke2-linux-amd64.tar.gz",
+        "href": "/offline-package/rke2/v1.27.0/rke2-linux-amd64.tar.gz",
+        "type": "file",
+        "size": 157286400,
+        "lastModified": "2024-06-20T09:00:00Z"
+      }
+    ]
+  },
+  {
+    "path": "utilities/",
+    "entries": [
+      {
+        "name": "cluster-toolkit",
+        "href": "/utilities/cluster-toolkit/",
+        "type": "dir",
+        "lastModified": "2024-05-30T10:00:00Z"
+      },
+      {
+        "name": "diagnostic-bundle.zip",
+        "href": "/utilities/diagnostic-bundle.zip",
+        "type": "file",
+        "size": 31457280,
+        "lastModified": "2024-05-18T15:00:00Z"
+      }
+    ]
+  },
+  {
+    "path": "utilities/cluster-toolkit/",
+    "entries": [
+      {
+        "name": "README.md",
+        "href": "/utilities/cluster-toolkit/README.md",
+        "type": "file",
+        "size": 4096,
+        "lastModified": "2024-05-30T10:00:00Z"
+      },
+      {
+        "name": "cluster-toolkit-linux.tar.gz",
+        "href": "/utilities/cluster-toolkit/cluster-toolkit-linux.tar.gz",
+        "type": "file",
+        "size": 52428800,
+        "lastModified": "2024-05-30T10:00:00Z"
+      }
+    ]
+  },
+  {
+    "path": "docs/",
+    "entries": [
+      {
+        "name": "k3s",
+        "href": "/docs/k3s/",
+        "type": "dir",
+        "lastModified": "2024-06-01T00:00:00Z"
+      }
+    ]
+  },
+  {
+    "path": "docs/k3s/",
+    "entries": [
+      {
+        "name": "getting-started.md",
+        "href": "/docs/k3s/getting-started.md",
+        "type": "file",
+        "size": 8192,
+        "lastModified": "2024-06-01T00:00:00Z"
+      }
+    ]
+  }
+]

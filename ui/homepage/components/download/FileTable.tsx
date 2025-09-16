@@ -1,18 +1,24 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import CopyButton from './CopyButton'
+import { useMemo, useState } from 'react'
 import Breadcrumbs, { Crumb } from './Breadcrumbs'
+import CopyButton from './CopyButton'
 import { formatBytes, formatDate } from '../../lib/format'
 import type { DirListing } from '../../types/download'
 
-export default function FileTable({ listing, breadcrumb }: { listing: DirListing; breadcrumb: Crumb[] }) {
+interface FileTableProps {
+  listing: DirListing
+  breadcrumb: Crumb[]
+  showBreadcrumbs?: boolean
+}
+
+export default function FileTable({ listing, breadcrumb, showBreadcrumbs = true }: FileTableProps) {
   const [sort, setSort] = useState<'name' | 'lastModified' | 'size'>('name')
   const [ext, setExt] = useState('')
 
   const filtered = useMemo(() => {
     return listing.entries
-      .filter((i) => !ext || i.name.endsWith(ext))
+      .filter((item) => !ext || item.name.toLowerCase().endsWith(ext.toLowerCase()))
       .sort((a, b) => {
         switch (sort) {
           case 'lastModified':
@@ -27,27 +33,27 @@ export default function FileTable({ listing, breadcrumb }: { listing: DirListing
 
   return (
     <div>
-      <Breadcrumbs items={breadcrumb} />
-      <div className="flex gap-2 mb-2">
-        <select className="border rounded p-2" value={sort} onChange={(e) => setSort(e.target.value as any)}>
+      {showBreadcrumbs && <Breadcrumbs items={breadcrumb} />}
+      <div className="mb-2 flex flex-wrap gap-2">
+        <select className="rounded border p-2" value={sort} onChange={(event) => setSort(event.target.value as any)}>
           <option value="name">Name</option>
           <option value="lastModified">Updated</option>
           <option value="size">Size</option>
         </select>
         <input
-          className="border rounded p-2"
+          className="rounded border p-2"
           placeholder="Filter ext (.tar.gz)"
           value={ext}
-          onChange={(e) => setExt(e.target.value)}
+          onChange={(event) => setExt(event.target.value)}
         />
       </div>
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b">
-            <th className="text-left py-2">Name</th>
-            <th className="text-left py-2 w-24">Size</th>
-            <th className="text-left py-2 w-48">Updated</th>
-            <th className="text-left py-2 w-32">Actions</th>
+            <th className="py-2 text-left">Name</th>
+            <th className="w-24 py-2 text-left">Size</th>
+            <th className="w-48 py-2 text-left">Updated</th>
+            <th className="w-40 py-2 text-left">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -59,13 +65,15 @@ export default function FileTable({ listing, breadcrumb }: { listing: DirListing
                 </a>
               </td>
               <td className="py-1">{formatBytes(item.size || 0)}</td>
-              <td className="py-1">{formatDate(item.lastModified || '')}</td>
-              <td className="py-1 flex gap-2">
-                <CopyButton text={`https://dl.svc.plus${item.href}`} />
-                <CopyButton text={`wget -c https://dl.svc.plus${item.href}`} />
-                {item.sha256 && (
-                  <CopyButton text={`wget -O - https://dl.svc.plus${item.sha256} | grep ${item.name} | sha256sum -c -`} />
-                )}
+              <td className="py-1">{item.lastModified ? formatDate(item.lastModified) : '--'}</td>
+              <td className="py-1">
+                <div className="flex flex-wrap gap-2">
+                  <CopyButton text={`https://dl.svc.plus${item.href}`} />
+                  <CopyButton text={`wget -c https://dl.svc.plus${item.href}`} />
+                  {item.sha256 && (
+                    <CopyButton text={`wget -O - https://dl.svc.plus${item.sha256} | grep ${item.name} | sha256sum -c -`} />
+                  )}
+                </div>
               </td>
             </tr>
           ))}
