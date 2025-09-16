@@ -1,10 +1,8 @@
 import DownloadBrowser from '../../components/download/DownloadBrowser'
 import { buildDownloadSections, countFiles, findListing } from '../../lib/download-data'
-import listings from '../../public/dl-index/all.json'
-import type { DirListing } from '../../types/download'
-
+import { getDownloadListings } from '../../lib/download-manifest'
 export default function DownloadHome() {
-  const allListings = listings as DirListing[]
+  const allListings = getDownloadListings()
   const sectionsMap = buildDownloadSections(allListings)
   const rootListing = findListing(allListings, [])
   const topLevelDirectories = rootListing?.entries.filter((entry) => entry.type === 'dir') ?? []

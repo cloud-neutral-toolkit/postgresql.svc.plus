@@ -9,13 +9,23 @@ interface DownloadBrowserProps {
 }
 
 export default function DownloadBrowser({ sectionsMap }: DownloadBrowserProps) {
-  const roots = useMemo(() => Object.keys(sectionsMap), [sectionsMap])
+  const roots = useMemo(
+    () =>
+      Object.keys(sectionsMap).sort((a, b) =>
+        formatSegmentLabel(a).localeCompare(formatSegmentLabel(b)),
+      ),
+    [sectionsMap],
+  )
   const [current, setCurrent] = useState<string>('all')
 
   const totalsByRoot = useMemo(() => {
     const totals: Record<string, number> = {}
     for (const root of roots) {
-      totals[root] = sectionsMap[root]?.length ?? 0
+      const entries = sectionsMap[root] ?? []
+      const hasChildren = entries.some((section) => section.key !== root)
+      totals[root] = hasChildren
+        ? entries.filter((section) => section.key !== root).length
+        : entries.length
     }
     return totals
   }, [roots, sectionsMap])
@@ -25,7 +35,13 @@ export default function DownloadBrowser({ sectionsMap }: DownloadBrowserProps) {
     [roots, sectionsMap],
   )
 
-  const sections = current === 'all' ? allSections : sectionsMap[current] ?? []
+  const rawSections = current === 'all' ? allSections : sectionsMap[current] ?? []
+  const sections =
+    current === 'all'
+      ? rawSections
+      : rawSections.some((section) => section.key !== current)
+        ? rawSections.filter((section) => section.key !== current)
+        : rawSections
 
   const activeLabel = current === 'all' ? 'All downloads' : formatSegmentLabel(current)
   const description =

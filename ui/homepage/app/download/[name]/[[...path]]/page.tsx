@@ -8,10 +8,10 @@ import {
   findListing,
   formatSegmentLabel,
 } from '../../../../lib/download-data'
-import listings from '../../../../public/dl-index/all.json'
+import { getDownloadListings } from '../../../../lib/download-manifest'
 import type { DirListing } from '../../../../types/download'
 
-const allListings = listings as DirListing[]
+const allListings = getDownloadListings()
 
 export function generateStaticParams() {
   return allListings
@@ -53,6 +53,8 @@ export default function DownloadListing({
 }) {
   const { name, path = [] } = params
   const segments = [name, ...path]
+    .map((segment) => segment.trim().replace(/\/+$/g, ''))
+    .filter((segment) => segment.length > 0)
   const listing = findListing(allListings, segments)
 
   if (!listing) {
