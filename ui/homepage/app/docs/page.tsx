@@ -1,8 +1,10 @@
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
 import { ArrowUpRight } from 'lucide-react'
 
 import { formatDate } from '../../lib/format'
 import { getDocResources } from './resources'
+import feature from './feature.config'
 
 function formatMeta({
   category,
@@ -21,6 +23,10 @@ function formatMeta({
 }
 
 export default async function DocsHome() {
+  if (!feature.enabled) {
+    notFound()
+  }
+
   const manifest = await getDocResources()
   const resources = [...manifest].sort((a, b) => {
     const aTime = a.updatedAt ? new Date(a.updatedAt).getTime() : 0

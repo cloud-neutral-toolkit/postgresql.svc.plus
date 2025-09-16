@@ -1,15 +1,12 @@
-"use client"
-import { useLanguage } from '@i18n/LanguageProvider'
-import { translations } from '@i18n/translations'
+import { notFound } from 'next/navigation'
+
+import feature from './feature.config'
+import DemoContent from './DemoContent'
 
 export default function DemoPage() {
-  const { language } = useLanguage()
-  const { account } = translations[language].nav
+  if (!feature.enabled) {
+    notFound()
+  }
 
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <h1 className="text-2xl font-bold">{account.demo}</h1>
-    </div>
-  )
+  return <DemoContent />
 }
-

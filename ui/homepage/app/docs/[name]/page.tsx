@@ -6,6 +6,7 @@ import { ExternalLink, FileText, Monitor, type LucideIcon } from 'lucide-react'
 import Breadcrumbs, { Crumb } from '../../../components/download/Breadcrumbs'
 import { formatDate } from '../../../lib/format'
 import { getDocResource, getDocResources } from '../resources'
+import feature from '../feature.config'
 
 type ViewMode = 'pdf' | 'html'
 
@@ -32,11 +33,19 @@ function buildBreadcrumbs(slug: string, docTitle: string): Crumb[] {
 }
 
 export async function generateStaticParams() {
+  if (!feature.enabled) {
+    return []
+  }
+
   const docs = await getDocResources()
   return docs.map((doc) => ({ name: doc.slug }))
 }
 
 export async function generateMetadata({ params }: { params: { name: string } }): Promise<Metadata> {
+  if (!feature.enabled) {
+    return { title: 'Documentation' }
+  }
+
   const doc = await getDocResource(params.name)
   if (!doc) {
     return { title: 'Documentation' }
@@ -54,6 +63,10 @@ export default async function DocPage({
   params: { name: string }
   searchParams?: { view?: string | string[] }
 }) {
+  if (!feature.enabled) {
+    notFound()
+  }
+
   const doc = await getDocResource(params.name)
   if (!doc) {
     notFound()

@@ -2,6 +2,8 @@ import 'server-only'
 
 import { cache } from 'react'
 
+import feature from './feature.config'
+
 export interface DocResource {
   slug: string
   title: string
@@ -150,10 +152,18 @@ function normalizeResource(item: RawDocResource): DocResource | null {
 }
 
 export async function getDocResources(): Promise<DocResource[]> {
+  if (!feature.enabled) {
+    return []
+  }
+
   return loadManifest()
 }
 
 export async function getDocResource(slug: string): Promise<DocResource | undefined> {
+  if (!feature.enabled) {
+    return undefined
+  }
+
   const resources = await loadManifest()
   return resources.find((doc) => doc.slug === slug)
 }

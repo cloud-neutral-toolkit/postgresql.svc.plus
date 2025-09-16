@@ -1,11 +1,11 @@
-"use client";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { notFound, redirect } from 'next/navigation'
+
+import feature from './feature.config'
 
 export default function RegisterPage() {
-  const router = useRouter();
-  useEffect(() => {
-    router.replace("/panel/ldp/users");
-  }, [router]);
-  return null;
+  if (!feature.enabled) {
+    notFound()
+  }
+
+  redirect('/panel/ldp/users')
 }
