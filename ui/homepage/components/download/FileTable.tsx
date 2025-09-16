@@ -69,10 +69,6 @@ export default function FileTable({ listing, breadcrumb, showBreadcrumbs = true 
               <td className="py-1">
                 <div className="flex flex-wrap gap-2">
                   <CopyButton text={`https://dl.svc.plus${item.href}`} />
-                  <CopyButton text={`wget -c https://dl.svc.plus${item.href}`} />
-                  {item.sha256 && (
-                    <CopyButton text={`wget -O - https://dl.svc.plus${item.sha256} | grep ${item.name} | sha256sum -c -`} />
-                  )}
                 </div>
               </td>
             </tr>
