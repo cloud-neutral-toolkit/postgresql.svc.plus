@@ -16,6 +16,7 @@ jobs:
       - name: Configure SSH
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_USER: ${{ secrets.VPS_USER }}
           VPS_HOST: ${{ secrets.VPS_HOST }}
         run: |
           set -euo pipefail
@@ -29,8 +30,8 @@ jobs:
           VPS_HOST: ${{ secrets.VPS_HOST }}
         run: |
           set -euo pipefail
-          ssh root@"$VPS_HOST" 'mkdir -p /scripts'
-          rsync -av scripts/gen_mirror_manifest.py root@"$VPS_HOST":/scripts/gen_mirror_manifest.py
+          ssh ${VPS_USER}@"$VPS_HOST" 'mkdir -p /scripts'
+          rsync -av scripts/gen_mirror_manifest.py ${VPS_USER}@"$VPS_HOST":/scripts/gen_mirror_manifest.py
 
       - name: Run generator on remote host
         env:
