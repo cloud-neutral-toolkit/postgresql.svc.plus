@@ -63,22 +63,31 @@ export default function FileTable({ listing, breadcrumb, showBreadcrumbs = true 
           </tr>
         </thead>
         <tbody>
-          {filtered.map((item) => (
-            <tr key={item.name} className="border-b last:border-0">
-              <td className="py-1">
-                <a href={item.href} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                  {item.name}
-                </a>
-              </td>
-              <td className="py-1">{formatBytes(item.size || 0)}</td>
-              <td className="py-1">{item.lastModified ? formatDate(item.lastModified, locale) : '--'}</td>
-              <td className="py-1">
-                <div className="flex flex-wrap gap-2">
-                  <CopyButton text={`https://dl.svc.plus${item.href}`} label={copyLabel} />
-                </div>
-              </td>
-            </tr>
-          ))}
+          {filtered.map((item) => {
+            const downloadUrl = item.href.startsWith('http') ? item.href : `https://dl.svc.plus${item.href}`
+
+            return (
+              <tr key={item.name} className="border-b last:border-0">
+                <td className="py-1">
+                  <a
+                    href={downloadUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                  >
+                    {item.name}
+                  </a>
+                </td>
+                <td className="py-1">{formatBytes(item.size || 0)}</td>
+                <td className="py-1">{item.lastModified ? formatDate(item.lastModified, locale) : '--'}</td>
+                <td className="py-1">
+                  <div className="flex flex-wrap gap-2">
+                    <CopyButton text={downloadUrl} label={copyLabel} />
+                  </div>
+                </td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>
