@@ -1,13 +1,19 @@
 'use client'
 import { useState } from 'react'
-import LanguageToggle from './LanguageToggle'
+import demoFeature from '../app/demo/feature.config'
+import docsFeature from '../app/docs/feature.config'
+import loginFeature from '../app/login/feature.config'
+import registerFeature from '../app/register/feature.config'
 import { useLanguage } from '../i18n/LanguageProvider'
 import { translations } from '../i18n/translations'
+import LanguageToggle from './LanguageToggle'
+import type { FeatureFlag } from '@lib/featureFlags'
 
 type NavSubItem = {
   key: string
   label: string
   href: string
+  feature?: FeatureFlag
 }
 
 type NavItem = {
@@ -59,6 +65,7 @@ export default function Navbar() {
           key: 'docs',
           label: nav.services.docs,
           href: '/docs',
+          feature: docsFeature,
         },
       ],
     },
@@ -70,20 +77,30 @@ export default function Navbar() {
           key: 'register',
           label: nav.account.register,
           href: '/register',
+          feature: registerFeature,
         },
         {
           key: 'login',
           label: nav.account.login,
           href: '/login',
+          feature: loginFeature,
         },
         {
           key: 'demo',
           label: nav.account.demo,
           href: '/demo',
+          feature: demoFeature,
         },
       ],
     },
   ]
+
+  const visibleNavItems: NavItem[] = navItems
+    .map((item) => ({
+      ...item,
+      children: item.children.filter((child) => child.feature?.defaultEnabled !== false),
+    }))
+    .filter((item) => item.children.length > 0)
 
   const toggleSection = (section: string) => {
     setOpenSection((prev) => (prev === section ? null : section))
@@ -99,7 +116,7 @@ export default function Navbar() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-6 text-sm text-gray-900">
-          {navItems.map((item) => {
+          {visibleNavItems.map((item) => {
             const dropdownPosition = item.key === 'account' ? 'right-0' : 'left-0'
             return (
               <div key={item.key} className="relative group">
@@ -167,7 +184,7 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {menuOpen && (
         <div className="md:hidden bg-white/95 backdrop-blur border-t border-gray-200 px-4 pb-4">
-          {navItems.map((item) => (
+          {visibleNavItems.map((item) => (
             <div key={item.key}>
               <button
                 onClick={() => toggleSection(item.key)}
