@@ -14,7 +14,7 @@ yarn dev
 
 ## 数据与配置
 
-- `lib/iac/catalog.ts`：维护九大类别的产品对照表与 IaC 模块元数据。
+- `lib/iac/catalog.ts`：维护十三大类别的产品对照表与 IaC 模块元数据。
 - `lib/iac/actions.ts`：封装触发 Terraform、Pulumi 与 GitHub Workflow 的占位实现，后续可替换为实际 API。
 - `components/iac/CloudIacCatalog.tsx`：渲染左侧筛选与右侧卡片网格，并处理弹窗交互。
 - `components/iac/RunModal.tsx`：运行确认弹窗，展示模块信息与 JSON 参数输入。
