@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import demoFeature from '../app/demo/feature.config'
 import docsFeature from '../app/docs/feature.config'
+import cloudIacFeature from '../app/cloud_iac/feature.config'
 import loginFeature from '../app/login/feature.config'
 import registerFeature from '../app/register/feature.config'
 import { useLanguage } from '../i18n/LanguageProvider'
@@ -60,6 +61,12 @@ export default function Navbar() {
           key: 'artifact',
           label: nav.services.artifact,
           href: '/download',
+        },
+        {
+          key: 'cloudIac',
+          label: nav.services.cloudIac,
+          href: '/cloud_iac',
+          feature: cloudIacFeature,
         },
         {
           key: 'docs',
