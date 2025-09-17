@@ -1,12 +1,10 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { ArrowRight, Search } from 'lucide-react'
 
 import type { CatalogItem, ProviderDefinition, ProviderKey } from '@lib/iac/types'
-
-type ProviderFilterKey = ProviderKey | 'all'
 
 type OverviewProps = {
   mode?: 'overview'
@@ -72,12 +70,31 @@ export default function CloudIacCatalog(props: CloudIacCatalogProps) {
   const isProviderMode = props.mode === 'provider'
   const activeProvider = isProviderMode ? props.activeProvider : undefined
 
-  const [overviewProvider, setOverviewProvider] = useState<ProviderFilterKey>('all')
+  const providerKeys = useMemo(() => providers.map((provider) => provider.key), [providers])
+  const [selectedProviders, setSelectedProviders] = useState<ProviderKey[]>(providerKeys)
+  useEffect(() => {
+    setSelectedProviders(providerKeys)
+  }, [providerKeys])
   const [searchTerm, setSearchTerm] = useState('')
 
-  const selectedProvider: ProviderFilterKey = isProviderMode
-    ? activeProvider ?? 'all'
-    : overviewProvider
+  const selectedProviderSet = useMemo(() => new Set(selectedProviders), [selectedProviders])
+  const isAllSelected = selectedProviders.length === providerKeys.length
+
+  function toggleProvider(key: ProviderKey) {
+    setSelectedProviders((previous) => {
+      const isSelected = previous.includes(key)
+      if (isSelected) {
+        if (previous.length === 1) {
+          return providerKeys
+        }
+        return previous.filter((item) => item !== key)
+      }
+
+      const nextSet = new Set(previous)
+      nextSet.add(key)
+      return providers.filter((provider) => nextSet.has(provider.key)).map((provider) => provider.key)
+    })
+  }
 
   const filteredCatalog = useMemo(() => {
     const query = searchTerm.trim().toLowerCase()
@@ -87,8 +104,11 @@ export default function CloudIacCatalog(props: CloudIacCatalogProps) {
         if (activeProvider && !item.products[activeProvider]) {
           return false
         }
-      } else if (selectedProvider !== 'all' && !item.products[selectedProvider]) {
-        return false
+      } else if (!isAllSelected) {
+        const matchesProvider = selectedProviders.some((provider) => Boolean(item.products[provider]))
+        if (!matchesProvider) {
+          return false
+        }
       }
 
       if (!query) {
@@ -98,7 +118,15 @@ export default function CloudIacCatalog(props: CloudIacCatalogProps) {
       const pool = buildSearchPool(item, providers, isProviderMode, activeProvider)
       return pool.some((value) => value.includes(query))
     })
-  }, [catalog, providers, searchTerm, selectedProvider, isProviderMode, activeProvider])
+  }, [
+    catalog,
+    providers,
+    searchTerm,
+    selectedProviders,
+    isAllSelected,
+    isProviderMode,
+    activeProvider,
+  ])
 
   const totalCategories = catalog.length
   const matchedCategories = filteredCatalog.length
@@ -108,12 +136,14 @@ export default function CloudIacCatalog(props: CloudIacCatalogProps) {
       const provider = providers.find((item) => item.key === activeProvider)
       return provider?.label ?? '未知云厂商'
     }
-    if (selectedProvider === 'all') {
+    if (isAllSelected) {
       return '全部云厂商'
     }
-    const provider = providers.find((item) => item.key === selectedProvider)
-    return provider?.label ?? '未知云厂商'
-  }, [providers, selectedProvider, isProviderMode, activeProvider])
+    const labels = providers
+      .filter((provider) => selectedProviderSet.has(provider.key))
+      .map((provider) => provider.label)
+    return labels.join('、') || '全部云厂商'
+  }, [providers, isProviderMode, activeProvider, isAllSelected, selectedProviderSet])
 
   return (
     <div className="grid gap-8 lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)]">
@@ -125,10 +155,10 @@ export default function CloudIacCatalog(props: CloudIacCatalogProps) {
             <div className="mt-4 flex flex-wrap gap-2">
               <button
                 type="button"
-                onClick={() => setOverviewProvider('all')}
-                aria-pressed={overviewProvider === 'all'}
+                onClick={() => setSelectedProviders(providerKeys)}
+                aria-pressed={isAllSelected}
                 className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${
-                  overviewProvider === 'all'
+                  isAllSelected
                     ? 'bg-purple-600 text-white shadow'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
@@ -139,10 +169,10 @@ export default function CloudIacCatalog(props: CloudIacCatalogProps) {
                 <button
                   key={provider.key}
                   type="button"
-                  onClick={() => setOverviewProvider(provider.key)}
-                  aria-pressed={overviewProvider === provider.key}
+                  onClick={() => toggleProvider(provider.key)}
+                  aria-pressed={selectedProviderSet.has(provider.key)}
                   className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${
-                    overviewProvider === provider.key
+                    selectedProviderSet.has(provider.key)
                       ? 'bg-purple-600 text-white shadow'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
@@ -253,7 +283,7 @@ export default function CloudIacCatalog(props: CloudIacCatalogProps) {
                     <div className="mt-auto space-y-2">
                       <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">厂商对照</p>
                       <div className="flex flex-wrap gap-2">
-                        {providers.map((provider) => {
+                        {(isAllSelected ? providers : providers.filter((provider) => selectedProviderSet.has(provider.key))).map((provider) => {
                           const product = item.products[provider.key]
                           if (!product) {
                             return null

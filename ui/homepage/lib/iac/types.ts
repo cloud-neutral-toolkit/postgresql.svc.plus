@@ -8,6 +8,7 @@ export type CategoryKey =
   | 'queue'
   | 'container'
   | 'data_service'
+  | 'security'
   | 'iam'
 
 export type ProviderKey = 'aws' | 'gcp' | 'azure' | 'aliyun'

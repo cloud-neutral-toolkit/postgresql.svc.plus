@@ -24,8 +24,8 @@ export default function CloudIacPage() {
           <p className="text-sm font-semibold uppercase tracking-wide text-purple-600">Cloud Automation</p>
           <h1 className="text-3xl font-bold text-gray-900 md:text-4xl">Cloud IaC Catalog</h1>
           <p className="max-w-3xl text-sm text-gray-600 md:text-base">
-            跨云厂商（AWS / GCP / Azure / 阿里云）的计算、网络、负载均衡、存储、数据库、缓存、队列、容器服务、数据服务、身份与访问管理等
-            核心能力汇总于此。先在概览页快速比对，再进入各云厂商目录与服务详情页配置 GitOps 同步与 IaC 执行流程。
+            跨云厂商（AWS / GCP / Azure / 阿里云）的计算、网络、负载均衡、存储、数据库、缓存、队列、容器服务、数据服务、安全防护、身份
+            与访问管理等核心能力汇总于此。先在概览页快速比对，再进入各云厂商目录与服务详情页配置 GitOps 同步与 IaC 执行流程。
           </p>
         </header>
 

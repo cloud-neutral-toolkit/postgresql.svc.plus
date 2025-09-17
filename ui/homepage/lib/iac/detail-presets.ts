@@ -81,6 +81,11 @@ const SPEC_PRESETS: Record<CategoryKey, SpecBuilder> = {
     { label: '核心节点数量', defaultValue: '3', description: '可根据作业并发和 SLA 调整集群规模。' },
     { label: '自动扩缩容', defaultValue: '启用', description: '按队列任务量动态扩缩计算资源。' },
   ],
+  security: () => [
+    { label: '入站规则', defaultValue: '允许 80 / 443', description: '开放 Web 流量并限制来源网段。' },
+    { label: '出站规则', defaultValue: '全部放行', description: '默认允许访问外部网络，可按需收紧策略。' },
+    { label: '日志与告警', defaultValue: '开启', description: '接入云监控与日志服务获取安全事件。' },
+  ],
   iam: () => [
     { label: '角色模板', defaultValue: '应用只读', description: '基于最小权限原则创建访问策略。' },
     { label: '多因子策略', defaultValue: '管理员必需', description: '高危操作账户需强制启用 MFA。' },
@@ -133,6 +138,11 @@ const RESOURCE_PRESETS: Record<CategoryKey, PreviewBuilder> = {
     { title: productName, description: 'Master/Worker 架构按需伸缩，支持按作业计费。' },
     { title: '数据湖集成', description: '默认挂载对象存储作为数据湖与结果输出。' },
     { title: 'Notebook & 作业入口', description: '提供交互式 Notebook、批处理作业与调度编排。' },
+  ],
+  security: ({ productName }) => [
+    { title: productName, description: '集中管理网络安全策略，统一入站与出站控制。' },
+    { title: '预置规则模板', description: '包含 Web、SSH、数据库等常见端口的安全策略。' },
+    { title: '日志与审计集成', description: '将安全事件推送到云原生日志与告警系统。' },
   ],
   iam: ({ productName }) => [
     { title: productName, description: '集中管理用户、角色与策略，统一访问控制。' },
@@ -187,6 +197,11 @@ const COST_PRESETS: Record<CategoryKey, CostBuilder> = {
     { title: '存储与快照', amount: '~$85', unit: '每月', description: '作业结果及日志在对象存储的占用。' },
     { title: '数据传输', amount: '~$40', unit: '每月', description: 'ETL 与跨区域同步产生的带宽。' },
   ],
+  security: () => [
+    { title: '安全策略管理', amount: '~$5', unit: '每月', description: '安全组 / 防火墙规则的基础管理费用。' },
+    { title: '日志与监控', amount: '~$3', unit: '每月', description: '安全事件写入日志服务与监控告警的成本。' },
+    { title: '合规加固', amount: '~$4', unit: '每月', description: '按需启用配置基线与漏洞扫描服务。' },
+  ],
   iam: () => [
     { title: '身份目录', amount: '~$6', unit: '每月', description: '用户、组与角色的基础管理成本。' },
     { title: '审计日志', amount: '~$3', unit: '每月', description: '审计事件写入与存储费用。' },
@@ -239,6 +254,11 @@ const OUTPUT_PRESETS: Record<CategoryKey, OutputBuilder> = {
     { title: 'Master 节点 DNS', value: 'emr-master.internal', description: '提交作业与 SSH 登录入口。' },
     { title: '数据湖路径', value: 's3://analytics-raw/', description: '默认数据输入输出位置。' },
     { title: 'Spark History Server', value: 'https://emr-history.example.com', description: '用于审计与调试历史任务。' },
+  ],
+  security: () => [
+    { title: '安全组 / 防火墙 ID', value: 'sg-0abc123456789def0', description: '用于后续资源绑定与变更。' },
+    { title: '允许的来源网段', value: '10.0.0.0/16, 203.0.113.0/24', description: '当前放行的内部与外部网段。' },
+    { title: '审计日志路径', value: 's3://security-logs/firewall/', description: '安全事件存储与分析位置。' },
   ],
   iam: () => [
     { title: '角色 ARN', value: 'arn:aws:iam::123456789012:role/app-readonly', description: '分配给应用服务的主角色。' },

@@ -47,7 +47,7 @@ export default function CloudIacProviderPage({ params }: { params: PageParams })
           <p className="text-sm font-semibold uppercase tracking-wide text-purple-600">{providerLabel} Catalog</p>
           <h1 className="text-3xl font-bold text-gray-900 md:text-4xl">核心服务目录</h1>
           <p className="max-w-3xl text-sm text-gray-600 md:text-base">
-            浏览 {providerLabel} 提供的计算、网络、负载均衡、存储、数据库、缓存、队列、容器服务、数据服务以及身份与访问管理能力，点击卡片进入服务详情配置 IaC 与 GitOps。
+            浏览 {providerLabel} 提供的计算、网络、负载均衡、存储、数据库、缓存、队列、容器服务、数据服务、安全防护以及身份与访问管理能力，点击卡片进入服务详情配置 IaC 与 GitOps。
           </p>
         </header>
 
