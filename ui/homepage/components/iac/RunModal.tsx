@@ -21,37 +21,54 @@ interface RunModalProps {
 }
 
 const ACTION_TITLES: Record<IaCTool, { title: string; description: string }> = {
-  terraform: {
-    title: '执行 Terraform 模块',
-    description: '将在所选工作空间中运行 Terraform Apply，并生成或更新基础设施资源。',
-  },
-  pulumi: {
-    title: '运行 Pulumi 程序',
-    description: '触发 Pulumi 堆栈更新，使用声明式组件驱动云资源部署。',
-  },
   githubWorkflow: {
     title: '触发 GitHub CI Workflow',
-    description: '通过 GitHub Actions 对接企业现有 CI/CD 管道，执行基础设施自动化。',
+    description: '通过 GitHub Actions 或兼容 API 提交 GitOps 任务，执行基础设施自动化。',
+  },
+  gitlabPipeline: {
+    title: '触发 GitLab CI Pipeline',
+    description: '调用 GitLab CI / CD 或兼容 API，驱动环境变更与基础设施部署。',
   },
 }
 
 function formatIdentifier(target: RunModalTarget | null): string {
   if (!target) return ''
-  if (target.action === 'terraform') return target.integration.terraform ?? ''
-  if (target.action === 'pulumi') return target.integration.pulumi ?? ''
-  return target.integration.githubWorkflow ?? ''
+  switch (target.action) {
+    case 'githubWorkflow':
+      return target.integration.githubWorkflow ?? ''
+    case 'gitlabPipeline':
+      return target.integration.gitlabPipeline ?? ''
+    default:
+      return ''
+  }
 }
 
 function buildDefaultParameters(target: RunModalTarget | null) {
   if (!target) return {}
-  if (target.integration.githubInputs && Object.keys(target.integration.githubInputs).length > 0) {
-    return target.integration.githubInputs
+
+  if (target.action === 'githubWorkflow') {
+    if (target.integration.githubInputs && Object.keys(target.integration.githubInputs).length > 0) {
+      return target.integration.githubInputs
+    }
+    return {
+      provider: target.provider,
+      category: target.category.key,
+      workflow_ref: `${target.provider}/${target.category.key}`,
+    }
   }
-  return {
-    provider: target.provider,
-    category: target.category.key,
-    workspace: `${target.provider}-${target.category.key}`,
+
+  if (target.action === 'gitlabPipeline') {
+    if (target.integration.gitlabVariables && Object.keys(target.integration.gitlabVariables).length > 0) {
+      return target.integration.gitlabVariables
+    }
+    return {
+      PROVIDER: target.provider,
+      CATEGORY: target.category.key,
+      PIPELINE_REF: `${target.provider}-${target.category.key}`,
+    }
   }
+
+  return {}
 }
 
 export default function RunModal({ open, target, onClose, onConfirm }: RunModalProps) {
@@ -150,7 +167,7 @@ export default function RunModal({ open, target, onClose, onConfirm }: RunModalP
                 {identifier}
               </code>
               <p className="mt-3 text-xs text-gray-500">
-                可在正式接入时替换为企业内部模块名称或 GitHub Workflow 路径。
+                可在正式接入时替换为企业内部的 GitHub Workflow / GitLab Pipeline 标识。
               </p>
             </div>
           )}

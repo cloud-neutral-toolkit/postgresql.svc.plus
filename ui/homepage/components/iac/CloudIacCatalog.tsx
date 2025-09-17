@@ -47,7 +47,7 @@ function buildSearchPool(
   }
 
   const integrationValues = Object.values(item.iac).flatMap((integration) =>
-    integration ? [integration.terraform, integration.pulumi, integration.githubWorkflow] : [],
+    integration ? [integration.githubWorkflow, integration.gitlabPipeline] : [],
   )
 
   const sanitized = integrationValues

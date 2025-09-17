@@ -20,10 +20,10 @@ export type ProviderDefinition = {
 
 export type IacIntegration = {
   detailSlug: string
-  terraform?: string
-  pulumi?: string
   githubWorkflow?: string
   githubInputs?: Record<string, any>
+  gitlabPipeline?: string
+  gitlabVariables?: Record<string, any>
 }
 
 export type CatalogItem = {
@@ -36,4 +36,4 @@ export type CatalogItem = {
   iac?: Partial<Record<ProviderKey, IacIntegration>>
 }
 
-export type IaCTool = 'terraform' | 'pulumi' | 'githubWorkflow'
+export type IaCTool = 'githubWorkflow' | 'gitlabPipeline'

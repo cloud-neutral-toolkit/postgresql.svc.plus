@@ -15,12 +15,7 @@ import {
   type PreviewItem,
   type SpecRow,
 } from '@lib/iac/detail-presets'
-import {
-  runPulumiProgram,
-  runTerraformModule,
-  triggerGithubWorkflow,
-  type ActionResult,
-} from '@lib/iac/actions'
+import { triggerGithubWorkflow, triggerGitlabPipeline, type ActionResult } from '@lib/iac/actions'
 import type { CatalogItem, IaCTool, IacIntegration, ProviderKey } from '@lib/iac/types'
 
 type GitOpsState = {
@@ -31,13 +26,17 @@ type GitOpsState = {
 }
 
 const ACTION_CONFIG: { key: IaCTool; label: string; helper: string; field: keyof IacIntegration }[] = [
-  { key: 'terraform', label: '运行 Terraform', helper: '使用标准模块执行基础设施变更。', field: 'terraform' },
-  { key: 'pulumi', label: '运行 Pulumi', helper: '通过组件化 IaC 同步配置。', field: 'pulumi' },
   {
     key: 'githubWorkflow',
-    label: '触发 GitHub CI',
-    helper: '将变更提交到 GitOps 工作流中执行。',
+    label: '触发 GitHub CI Workflow',
+    helper: '将变更提交至 GitHub Actions 或兼容 API 的 GitOps 工作流。',
     field: 'githubWorkflow',
+  },
+  {
+    key: 'gitlabPipeline',
+    label: '触发 GitLab CI Pipeline',
+    helper: '通过 GitLab CI / CD 或兼容 API 执行基础设施部署。',
+    field: 'gitlabPipeline',
   },
 ]
 
@@ -100,12 +99,10 @@ export default function ServiceDetailView({
     }
 
     switch (modalTarget.action) {
-      case 'terraform':
-        return runTerraformModule({ provider: providerKey, category, module: integration.terraform!, parameters })
-      case 'pulumi':
-        return runPulumiProgram({ provider: providerKey, category, component: integration.pulumi!, parameters })
       case 'githubWorkflow':
         return triggerGithubWorkflow({ provider: providerKey, category, workflow: integration.githubWorkflow!, parameters })
+      case 'gitlabPipeline':
+        return triggerGitlabPipeline({ provider: providerKey, category, pipeline: integration.gitlabPipeline!, parameters })
       default:
         throw new Error('Unsupported action')
     }
