@@ -8,7 +8,7 @@ import Footer from '@components/Footer'
 import Navbar from '@components/Navbar'
 import { AskAIButton } from '@components/AskAIButton'
 
-export default function Page() {
+export default function HomePage() {
   return (
     <>
         <Navbar />
