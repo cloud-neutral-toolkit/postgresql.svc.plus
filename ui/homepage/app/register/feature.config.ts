@@ -5,7 +5,7 @@ const feature = createFeatureFlag({
   title: 'Account Registration Redirect',
   description: 'Routes visitors to the Light IDP user management surface',
   envVar: 'NEXT_PUBLIC_FEATURE_REGISTER',
-  defaultEnabled: false,
+  defaultEnabled: true,
 })
 
 export default feature

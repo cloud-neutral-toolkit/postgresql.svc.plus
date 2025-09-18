@@ -1,9 +1,0 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-html,
-body {
-  @apply h-full text-gray-800;
-  font-family: 'Inter', sans-serif;
-}
