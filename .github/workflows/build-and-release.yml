@@ -4,6 +4,21 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      deploy_action:
+        description: "Deployment action to execute"
+        type: choice
+        options:
+          - init
+          - magrate
+          - upgrade
+          - backup-rollout
+          - destroy
+        default: upgrade
+      deploy_dry_run:
+        description: "Run deployment steps in dry-run mode"
+        type: boolean
+        default: true
 
 jobs:
   build-go:
@@ -95,26 +110,12 @@ jobs:
         working-directory: ui/homepage
         run: yarn build:static
 
-      - name: Sync static bundle via rsync
+      - name: Upload homepage static bundle artifact
         if: github.ref == 'refs/heads/main'
-        env:
-          STATIC_EXPORT_SSH_KEY: ${{ secrets.STATIC_EXPORT_SSH_KEY }}
-          STATIC_EXPORT_HOST: ${{ secrets.STATIC_EXPORT_HOST }}
-          STATIC_EXPORT_USER: ${{ secrets.STATIC_EXPORT_USER }}
-          STATIC_EXPORT_PATH: ${{ secrets.STATIC_EXPORT_PATH }}
-        working-directory: ui/homepage
-        run: |
-          set -euo pipefail
-          install -m 700 -d ~/.ssh
-          echo "$STATIC_EXPORT_SSH_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H "$STATIC_EXPORT_HOST" >> ~/.ssh/known_hosts
-          rsync -avz --delete ./out/ "${STATIC_EXPORT_USER}@${STATIC_EXPORT_HOST}:${STATIC_EXPORT_PATH}"
-
-      - name: Invalidate CloudFront cache
-        if: github.ref == 'refs/heads/main'
-        working-directory: ui/homepage
-        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
+        uses: actions/upload-artifact@v4
+        with:
+          name: homepage-static-export
+          path: ui/homepage/out
 
   deploy-panel:
     needs: release
@@ -126,17 +127,220 @@ jobs:
     uses: ./.github/workflows/update-mirror.yml
     secrets: inherit
 
-  deploy:
+  pre-setup:
     needs:
       - release
       - deploy-panel
       - update-mirror
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     strategy:
       matrix:
         site: [global-homepage.svc.plus, cn-homepage.svc.plus]
+    env:
+      DEPLOY_ACTION: ${{ github.event.inputs.deploy_action || 'upgrade' }}
+      DEPLOY_DRY_RUN: ${{ github.event.inputs.deploy_dry_run || 'true' }}
+      ANSIBLE_USER: ${{ secrets.VPS_USER }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Normalise deployment parameters
+        run: |
+          set -euo pipefail
+          action="${DEPLOY_ACTION:-upgrade}"
+          action="$(echo "$action" | tr '[:upper:]' '[:lower:]')"
+          case "$action" in
+            magrate)
+              action="migrate"
+              ;;
+            backup-rollout)
+              action="backup-rollout"
+              ;;
+            init|migrate|upgrade|destroy)
+              ;;
+            *)
+              action="upgrade"
+              ;;
+          esac
+          echo "EFFECTIVE_DEPLOY_ACTION=$action" >> "$GITHUB_ENV"
+
+          raw="${DEPLOY_DRY_RUN:-true}"
+          raw="$(echo "$raw" | tr '[:upper:]' '[:lower:]')"
+          case "$raw" in
+            false|no|off|0)
+              echo "EFFECTIVE_DRY_RUN=false" >> "$GITHUB_ENV"
+              ;;
+            *)
+              echo "EFFECTIVE_DRY_RUN=true" >> "$GITHUB_ENV"
+              ;;
+          esac
+
+      - name: Download xcontrol server artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: xcontrol-server-linux-amd64
+          path: artifacts/bin
+
+      - name: Prepare server binary
+        run: |
+          set -euo pipefail
+          install -d artifacts/bin
+          mv artifacts/bin/xcontrol-server-linux-amd64 artifacts/bin/xcontrol-server
+          chmod +x artifacts/bin/xcontrol-server
+
+      - name: Download homepage static bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: homepage-static-export
+          path: artifacts/homepage
+
+      - name: Configure SSH access
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          install -m 700 -d ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H "${{ matrix.site }}" >> ~/.ssh/known_hosts
+
+      - name: Ensure remote directories
+        env:
+          REMOTE_HOST: ${{ secrets.VPS_USER }}@${{ matrix.site }}
+        run: |
+          set -euo pipefail
+          if [[ "${EFFECTIVE_DRY_RUN}" == "true" ]]; then
+            ssh "$REMOTE_HOST" "echo '[DRY-RUN] would ensure /data/update-server/dashboard exists'"
+          else
+            ssh "$REMOTE_HOST" "sudo install -d -m 755 /data/update-server/dashboard"
+          fi
+
+      - name: Sync xcontrol server binary
+        env:
+          REMOTE_HOST: ${{ secrets.VPS_USER }}@${{ matrix.site }}
+        run: |
+          set -euo pipefail
+          flags=("-avz")
+          if [[ "${EFFECTIVE_DRY_RUN}" == "true" ]]; then
+            flags+=("--dry-run")
+          fi
+          rsync "${flags[@]}" artifacts/bin/xcontrol-server "$REMOTE_HOST:/tmp/xcontrol-server"
+          if [[ "${EFFECTIVE_DRY_RUN}" == "true" ]]; then
+            ssh "$REMOTE_HOST" "echo '[DRY-RUN] would install /tmp/xcontrol-server to /usr/bin/xcontrol-server'"
+          else
+            ssh "$REMOTE_HOST" "sudo install -m 755 /tmp/xcontrol-server /usr/bin/xcontrol-server"
+          fi
+
+      - name: Sync homepage static export
+        env:
+          REMOTE_HOST: ${{ secrets.VPS_USER }}@${{ matrix.site }}
+        run: |
+          set -euo pipefail
+          src="artifacts/homepage/ui/homepage/out"
+          if [[ ! -d "$src" ]]; then
+            src="artifacts/homepage/out"
+          fi
+          if [[ ! -d "$src" ]]; then
+            echo "Static export directory not found under artifacts/homepage" >&2
+            exit 1
+          fi
+          flags=("-avz" "--delete")
+          if [[ "${EFFECTIVE_DRY_RUN}" == "true" ]]; then
+            flags+=("--dry-run")
+          fi
+          rsync "${flags[@]}" "$src/" "$REMOTE_HOST:/data/update-server/dashboard/"
+
+      - name: Stage manifest scripts on target
+        env:
+          REMOTE_HOST: ${{ secrets.VPS_USER }}@${{ matrix.site }}
+        run: |
+          set -euo pipefail
+          remote_dir="/tmp/xcontrol-scripts"
+          if [[ "${EFFECTIVE_DRY_RUN}" == "true" ]]; then
+            ssh "$REMOTE_HOST" "echo '[DRY-RUN] would create ${remote_dir}'"
+          else
+            ssh "$REMOTE_HOST" "mkdir -p ${remote_dir}"
+          fi
+          flags=("-avz")
+          if [[ "${EFFECTIVE_DRY_RUN}" == "true" ]]; then
+            flags+=("--dry-run")
+          fi
+          rsync "${flags[@]}" scripts/gen_docs_manifest.py scripts/gen_mirror_manifest.py "$REMOTE_HOST:${remote_dir}/"
+          if [[ "${EFFECTIVE_DRY_RUN}" != "true" ]]; then
+            ssh "$REMOTE_HOST" "chmod +x ${remote_dir}/gen_docs_manifest.py ${remote_dir}/gen_mirror_manifest.py"
+          fi
+          echo "REMOTE_SCRIPT_DIR=${remote_dir}" >> "$GITHUB_ENV"
+
+      - name: Generate docs manifest
+        env:
+          REMOTE_HOST: ${{ secrets.VPS_USER }}@${{ matrix.site }}
+        run: |
+          set -euo pipefail
+          remote_dir="${REMOTE_SCRIPT_DIR:-/tmp/xcontrol-scripts}"
+          cmd="python3 ${remote_dir}/gen_docs_manifest.py --root /data/update-server/docs"
+          if [[ "${EFFECTIVE_DRY_RUN}" == "true" ]]; then
+            ssh "$REMOTE_HOST" "echo '[DRY-RUN] would run ${cmd}'"
+          else
+            ssh "$REMOTE_HOST" "$cmd"
+          fi
+
+      - name: Generate download manifest
+        env:
+          REMOTE_HOST: ${{ secrets.VPS_USER }}@${{ matrix.site }}
+        run: |
+          set -euo pipefail
+          remote_dir="${REMOTE_SCRIPT_DIR:-/tmp/xcontrol-scripts}"
+          cmd="python3 ${remote_dir}/gen_mirror_manifest.py --root /data/update-server"
+          if [[ "${EFFECTIVE_DRY_RUN}" == "true" ]]; then
+            ssh "$REMOTE_HOST" "echo '[DRY-RUN] would run ${cmd}'"
+          else
+            ssh "$REMOTE_HOST" "$cmd"
+          fi
+
+  deploy:
+    needs: pre-setup
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        site: [global-homepage.svc.plus, cn-homepage.svc.plus]
+    env:
+      DEPLOY_ACTION: ${{ github.event.inputs.deploy_action || 'upgrade' }}
+      DEPLOY_DRY_RUN: ${{ github.event.inputs.deploy_dry_run || 'true' }}
+      ANSIBLE_USER: ${{ secrets.VPS_USER }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Normalise deployment parameters
+        run: |
+          set -euo pipefail
+          action="${DEPLOY_ACTION:-upgrade}"
+          action="$(echo "$action" | tr '[:upper:]' '[:lower:]')"
+          case "$action" in
+            magrate)
+              action="migrate"
+              ;;
+            backup-rollout)
+              action="backup-rollout"
+              ;;
+            init|migrate|upgrade|destroy)
+              ;;
+            *)
+              action="upgrade"
+              ;;
+          esac
+          echo "EFFECTIVE_DEPLOY_ACTION=$action" >> "$GITHUB_ENV"
+
+          raw="${DEPLOY_DRY_RUN:-true}"
+          raw="$(echo "$raw" | tr '[:upper:]' '[:lower:]')"
+          case "$raw" in
+            false|no|off|0)
+              echo "EFFECTIVE_DRY_RUN=false" >> "$GITHUB_ENV"
+              ;;
+            *)
+              echo "EFFECTIVE_DRY_RUN=true" >> "$GITHUB_ENV"
+              ;;
+          esac
 
       - name: Install Ansible
         run: |
@@ -154,8 +358,6 @@ jobs:
           ssh-keyscan -H "${{ matrix.site }}" >> ~/.ssh/known_hosts
 
       - name: Run provisioning playbook
-        env:
-          ANSIBLE_USER: ${{ secrets.VPS_USER }}
         run: |
           set -euo pipefail
           cd deploy/ansible
@@ -163,4 +365,16 @@ jobs:
           [targets]
           ${{ matrix.site }} ansible_user=${ANSIBLE_USER}
           EOF
-          ansible-playbook -i inventory.ini run-playbook.yml
+          extra_flags=()
+          if [[ "${EFFECTIVE_DRY_RUN}" == "true" ]]; then
+            extra_flags+=("--check")
+          fi
+          case "${EFFECTIVE_DEPLOY_ACTION}" in
+            backup-rollout)
+              extra_flags+=("--tags" "backup,rollout")
+              ;;
+            upgrade|init|migrate|destroy)
+              extra_flags+=("--tags" "${EFFECTIVE_DEPLOY_ACTION}")
+              ;;
+          esac
+          ansible-playbook -i inventory.ini run-playbook.yml "${extra_flags[@]}" --extra-vars "deploy_action=${EFFECTIVE_DEPLOY_ACTION} dry_run=${EFFECTIVE_DRY_RUN}"
