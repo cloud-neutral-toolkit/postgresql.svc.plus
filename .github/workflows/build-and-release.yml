@@ -12,7 +12,8 @@ on:
           - init
           - magrate
           - upgrade
-          - backup-rollout
+          - backup
+          - restore
           - destroy
         default: upgrade
       deploy_dry_run:
@@ -117,21 +118,9 @@ jobs:
           name: homepage-static-export
           path: ui/homepage/out
 
-  deploy-panel:
-    needs: release
-    uses: ./.github/workflows/deploy-xcontrol-panel.yml
-    secrets: inherit
-
-  update-mirror:
-    needs: release
-    uses: ./.github/workflows/update-mirror.yml
-    secrets: inherit
-
   pre-setup:
     needs:
       - release
-      - deploy-panel
-      - update-mirror
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     strategy:
