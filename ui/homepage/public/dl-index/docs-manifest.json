@@ -1,11 +1,1407 @@
 [
   {
-    "slug": "getting-started",
-    "title": "Getting Started",
-    "description": "Welcome to the docs! This is a placeholder document.",
-    "updatedAt": "2025-09-19T00:53:13.962Z",
+    "slug": "linux-k8s-ops-cn-v28-17749789283-linux-k8s-ops-guide",
+    "title": "Linux K8 S OPS Guide",
+    "description": "Linux K8 S OPS Guide — Linux K8 S OPS (edition CN v28, release CN-v28-17749789283, available as PDF and HTML).",
+    "category": "Linux K8 S OPS",
+    "version": "CN v28",
+    "updatedAt": "2025-09-15T23:53:07Z",
+    "pdfUrl": "/Linux-K8S-OPS/CN-v28-17749789283/Linux-K8S-OPS-Guide.pdf",
+    "htmlUrl": "/Linux-K8S-OPS/CN-v28-17749789283/Linux-K8S-OPS-Guide.html",
+    "language": "CN",
+    "variant": "CN-v28-17749789283",
+    "tags": [
+      "CN",
+      "CN v28",
+      "Linux K8 S OPS"
+    ],
     "pathSegments": [
-      "getting-started"
+      "Linux-K8S-OPS",
+      "CN-v28-17749789283"
+    ]
+  },
+  {
+    "slug": "personal-personal-v29-17749815392-fullstack-language-core",
+    "title": "fullstack language core",
+    "description": "fullstack language core — Personal (edition Personal v29, release Personal-v29-17749815392, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v29",
+    "updatedAt": "2025-09-15T23:51:45Z",
+    "pdfUrl": "/Personal/Personal-v29-17749815392/fullstack-language-core.pdf",
+    "htmlUrl": "/Personal/Personal-v29-17749815392/fullstack-language-core.html",
+    "variant": "Personal-v29-17749815392",
+    "tags": [
+      "Personal",
+      "Personal v29"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v29-17749815392"
+    ]
+  },
+  {
+    "slug": "personal-personal-v29-17749815392-cet-6",
+    "title": "cet 6",
+    "description": "cet 6 — Personal (edition Personal v29, release Personal-v29-17749815392, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v29",
+    "updatedAt": "2025-09-15T23:51:45Z",
+    "pdfUrl": "/Personal/Personal-v29-17749815392/cet-6.pdf",
+    "htmlUrl": "/Personal/Personal-v29-17749815392/cet-6.html",
+    "variant": "Personal-v29-17749815392",
+    "tags": [
+      "Personal",
+      "Personal v29"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v29-17749815392"
+    ]
+  },
+  {
+    "slug": "personal-personal-v29-17749815392-resume-zh",
+    "title": "Resume ZH",
+    "description": "Resume ZH — Personal (edition Personal v29, release Personal-v29-17749815392, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v29",
+    "updatedAt": "2025-09-15T23:51:44Z",
+    "pdfUrl": "/Personal/Personal-v29-17749815392/Resume-ZH.pdf",
+    "htmlUrl": "/Personal/Personal-v29-17749815392/Resume-ZH.html",
+    "variant": "Personal-v29-17749815392",
+    "tags": [
+      "Personal",
+      "Personal v29"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v29-17749815392"
+    ]
+  },
+  {
+    "slug": "personal-personal-v29-17749815392-resume-en",
+    "title": "Resume EN",
+    "description": "Resume EN — Personal (edition Personal v29, release Personal-v29-17749815392, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v29",
+    "updatedAt": "2025-09-15T23:51:44Z",
+    "pdfUrl": "/Personal/Personal-v29-17749815392/Resume-EN.pdf",
+    "htmlUrl": "/Personal/Personal-v29-17749815392/Resume-EN.html",
+    "variant": "Personal-v29-17749815392",
+    "tags": [
+      "Personal",
+      "Personal v29"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v29-17749815392"
+    ]
+  },
+  {
+    "slug": "personal-personal-v29-17749815392-resume-devops-en",
+    "title": "Resume Dev Ops EN",
+    "description": "Resume Dev Ops EN — Personal (edition Personal v29, release Personal-v29-17749815392, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v29",
+    "updatedAt": "2025-09-15T23:51:44Z",
+    "pdfUrl": "/Personal/Personal-v29-17749815392/Resume-DevOps-EN.pdf",
+    "htmlUrl": "/Personal/Personal-v29-17749815392/Resume-DevOps-EN.html",
+    "variant": "Personal-v29-17749815392",
+    "tags": [
+      "Personal",
+      "Personal v29"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v29-17749815392"
+    ]
+  },
+  {
+    "slug": "personal-personal-v29-17749815392-resume-devops-zh",
+    "title": "Resume Dev OPS ZH",
+    "description": "Resume Dev OPS ZH — Personal (edition Personal v29, release Personal-v29-17749815392, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v29",
+    "updatedAt": "2025-09-15T23:51:44Z",
+    "pdfUrl": "/Personal/Personal-v29-17749815392/Resume-DevOPS-ZH.pdf",
+    "htmlUrl": "/Personal/Personal-v29-17749815392/Resume-DevOPS-ZH.html",
+    "variant": "Personal-v29-17749815392",
+    "tags": [
+      "Personal",
+      "Personal v29"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v29-17749815392"
+    ]
+  },
+  {
+    "slug": "personal-personal-v29-17749815392-readme",
+    "title": "README",
+    "description": "README — Personal (edition Personal v29, release Personal-v29-17749815392, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v29",
+    "updatedAt": "2025-09-15T23:51:44Z",
+    "pdfUrl": "/Personal/Personal-v29-17749815392/README.pdf",
+    "htmlUrl": "/Personal/Personal-v29-17749815392/README.html",
+    "variant": "Personal-v29-17749815392",
+    "tags": [
+      "Personal",
+      "Personal v29"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v29-17749815392"
+    ]
+  },
+  {
+    "slug": "personal-personal-v29-17749815392-cv-zh",
+    "title": "CV ZH",
+    "description": "CV ZH — Personal (edition Personal v29, release Personal-v29-17749815392, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v29",
+    "updatedAt": "2025-09-15T23:51:44Z",
+    "pdfUrl": "/Personal/Personal-v29-17749815392/CV-ZH.pdf",
+    "htmlUrl": "/Personal/Personal-v29-17749815392/CV-ZH.html",
+    "variant": "Personal-v29-17749815392",
+    "tags": [
+      "Personal",
+      "Personal v29"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v29-17749815392"
+    ]
+  },
+  {
+    "slug": "personal-personal-v29-17749815392-cv-en",
+    "title": "CV EN",
+    "description": "CV EN — Personal (edition Personal v29, release Personal-v29-17749815392, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v29",
+    "updatedAt": "2025-09-15T23:51:44Z",
+    "pdfUrl": "/Personal/Personal-v29-17749815392/CV-EN.pdf",
+    "htmlUrl": "/Personal/Personal-v29-17749815392/CV-EN.html",
+    "variant": "Personal-v29-17749815392",
+    "tags": [
+      "Personal",
+      "Personal v29"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v29-17749815392"
+    ]
+  },
+  {
+    "slug": "personal-personal-v29-17749815392-cv-ai-dev-zh",
+    "title": "CV AI Dev ZH",
+    "description": "CV AI Dev ZH — Personal (edition Personal v29, release Personal-v29-17749815392, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v29",
+    "updatedAt": "2025-09-15T23:51:44Z",
+    "pdfUrl": "/Personal/Personal-v29-17749815392/CV-AI-Dev-ZH.pdf",
+    "htmlUrl": "/Personal/Personal-v29-17749815392/CV-AI-Dev-ZH.html",
+    "variant": "Personal-v29-17749815392",
+    "tags": [
+      "Personal",
+      "Personal v29"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v29-17749815392"
+    ]
+  },
+  {
+    "slug": "personal-personal-v29-17749815392-cv-ai-dev-en",
+    "title": "CV AI Dev EN",
+    "description": "CV AI Dev EN — Personal (edition Personal v29, release Personal-v29-17749815392, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v29",
+    "updatedAt": "2025-09-15T23:51:44Z",
+    "pdfUrl": "/Personal/Personal-v29-17749815392/CV-AI-Dev-EN.pdf",
+    "htmlUrl": "/Personal/Personal-v29-17749815392/CV-AI-Dev-EN.html",
+    "variant": "Personal-v29-17749815392",
+    "tags": [
+      "Personal",
+      "Personal v29"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v29-17749815392"
+    ]
+  },
+  {
+    "slug": "personal-personal-v29-17749815392-activebalance-plan",
+    "title": "Active Balance Plan",
+    "description": "Active Balance Plan — Personal (edition Personal v29, release Personal-v29-17749815392, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v29",
+    "updatedAt": "2025-09-15T23:51:44Z",
+    "pdfUrl": "/Personal/Personal-v29-17749815392/ActiveBalance-Plan.pdf",
+    "htmlUrl": "/Personal/Personal-v29-17749815392/ActiveBalance-Plan.html",
+    "variant": "Personal-v29-17749815392",
+    "tags": [
+      "Personal",
+      "Personal v29"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v29-17749815392"
+    ]
+  },
+  {
+    "slug": "observability-cn-v29-17749815392-observability-design-and-implementation",
+    "title": "Observability Design and Implementation",
+    "description": "Observability Design and Implementation — Observability (edition CN v29, release CN-v29-17749815392, available as PDF and HTML).",
+    "category": "Observability",
+    "version": "CN v29",
+    "updatedAt": "2025-09-15T23:50:51Z",
+    "pdfUrl": "/Observability/CN-v29-17749815392/Observability-Design-and-Implementation.pdf",
+    "htmlUrl": "/Observability/CN-v29-17749815392/Observability-Design-and-Implementation.html",
+    "language": "CN",
+    "variant": "CN-v29-17749815392",
+    "tags": [
+      "CN",
+      "CN v29",
+      "Observability"
+    ],
+    "pathSegments": [
+      "Observability",
+      "CN-v29-17749815392"
+    ]
+  },
+  {
+    "slug": "interview-qa-cn-v29-17749815392-interview-qa-guide",
+    "title": "Interview QA Guide",
+    "description": "Interview QA Guide — interview qa (edition CN v29, release CN-v29-17749815392, available as PDF and HTML).",
+    "category": "interview qa",
+    "version": "CN v29",
+    "updatedAt": "2025-09-15T23:50:46Z",
+    "pdfUrl": "/interview-qa/CN-v29-17749815392/Interview-QA-Guide.pdf",
+    "htmlUrl": "/interview-qa/CN-v29-17749815392/Interview-QA-Guide.html",
+    "language": "CN",
+    "variant": "CN-v29-17749815392",
+    "tags": [
+      "CN",
+      "CN v29",
+      "interview qa"
+    ],
+    "pathSegments": [
+      "interview-qa",
+      "CN-v29-17749815392"
+    ]
+  },
+  {
+    "slug": "linux-k8s-ops-cn-v29-17749815392-linux-k8s-ops-guide",
+    "title": "Linux K8 S OPS Guide",
+    "description": "Linux K8 S OPS Guide — Linux K8 S OPS (edition CN v29, release CN-v29-17749815392, available as PDF and HTML).",
+    "category": "Linux K8 S OPS",
+    "version": "CN v29",
+    "updatedAt": "2025-09-15T23:50:42Z",
+    "pdfUrl": "/Linux-K8S-OPS/CN-v29-17749815392/Linux-K8S-OPS-Guide.pdf",
+    "htmlUrl": "/Linux-K8S-OPS/CN-v29-17749815392/Linux-K8S-OPS-Guide.html",
+    "language": "CN",
+    "variant": "CN-v29-17749815392",
+    "tags": [
+      "CN",
+      "CN v29",
+      "Linux K8 S OPS"
+    ],
+    "pathSegments": [
+      "Linux-K8S-OPS",
+      "CN-v29-17749815392"
+    ]
+  },
+  {
+    "slug": "landingzone-landingzone-v29-17749815392-landing-zone-design-and-implementation",
+    "title": "Landing Zone Design and Implementation",
+    "description": "Landing Zone Design and Implementation — Landing Zone (edition LandingZone v29, release LandingZone-v29-17749815392, available as PDF).",
+    "category": "Landing Zone",
+    "version": "LandingZone v29",
+    "updatedAt": "2025-09-15T23:50:39Z",
+    "pdfUrl": "/LandingZone/LandingZone-v29-17749815392/Landing-Zone-Design-and-Implementation.pdf",
+    "variant": "LandingZone-v29-17749815392",
+    "tags": [
+      "Landing Zone",
+      "LandingZone v29"
+    ],
+    "pathSegments": [
+      "LandingZone",
+      "LandingZone-v29-17749815392"
+    ]
+  },
+  {
+    "slug": "techexploration-techexploration-v29-17749815392-tech-exploration",
+    "title": "Tech Exploration",
+    "description": "Tech Exploration — Tech Exploration (edition TechExploration v29, release TechExploration-v29-17749815392, available as PDF and HTML).",
+    "category": "Tech Exploration",
+    "version": "TechExploration v29",
+    "updatedAt": "2025-09-15T23:50:36Z",
+    "pdfUrl": "/TechExploration/TechExploration-v29-17749815392/Tech-Exploration.pdf",
+    "htmlUrl": "/TechExploration/TechExploration-v29-17749815392/Tech-Exploration.html",
+    "variant": "TechExploration-v29-17749815392",
+    "tags": [
+      "Tech Exploration",
+      "TechExploration v29"
+    ],
+    "pathSegments": [
+      "TechExploration",
+      "TechExploration-v29-17749815392"
+    ]
+  },
+  {
+    "slug": "the-indiedeveloper-fullstack-roadmap-cn-v29-17749815392-fullstack-roadmap-cn",
+    "title": "fullstack roadmap cn",
+    "description": "fullstack roadmap cn — The Indie Developer Fullstack Roadmap (edition CN v29, release CN-v29-17749815392, available as PDF and HTML).",
+    "category": "The Indie Developer Fullstack Roadmap",
+    "version": "CN v29",
+    "updatedAt": "2025-09-15T23:49:35Z",
+    "pdfUrl": "/The-IndieDeveloper-Fullstack-Roadmap/CN-v29-17749815392/fullstack-roadmap-cn.pdf",
+    "htmlUrl": "/The-IndieDeveloper-Fullstack-Roadmap/CN-v29-17749815392/fullstack-roadmap-cn.html",
+    "language": "CN",
+    "variant": "CN-v29-17749815392",
+    "tags": [
+      "CN",
+      "CN v29",
+      "The Indie Developer Fullstack Roadmap"
+    ],
+    "pathSegments": [
+      "The-IndieDeveloper-Fullstack-Roadmap",
+      "CN-v29-17749815392"
+    ]
+  },
+  {
+    "slug": "keycloak-keycloak-v29-17749815392-keycloak-sso-design-and-implementation",
+    "title": "Keycloak SSO Design and Implementation",
+    "description": "Keycloak SSO Design and Implementation — Keycloak (edition Keycloak v29, release Keycloak-v29-17749815392, available as HTML).",
+    "category": "Keycloak",
+    "version": "Keycloak v29",
+    "updatedAt": "2025-09-15T23:49:25Z",
+    "htmlUrl": "/Keycloak/Keycloak-v29-17749815392/Keycloak-SSO-Design-and-Implementation.html",
+    "variant": "Keycloak-v29-17749815392",
+    "tags": [
+      "Keycloak",
+      "Keycloak v29"
+    ],
+    "pathSegments": [
+      "Keycloak",
+      "Keycloak-v29-17749815392"
+    ]
+  },
+  {
+    "slug": "landingzone-landingzone-v28-17749789283-landing-zone-design-and-implementation",
+    "title": "Landing Zone Design and Implementation",
+    "description": "Landing Zone Design and Implementation — Landing Zone (edition LandingZone v28, release LandingZone-v28-17749789283, available as PDF).",
+    "category": "Landing Zone",
+    "version": "LandingZone v28",
+    "updatedAt": "2025-09-15T23:49:17Z",
+    "pdfUrl": "/LandingZone/LandingZone-v28-17749789283/Landing-Zone-Design-and-Implementation.pdf",
+    "variant": "LandingZone-v28-17749789283",
+    "tags": [
+      "Landing Zone",
+      "LandingZone v28"
+    ],
+    "pathSegments": [
+      "LandingZone",
+      "LandingZone-v28-17749789283"
+    ]
+  },
+  {
+    "slug": "the-indiedeveloper-fullstack-roadmap-en-v29-17749815392-fullstack-roadmap-en",
+    "title": "fullstack roadmap en",
+    "description": "fullstack roadmap en — The Indie Developer Fullstack Roadmap (edition EN v29, release EN-v29-17749815392, available as PDF and HTML).",
+    "category": "The Indie Developer Fullstack Roadmap",
+    "version": "EN v29",
+    "updatedAt": "2025-09-15T23:49:17Z",
+    "pdfUrl": "/The-IndieDeveloper-Fullstack-Roadmap/EN-v29-17749815392/fullstack-roadmap-en.pdf",
+    "htmlUrl": "/The-IndieDeveloper-Fullstack-Roadmap/EN-v29-17749815392/fullstack-roadmap-en.html",
+    "language": "EN",
+    "variant": "EN-v29-17749815392",
+    "tags": [
+      "EN",
+      "EN v29",
+      "The Indie Developer Fullstack Roadmap"
+    ],
+    "pathSegments": [
+      "The-IndieDeveloper-Fullstack-Roadmap",
+      "EN-v29-17749815392"
+    ]
+  },
+  {
+    "slug": "keycloak-keycloak-v28-17749789283-keycloak-sso-design-and-implementation",
+    "title": "Keycloak SSO Design and Implementation",
+    "description": "Keycloak SSO Design and Implementation — Keycloak (edition Keycloak v28, release Keycloak-v28-17749789283, available as HTML).",
+    "category": "Keycloak",
+    "version": "Keycloak v28",
+    "updatedAt": "2025-09-15T23:48:57Z",
+    "htmlUrl": "/Keycloak/Keycloak-v28-17749789283/Keycloak-SSO-Design-and-Implementation.html",
+    "variant": "Keycloak-v28-17749789283",
+    "tags": [
+      "Keycloak",
+      "Keycloak v28"
+    ],
+    "pathSegments": [
+      "Keycloak",
+      "Keycloak-v28-17749789283"
+    ]
+  },
+  {
+    "slug": "personal-personal-v28-17749789283-fullstack-language-core",
+    "title": "fullstack language core",
+    "description": "fullstack language core — Personal (edition Personal v28, release Personal-v28-17749789283, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v28",
+    "updatedAt": "2025-09-15T23:48:56Z",
+    "pdfUrl": "/Personal/Personal-v28-17749789283/fullstack-language-core.pdf",
+    "htmlUrl": "/Personal/Personal-v28-17749789283/fullstack-language-core.html",
+    "variant": "Personal-v28-17749789283",
+    "tags": [
+      "Personal",
+      "Personal v28"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v28-17749789283"
+    ]
+  },
+  {
+    "slug": "personal-personal-v28-17749789283-cet-6",
+    "title": "cet 6",
+    "description": "cet 6 — Personal (edition Personal v28, release Personal-v28-17749789283, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v28",
+    "updatedAt": "2025-09-15T23:48:56Z",
+    "pdfUrl": "/Personal/Personal-v28-17749789283/cet-6.pdf",
+    "htmlUrl": "/Personal/Personal-v28-17749789283/cet-6.html",
+    "variant": "Personal-v28-17749789283",
+    "tags": [
+      "Personal",
+      "Personal v28"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v28-17749789283"
+    ]
+  },
+  {
+    "slug": "personal-personal-v28-17749789283-resume-zh",
+    "title": "Resume ZH",
+    "description": "Resume ZH — Personal (edition Personal v28, release Personal-v28-17749789283, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v28",
+    "updatedAt": "2025-09-15T23:48:56Z",
+    "pdfUrl": "/Personal/Personal-v28-17749789283/Resume-ZH.pdf",
+    "htmlUrl": "/Personal/Personal-v28-17749789283/Resume-ZH.html",
+    "variant": "Personal-v28-17749789283",
+    "tags": [
+      "Personal",
+      "Personal v28"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v28-17749789283"
+    ]
+  },
+  {
+    "slug": "personal-personal-v28-17749789283-resume-en",
+    "title": "Resume EN",
+    "description": "Resume EN — Personal (edition Personal v28, release Personal-v28-17749789283, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v28",
+    "updatedAt": "2025-09-15T23:48:56Z",
+    "pdfUrl": "/Personal/Personal-v28-17749789283/Resume-EN.pdf",
+    "htmlUrl": "/Personal/Personal-v28-17749789283/Resume-EN.html",
+    "variant": "Personal-v28-17749789283",
+    "tags": [
+      "Personal",
+      "Personal v28"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v28-17749789283"
+    ]
+  },
+  {
+    "slug": "personal-personal-v28-17749789283-resume-devops-en",
+    "title": "Resume Dev Ops EN",
+    "description": "Resume Dev Ops EN — Personal (edition Personal v28, release Personal-v28-17749789283, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v28",
+    "updatedAt": "2025-09-15T23:48:56Z",
+    "pdfUrl": "/Personal/Personal-v28-17749789283/Resume-DevOps-EN.pdf",
+    "htmlUrl": "/Personal/Personal-v28-17749789283/Resume-DevOps-EN.html",
+    "variant": "Personal-v28-17749789283",
+    "tags": [
+      "Personal",
+      "Personal v28"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v28-17749789283"
+    ]
+  },
+  {
+    "slug": "personal-personal-v28-17749789283-resume-devops-zh",
+    "title": "Resume Dev OPS ZH",
+    "description": "Resume Dev OPS ZH — Personal (edition Personal v28, release Personal-v28-17749789283, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v28",
+    "updatedAt": "2025-09-15T23:48:56Z",
+    "pdfUrl": "/Personal/Personal-v28-17749789283/Resume-DevOPS-ZH.pdf",
+    "htmlUrl": "/Personal/Personal-v28-17749789283/Resume-DevOPS-ZH.html",
+    "variant": "Personal-v28-17749789283",
+    "tags": [
+      "Personal",
+      "Personal v28"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v28-17749789283"
+    ]
+  },
+  {
+    "slug": "personal-personal-v28-17749789283-readme",
+    "title": "README",
+    "description": "README — Personal (edition Personal v28, release Personal-v28-17749789283, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v28",
+    "updatedAt": "2025-09-15T23:48:56Z",
+    "pdfUrl": "/Personal/Personal-v28-17749789283/README.pdf",
+    "htmlUrl": "/Personal/Personal-v28-17749789283/README.html",
+    "variant": "Personal-v28-17749789283",
+    "tags": [
+      "Personal",
+      "Personal v28"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v28-17749789283"
+    ]
+  },
+  {
+    "slug": "personal-personal-v28-17749789283-cv-zh",
+    "title": "CV ZH",
+    "description": "CV ZH — Personal (edition Personal v28, release Personal-v28-17749789283, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v28",
+    "updatedAt": "2025-09-15T23:48:56Z",
+    "pdfUrl": "/Personal/Personal-v28-17749789283/CV-ZH.pdf",
+    "htmlUrl": "/Personal/Personal-v28-17749789283/CV-ZH.html",
+    "variant": "Personal-v28-17749789283",
+    "tags": [
+      "Personal",
+      "Personal v28"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v28-17749789283"
+    ]
+  },
+  {
+    "slug": "personal-personal-v28-17749789283-cv-en",
+    "title": "CV EN",
+    "description": "CV EN — Personal (edition Personal v28, release Personal-v28-17749789283, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v28",
+    "updatedAt": "2025-09-15T23:48:56Z",
+    "pdfUrl": "/Personal/Personal-v28-17749789283/CV-EN.pdf",
+    "htmlUrl": "/Personal/Personal-v28-17749789283/CV-EN.html",
+    "variant": "Personal-v28-17749789283",
+    "tags": [
+      "Personal",
+      "Personal v28"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v28-17749789283"
+    ]
+  },
+  {
+    "slug": "personal-personal-v28-17749789283-cv-ai-dev-zh",
+    "title": "CV AI Dev ZH",
+    "description": "CV AI Dev ZH — Personal (edition Personal v28, release Personal-v28-17749789283, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v28",
+    "updatedAt": "2025-09-15T23:48:56Z",
+    "pdfUrl": "/Personal/Personal-v28-17749789283/CV-AI-Dev-ZH.pdf",
+    "htmlUrl": "/Personal/Personal-v28-17749789283/CV-AI-Dev-ZH.html",
+    "variant": "Personal-v28-17749789283",
+    "tags": [
+      "Personal",
+      "Personal v28"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v28-17749789283"
+    ]
+  },
+  {
+    "slug": "personal-personal-v28-17749789283-cv-ai-dev-en",
+    "title": "CV AI Dev EN",
+    "description": "CV AI Dev EN — Personal (edition Personal v28, release Personal-v28-17749789283, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v28",
+    "updatedAt": "2025-09-15T23:48:56Z",
+    "pdfUrl": "/Personal/Personal-v28-17749789283/CV-AI-Dev-EN.pdf",
+    "htmlUrl": "/Personal/Personal-v28-17749789283/CV-AI-Dev-EN.html",
+    "variant": "Personal-v28-17749789283",
+    "tags": [
+      "Personal",
+      "Personal v28"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v28-17749789283"
+    ]
+  },
+  {
+    "slug": "personal-personal-v28-17749789283-activebalance-plan",
+    "title": "Active Balance Plan",
+    "description": "Active Balance Plan — Personal (edition Personal v28, release Personal-v28-17749789283, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v28",
+    "updatedAt": "2025-09-15T23:48:56Z",
+    "pdfUrl": "/Personal/Personal-v28-17749789283/ActiveBalance-Plan.pdf",
+    "htmlUrl": "/Personal/Personal-v28-17749789283/ActiveBalance-Plan.html",
+    "variant": "Personal-v28-17749789283",
+    "tags": [
+      "Personal",
+      "Personal v28"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v28-17749789283"
+    ]
+  },
+  {
+    "slug": "observability-cn-v28-17749789283-observability-design-and-implementation",
+    "title": "Observability Design and Implementation",
+    "description": "Observability Design and Implementation — Observability (edition CN v28, release CN-v28-17749789283, available as PDF and HTML).",
+    "category": "Observability",
+    "version": "CN v28",
+    "updatedAt": "2025-09-15T23:48:33Z",
+    "pdfUrl": "/Observability/CN-v28-17749789283/Observability-Design-and-Implementation.pdf",
+    "htmlUrl": "/Observability/CN-v28-17749789283/Observability-Design-and-Implementation.html",
+    "language": "CN",
+    "variant": "CN-v28-17749789283",
+    "tags": [
+      "CN",
+      "CN v28",
+      "Observability"
+    ],
+    "pathSegments": [
+      "Observability",
+      "CN-v28-17749789283"
+    ]
+  },
+  {
+    "slug": "techexploration-techexploration-v28-17749789283-tech-exploration",
+    "title": "Tech Exploration",
+    "description": "Tech Exploration — Tech Exploration (edition TechExploration v28, release TechExploration-v28-17749789283, available as PDF and HTML).",
+    "category": "Tech Exploration",
+    "version": "TechExploration v28",
+    "updatedAt": "2025-09-15T23:48:29Z",
+    "pdfUrl": "/TechExploration/TechExploration-v28-17749789283/Tech-Exploration.pdf",
+    "htmlUrl": "/TechExploration/TechExploration-v28-17749789283/Tech-Exploration.html",
+    "variant": "TechExploration-v28-17749789283",
+    "tags": [
+      "Tech Exploration",
+      "TechExploration v28"
+    ],
+    "pathSegments": [
+      "TechExploration",
+      "TechExploration-v28-17749789283"
+    ]
+  },
+  {
+    "slug": "the-indiedeveloper-fullstack-roadmap-cn-v28-17749789283-fullstack-roadmap-cn",
+    "title": "fullstack roadmap cn",
+    "description": "fullstack roadmap cn — The Indie Developer Fullstack Roadmap (edition CN v28, release CN-v28-17749789283, available as PDF and HTML).",
+    "category": "The Indie Developer Fullstack Roadmap",
+    "version": "CN v28",
+    "updatedAt": "2025-09-15T23:48:17Z",
+    "pdfUrl": "/The-IndieDeveloper-Fullstack-Roadmap/CN-v28-17749789283/fullstack-roadmap-cn.pdf",
+    "htmlUrl": "/The-IndieDeveloper-Fullstack-Roadmap/CN-v28-17749789283/fullstack-roadmap-cn.html",
+    "language": "CN",
+    "variant": "CN-v28-17749789283",
+    "tags": [
+      "CN",
+      "CN v28",
+      "The Indie Developer Fullstack Roadmap"
+    ],
+    "pathSegments": [
+      "The-IndieDeveloper-Fullstack-Roadmap",
+      "CN-v28-17749789283"
+    ]
+  },
+  {
+    "slug": "interview-qa-cn-v28-17749789283-interview-qa-guide",
+    "title": "Interview QA Guide",
+    "description": "Interview QA Guide — interview qa (edition CN v28, release CN-v28-17749789283, available as PDF and HTML).",
+    "category": "interview qa",
+    "version": "CN v28",
+    "updatedAt": "2025-09-15T23:48:04Z",
+    "pdfUrl": "/interview-qa/CN-v28-17749789283/Interview-QA-Guide.pdf",
+    "htmlUrl": "/interview-qa/CN-v28-17749789283/Interview-QA-Guide.html",
+    "language": "CN",
+    "variant": "CN-v28-17749789283",
+    "tags": [
+      "CN",
+      "CN v28",
+      "interview qa"
+    ],
+    "pathSegments": [
+      "interview-qa",
+      "CN-v28-17749789283"
+    ]
+  },
+  {
+    "slug": "the-indiedeveloper-fullstack-roadmap-en-v28-17749789283-fullstack-roadmap-en",
+    "title": "fullstack roadmap en",
+    "description": "fullstack roadmap en — The Indie Developer Fullstack Roadmap (edition EN v28, release EN-v28-17749789283, available as PDF and HTML).",
+    "category": "The Indie Developer Fullstack Roadmap",
+    "version": "EN v28",
+    "updatedAt": "2025-09-15T23:47:48Z",
+    "pdfUrl": "/The-IndieDeveloper-Fullstack-Roadmap/EN-v28-17749789283/fullstack-roadmap-en.pdf",
+    "htmlUrl": "/The-IndieDeveloper-Fullstack-Roadmap/EN-v28-17749789283/fullstack-roadmap-en.html",
+    "language": "EN",
+    "variant": "EN-v28-17749789283",
+    "tags": [
+      "EN",
+      "EN v28",
+      "The Indie Developer Fullstack Roadmap"
+    ],
+    "pathSegments": [
+      "The-IndieDeveloper-Fullstack-Roadmap",
+      "EN-v28-17749789283"
+    ]
+  },
+  {
+    "slug": "landingzone-landingzone-v27-17740487419-landing-zone-design-and-implementation",
+    "title": "Landing Zone Design and Implementation",
+    "description": "Landing Zone Design and Implementation — Landing Zone (edition LandingZone v27, release LandingZone-v27-17740487419, available as PDF).",
+    "category": "Landing Zone",
+    "version": "LandingZone v27",
+    "updatedAt": "2025-09-15T16:54:22Z",
+    "pdfUrl": "/LandingZone/LandingZone-v27-17740487419/Landing-Zone-Design-and-Implementation.pdf",
+    "variant": "LandingZone-v27-17740487419",
+    "tags": [
+      "Landing Zone",
+      "LandingZone v27"
+    ],
+    "pathSegments": [
+      "LandingZone",
+      "LandingZone-v27-17740487419"
+    ]
+  },
+  {
+    "slug": "personal-personal-v27-17740487419-fullstack-language-core",
+    "title": "fullstack language core",
+    "description": "fullstack language core — Personal (edition Personal v27, release Personal-v27-17740487419, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v27",
+    "updatedAt": "2025-09-15T16:53:33Z",
+    "pdfUrl": "/Personal/Personal-v27-17740487419/fullstack-language-core.pdf",
+    "htmlUrl": "/Personal/Personal-v27-17740487419/fullstack-language-core.html",
+    "variant": "Personal-v27-17740487419",
+    "tags": [
+      "Personal",
+      "Personal v27"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v27-17740487419"
+    ]
+  },
+  {
+    "slug": "personal-personal-v27-17740487419-cet-6",
+    "title": "cet 6",
+    "description": "cet 6 — Personal (edition Personal v27, release Personal-v27-17740487419, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v27",
+    "updatedAt": "2025-09-15T16:53:33Z",
+    "pdfUrl": "/Personal/Personal-v27-17740487419/cet-6.pdf",
+    "htmlUrl": "/Personal/Personal-v27-17740487419/cet-6.html",
+    "variant": "Personal-v27-17740487419",
+    "tags": [
+      "Personal",
+      "Personal v27"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v27-17740487419"
+    ]
+  },
+  {
+    "slug": "personal-personal-v27-17740487419-resume-zh",
+    "title": "Resume ZH",
+    "description": "Resume ZH — Personal (edition Personal v27, release Personal-v27-17740487419, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v27",
+    "updatedAt": "2025-09-15T16:53:33Z",
+    "pdfUrl": "/Personal/Personal-v27-17740487419/Resume-ZH.pdf",
+    "htmlUrl": "/Personal/Personal-v27-17740487419/Resume-ZH.html",
+    "variant": "Personal-v27-17740487419",
+    "tags": [
+      "Personal",
+      "Personal v27"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v27-17740487419"
+    ]
+  },
+  {
+    "slug": "the-indiedeveloper-fullstack-roadmap-en-v27-17740487419-fullstack-roadmap-en",
+    "title": "fullstack roadmap en",
+    "description": "fullstack roadmap en — The Indie Developer Fullstack Roadmap (edition EN v27, release EN-v27-17740487419, available as PDF and HTML).",
+    "category": "The Indie Developer Fullstack Roadmap",
+    "version": "EN v27",
+    "updatedAt": "2025-09-15T16:53:33Z",
+    "pdfUrl": "/The-IndieDeveloper-Fullstack-Roadmap/EN-v27-17740487419/fullstack-roadmap-en.pdf",
+    "htmlUrl": "/The-IndieDeveloper-Fullstack-Roadmap/EN-v27-17740487419/fullstack-roadmap-en.html",
+    "language": "EN",
+    "variant": "EN-v27-17740487419",
+    "tags": [
+      "EN",
+      "EN v27",
+      "The Indie Developer Fullstack Roadmap"
+    ],
+    "pathSegments": [
+      "The-IndieDeveloper-Fullstack-Roadmap",
+      "EN-v27-17740487419"
+    ]
+  },
+  {
+    "slug": "personal-personal-v27-17740487419-resume-en",
+    "title": "Resume EN",
+    "description": "Resume EN — Personal (edition Personal v27, release Personal-v27-17740487419, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v27",
+    "updatedAt": "2025-09-15T16:53:33Z",
+    "pdfUrl": "/Personal/Personal-v27-17740487419/Resume-EN.pdf",
+    "htmlUrl": "/Personal/Personal-v27-17740487419/Resume-EN.html",
+    "variant": "Personal-v27-17740487419",
+    "tags": [
+      "Personal",
+      "Personal v27"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v27-17740487419"
+    ]
+  },
+  {
+    "slug": "personal-personal-v27-17740487419-resume-devops-en",
+    "title": "Resume Dev Ops EN",
+    "description": "Resume Dev Ops EN — Personal (edition Personal v27, release Personal-v27-17740487419, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v27",
+    "updatedAt": "2025-09-15T16:53:33Z",
+    "pdfUrl": "/Personal/Personal-v27-17740487419/Resume-DevOps-EN.pdf",
+    "htmlUrl": "/Personal/Personal-v27-17740487419/Resume-DevOps-EN.html",
+    "variant": "Personal-v27-17740487419",
+    "tags": [
+      "Personal",
+      "Personal v27"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v27-17740487419"
+    ]
+  },
+  {
+    "slug": "personal-personal-v27-17740487419-resume-devops-zh",
+    "title": "Resume Dev OPS ZH",
+    "description": "Resume Dev OPS ZH — Personal (edition Personal v27, release Personal-v27-17740487419, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v27",
+    "updatedAt": "2025-09-15T16:53:33Z",
+    "pdfUrl": "/Personal/Personal-v27-17740487419/Resume-DevOPS-ZH.pdf",
+    "htmlUrl": "/Personal/Personal-v27-17740487419/Resume-DevOPS-ZH.html",
+    "variant": "Personal-v27-17740487419",
+    "tags": [
+      "Personal",
+      "Personal v27"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v27-17740487419"
+    ]
+  },
+  {
+    "slug": "personal-personal-v27-17740487419-readme",
+    "title": "README",
+    "description": "README — Personal (edition Personal v27, release Personal-v27-17740487419, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v27",
+    "updatedAt": "2025-09-15T16:53:33Z",
+    "pdfUrl": "/Personal/Personal-v27-17740487419/README.pdf",
+    "htmlUrl": "/Personal/Personal-v27-17740487419/README.html",
+    "variant": "Personal-v27-17740487419",
+    "tags": [
+      "Personal",
+      "Personal v27"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v27-17740487419"
+    ]
+  },
+  {
+    "slug": "personal-personal-v27-17740487419-cv-zh",
+    "title": "CV ZH",
+    "description": "CV ZH — Personal (edition Personal v27, release Personal-v27-17740487419, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v27",
+    "updatedAt": "2025-09-15T16:53:33Z",
+    "pdfUrl": "/Personal/Personal-v27-17740487419/CV-ZH.pdf",
+    "htmlUrl": "/Personal/Personal-v27-17740487419/CV-ZH.html",
+    "variant": "Personal-v27-17740487419",
+    "tags": [
+      "Personal",
+      "Personal v27"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v27-17740487419"
+    ]
+  },
+  {
+    "slug": "personal-personal-v27-17740487419-cv-en",
+    "title": "CV EN",
+    "description": "CV EN — Personal (edition Personal v27, release Personal-v27-17740487419, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v27",
+    "updatedAt": "2025-09-15T16:53:32Z",
+    "pdfUrl": "/Personal/Personal-v27-17740487419/CV-EN.pdf",
+    "htmlUrl": "/Personal/Personal-v27-17740487419/CV-EN.html",
+    "variant": "Personal-v27-17740487419",
+    "tags": [
+      "Personal",
+      "Personal v27"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v27-17740487419"
+    ]
+  },
+  {
+    "slug": "personal-personal-v27-17740487419-cv-ai-dev-zh",
+    "title": "CV AI Dev ZH",
+    "description": "CV AI Dev ZH — Personal (edition Personal v27, release Personal-v27-17740487419, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v27",
+    "updatedAt": "2025-09-15T16:53:32Z",
+    "pdfUrl": "/Personal/Personal-v27-17740487419/CV-AI-Dev-ZH.pdf",
+    "htmlUrl": "/Personal/Personal-v27-17740487419/CV-AI-Dev-ZH.html",
+    "variant": "Personal-v27-17740487419",
+    "tags": [
+      "Personal",
+      "Personal v27"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v27-17740487419"
+    ]
+  },
+  {
+    "slug": "personal-personal-v27-17740487419-cv-ai-dev-en",
+    "title": "CV AI Dev EN",
+    "description": "CV AI Dev EN — Personal (edition Personal v27, release Personal-v27-17740487419, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v27",
+    "updatedAt": "2025-09-15T16:53:32Z",
+    "pdfUrl": "/Personal/Personal-v27-17740487419/CV-AI-Dev-EN.pdf",
+    "htmlUrl": "/Personal/Personal-v27-17740487419/CV-AI-Dev-EN.html",
+    "variant": "Personal-v27-17740487419",
+    "tags": [
+      "Personal",
+      "Personal v27"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v27-17740487419"
+    ]
+  },
+  {
+    "slug": "personal-personal-v27-17740487419-activebalance-plan",
+    "title": "Active Balance Plan",
+    "description": "Active Balance Plan — Personal (edition Personal v27, release Personal-v27-17740487419, available as PDF and HTML).",
+    "category": "Personal",
+    "version": "Personal v27",
+    "updatedAt": "2025-09-15T16:53:32Z",
+    "pdfUrl": "/Personal/Personal-v27-17740487419/ActiveBalance-Plan.pdf",
+    "htmlUrl": "/Personal/Personal-v27-17740487419/ActiveBalance-Plan.html",
+    "variant": "Personal-v27-17740487419",
+    "tags": [
+      "Personal",
+      "Personal v27"
+    ],
+    "pathSegments": [
+      "Personal",
+      "Personal-v27-17740487419"
+    ]
+  },
+  {
+    "slug": "techexploration-techexploration-v27-17740487419-tech-exploration",
+    "title": "Tech Exploration",
+    "description": "Tech Exploration — Tech Exploration (edition TechExploration v27, release TechExploration-v27-17740487419, available as PDF and HTML).",
+    "category": "Tech Exploration",
+    "version": "TechExploration v27",
+    "updatedAt": "2025-09-15T16:53:30Z",
+    "pdfUrl": "/TechExploration/TechExploration-v27-17740487419/Tech-Exploration.pdf",
+    "htmlUrl": "/TechExploration/TechExploration-v27-17740487419/Tech-Exploration.html",
+    "variant": "TechExploration-v27-17740487419",
+    "tags": [
+      "Tech Exploration",
+      "TechExploration v27"
+    ],
+    "pathSegments": [
+      "TechExploration",
+      "TechExploration-v27-17740487419"
+    ]
+  },
+  {
+    "slug": "linux-k8s-ops-cn-v27-17740487419-linux-k8s-ops-guide",
+    "title": "Linux K8 S OPS Guide",
+    "description": "Linux K8 S OPS Guide — Linux K8 S OPS (edition CN v27, release CN-v27-17740487419, available as PDF and HTML).",
+    "category": "Linux K8 S OPS",
+    "version": "CN v27",
+    "updatedAt": "2025-09-15T16:53:00Z",
+    "pdfUrl": "/Linux-K8S-OPS/CN-v27-17740487419/Linux-K8S-OPS-Guide.pdf",
+    "htmlUrl": "/Linux-K8S-OPS/CN-v27-17740487419/Linux-K8S-OPS-Guide.html",
+    "language": "CN",
+    "variant": "CN-v27-17740487419",
+    "tags": [
+      "CN",
+      "CN v27",
+      "Linux K8 S OPS"
+    ],
+    "pathSegments": [
+      "Linux-K8S-OPS",
+      "CN-v27-17740487419"
+    ]
+  },
+  {
+    "slug": "interview-qa-cn-v27-17740487419-interview-qa-guide",
+    "title": "Interview QA Guide",
+    "description": "Interview QA Guide — interview qa (edition CN v27, release CN-v27-17740487419, available as PDF and HTML).",
+    "category": "interview qa",
+    "version": "CN v27",
+    "updatedAt": "2025-09-15T16:52:52Z",
+    "pdfUrl": "/interview-qa/CN-v27-17740487419/Interview-QA-Guide.pdf",
+    "htmlUrl": "/interview-qa/CN-v27-17740487419/Interview-QA-Guide.html",
+    "language": "CN",
+    "variant": "CN-v27-17740487419",
+    "tags": [
+      "CN",
+      "CN v27",
+      "interview qa"
+    ],
+    "pathSegments": [
+      "interview-qa",
+      "CN-v27-17740487419"
+    ]
+  },
+  {
+    "slug": "keycloak-keycloak-v26-17740473328-keycloak-sso-design-and-implementation",
+    "title": "Keycloak SSO Design and Implementation",
+    "description": "Keycloak SSO Design and Implementation — Keycloak (edition Keycloak v26, release Keycloak-v26-17740473328, available as HTML).",
+    "category": "Keycloak",
+    "version": "Keycloak v26",
+    "updatedAt": "2025-09-15T16:52:43Z",
+    "htmlUrl": "/Keycloak/Keycloak-v26-17740473328/Keycloak-SSO-Design-and-Implementation.html",
+    "variant": "Keycloak-v26-17740473328",
+    "tags": [
+      "Keycloak",
+      "Keycloak v26"
+    ],
+    "pathSegments": [
+      "Keycloak",
+      "Keycloak-v26-17740473328"
+    ]
+  },
+  {
+    "slug": "the-indiedeveloper-fullstack-roadmap-en-v26-17740473328-fullstack-roadmap-en",
+    "title": "fullstack roadmap en",
+    "description": "fullstack roadmap en — The Indie Developer Fullstack Roadmap (edition EN v26, release EN-v26-17740473328, available as PDF and HTML).",
+    "category": "The Indie Developer Fullstack Roadmap",
+    "version": "EN v26",
+    "updatedAt": "2025-09-15T16:52:42Z",
+    "pdfUrl": "/The-IndieDeveloper-Fullstack-Roadmap/EN-v26-17740473328/fullstack-roadmap-en.pdf",
+    "htmlUrl": "/The-IndieDeveloper-Fullstack-Roadmap/EN-v26-17740473328/fullstack-roadmap-en.html",
+    "language": "EN",
+    "variant": "EN-v26-17740473328",
+    "tags": [
+      "EN",
+      "EN v26",
+      "The Indie Developer Fullstack Roadmap"
+    ],
+    "pathSegments": [
+      "The-IndieDeveloper-Fullstack-Roadmap",
+      "EN-v26-17740473328"
+    ]
+  },
+  {
+    "slug": "interview-qa-cn-v26-17740473328-interview-qa-guide",
+    "title": "Interview QA Guide",
+    "description": "Interview QA Guide — interview qa (edition CN v26, release CN-v26-17740473328, available as PDF and HTML).",
+    "category": "interview qa",
+    "version": "CN v26",
+    "updatedAt": "2025-09-15T16:52:33Z",
+    "pdfUrl": "/interview-qa/CN-v26-17740473328/Interview-QA-Guide.pdf",
+    "htmlUrl": "/interview-qa/CN-v26-17740473328/Interview-QA-Guide.html",
+    "language": "CN",
+    "variant": "CN-v26-17740473328",
+    "tags": [
+      "CN",
+      "CN v26",
+      "interview qa"
+    ],
+    "pathSegments": [
+      "interview-qa",
+      "CN-v26-17740473328"
+    ]
+  },
+  {
+    "slug": "techexploration-techexploration-v25-17740048053-tech-exploration",
+    "title": "Tech Exploration",
+    "description": "Tech Exploration — Tech Exploration (edition TechExploration v25, release TechExploration-v25-17740048053, available as PDF).",
+    "category": "Tech Exploration",
+    "version": "TechExploration v25",
+    "updatedAt": "2025-09-15T16:35:49Z",
+    "pdfUrl": "/TechExploration/TechExploration-v25-17740048053/Tech-Exploration.pdf",
+    "variant": "TechExploration-v25-17740048053",
+    "tags": [
+      "Tech Exploration",
+      "TechExploration v25"
+    ],
+    "pathSegments": [
+      "TechExploration",
+      "TechExploration-v25-17740048053"
+    ]
+  },
+  {
+    "slug": "linux-k8s-ops-cn-v25-17740048053-linux-k8s-ops-guide",
+    "title": "Linux K8 S OPS Guide",
+    "description": "Linux K8 S OPS Guide — Linux K8 S OPS (edition CN v25, release CN-v25-17740048053, available as PDF and HTML).",
+    "category": "Linux K8 S OPS",
+    "version": "CN v25",
+    "updatedAt": "2025-09-15T16:35:34Z",
+    "pdfUrl": "/Linux-K8S-OPS/CN-v25-17740048053/Linux-K8S-OPS-Guide.pdf",
+    "htmlUrl": "/Linux-K8S-OPS/CN-v25-17740048053/Linux-K8S-OPS-Guide.html",
+    "language": "CN",
+    "variant": "CN-v25-17740048053",
+    "tags": [
+      "CN",
+      "CN v25",
+      "Linux K8 S OPS"
+    ],
+    "pathSegments": [
+      "Linux-K8S-OPS",
+      "CN-v25-17740048053"
+    ]
+  },
+  {
+    "slug": "keycloak-keycloak-v24-17740025432-keycloak-sso-design-and-implementation",
+    "title": "Keycloak SSO Design and Implementation",
+    "description": "Keycloak SSO Design and Implementation — Keycloak (edition Keycloak v24, release Keycloak-v24-17740025432, available as HTML).",
+    "category": "Keycloak",
+    "version": "Keycloak v24",
+    "updatedAt": "2025-09-15T16:34:36Z",
+    "htmlUrl": "/Keycloak/Keycloak-v24-17740025432/Keycloak-SSO-Design-and-Implementation.html",
+    "variant": "Keycloak-v24-17740025432",
+    "tags": [
+      "Keycloak",
+      "Keycloak v24"
+    ],
+    "pathSegments": [
+      "Keycloak",
+      "Keycloak-v24-17740025432"
+    ]
+  },
+  {
+    "slug": "the-indiedeveloper-fullstack-roadmap-en-v23-17739490366-fullstack-roadmap-en",
+    "title": "fullstack roadmap en",
+    "description": "fullstack roadmap en — The Indie Developer Fullstack Roadmap (edition EN v23, release EN-v23-17739490366, available as HTML).",
+    "category": "The Indie Developer Fullstack Roadmap",
+    "version": "EN v23",
+    "updatedAt": "2025-09-15T16:14:44Z",
+    "htmlUrl": "/The-IndieDeveloper-Fullstack-Roadmap/EN-v23-17739490366/fullstack-roadmap-en.html",
+    "language": "EN",
+    "variant": "EN-v23-17739490366",
+    "tags": [
+      "EN",
+      "EN v23",
+      "The Indie Developer Fullstack Roadmap"
+    ],
+    "pathSegments": [
+      "The-IndieDeveloper-Fullstack-Roadmap",
+      "EN-v23-17739490366"
+    ]
+  },
+  {
+    "slug": "interview-qa-cn-v23-17739490366-interview-qa-guide",
+    "title": "Interview QA Guide",
+    "description": "Interview QA Guide — interview qa (edition CN v23, release CN-v23-17739490366, available as PDF and HTML).",
+    "category": "interview qa",
+    "version": "CN v23",
+    "updatedAt": "2025-09-15T16:14:38Z",
+    "pdfUrl": "/interview-qa/CN-v23-17739490366/Interview-QA-Guide.pdf",
+    "htmlUrl": "/interview-qa/CN-v23-17739490366/Interview-QA-Guide.html",
+    "language": "CN",
+    "variant": "CN-v23-17739490366",
+    "tags": [
+      "CN",
+      "CN v23",
+      "interview qa"
+    ],
+    "pathSegments": [
+      "interview-qa",
+      "CN-v23-17739490366"
+    ]
+  },
+  {
+    "slug": "observability-cn-v23-17739490366-observability-design-and-implementation",
+    "title": "Observability Design and Implementation",
+    "description": "Observability Design and Implementation — Observability (edition CN v23, release CN-v23-17739490366, available as PDF and HTML).",
+    "category": "Observability",
+    "version": "CN v23",
+    "updatedAt": "2025-09-15T16:13:57Z",
+    "pdfUrl": "/Observability/CN-v23-17739490366/Observability-Design-and-Implementation.pdf",
+    "htmlUrl": "/Observability/CN-v23-17739490366/Observability-Design-and-Implementation.html",
+    "language": "CN",
+    "variant": "CN-v23-17739490366",
+    "tags": [
+      "CN",
+      "CN v23",
+      "Observability"
+    ],
+    "pathSegments": [
+      "Observability",
+      "CN-v23-17739490366"
+    ]
+  },
+  {
+    "slug": "the-indiedeveloper-fullstack-roadmap-cn-v23-17739490366-fullstack-roadmap-cn",
+    "title": "fullstack roadmap cn",
+    "description": "fullstack roadmap cn — The Indie Developer Fullstack Roadmap (edition CN v23, release CN-v23-17739490366, available as PDF and HTML).",
+    "category": "The Indie Developer Fullstack Roadmap",
+    "version": "CN v23",
+    "updatedAt": "2025-09-15T16:13:46Z",
+    "pdfUrl": "/The-IndieDeveloper-Fullstack-Roadmap/CN-v23-17739490366/fullstack-roadmap-cn.pdf",
+    "htmlUrl": "/The-IndieDeveloper-Fullstack-Roadmap/CN-v23-17739490366/fullstack-roadmap-cn.html",
+    "language": "CN",
+    "variant": "CN-v23-17739490366",
+    "tags": [
+      "CN",
+      "CN v23",
+      "The Indie Developer Fullstack Roadmap"
+    ],
+    "pathSegments": [
+      "The-IndieDeveloper-Fullstack-Roadmap",
+      "CN-v23-17739490366"
+    ]
+  },
+  {
+    "slug": "the-indiedeveloper-fullstack-roadmap-en-v22-17739462094-fullstack-roadmap-en",
+    "title": "fullstack roadmap en",
+    "description": "fullstack roadmap en — The Indie Developer Fullstack Roadmap (edition EN v22, release EN-v22-17739462094, available as HTML).",
+    "category": "The Indie Developer Fullstack Roadmap",
+    "version": "EN v22",
+    "updatedAt": "2025-09-15T16:12:46Z",
+    "htmlUrl": "/The-IndieDeveloper-Fullstack-Roadmap/EN-v22-17739462094/fullstack-roadmap-en.html",
+    "language": "EN",
+    "variant": "EN-v22-17739462094",
+    "tags": [
+      "EN",
+      "EN v22",
+      "The Indie Developer Fullstack Roadmap"
+    ],
+    "pathSegments": [
+      "The-IndieDeveloper-Fullstack-Roadmap",
+      "EN-v22-17739462094"
+    ]
+  },
+  {
+    "slug": "the-indiedeveloper-fullstack-roadmap-en-v21-17739112034-fullstack-roadmap-en",
+    "title": "fullstack roadmap en",
+    "description": "fullstack roadmap en — The Indie Developer Fullstack Roadmap (edition EN v21, release EN-v21-17739112034, available as HTML).",
+    "category": "The Indie Developer Fullstack Roadmap",
+    "version": "EN v21",
+    "updatedAt": "2025-09-15T15:59:58Z",
+    "htmlUrl": "/The-IndieDeveloper-Fullstack-Roadmap/EN-v21-17739112034/fullstack-roadmap-en.html",
+    "language": "EN",
+    "variant": "EN-v21-17739112034",
+    "tags": [
+      "EN",
+      "EN v21",
+      "The Indie Developer Fullstack Roadmap"
+    ],
+    "pathSegments": [
+      "The-IndieDeveloper-Fullstack-Roadmap",
+      "EN-v21-17739112034"
+    ]
+  },
+  {
+    "slug": "the-indiedeveloper-fullstack-roadmap-cn-v21-17739112034-fullstack-roadmap-cn",
+    "title": "fullstack roadmap cn",
+    "description": "fullstack roadmap cn — The Indie Developer Fullstack Roadmap (edition CN v21, release CN-v21-17739112034, available as HTML).",
+    "category": "The Indie Developer Fullstack Roadmap",
+    "version": "CN v21",
+    "updatedAt": "2025-09-15T15:59:50Z",
+    "htmlUrl": "/The-IndieDeveloper-Fullstack-Roadmap/CN-v21-17739112034/fullstack-roadmap-cn.html",
+    "language": "CN",
+    "variant": "CN-v21-17739112034",
+    "tags": [
+      "CN",
+      "CN v21",
+      "The Indie Developer Fullstack Roadmap"
+    ],
+    "pathSegments": [
+      "The-IndieDeveloper-Fullstack-Roadmap",
+      "CN-v21-17739112034"
+    ]
+  },
+  {
+    "slug": "observability-cn-v20-17738959811-observability-design-and-implementation",
+    "title": "Observability Design and Implementation",
+    "description": "Observability Design and Implementation — Observability (edition CN v20, release CN-v20-17738959811, available as PDF and HTML).",
+    "category": "Observability",
+    "version": "CN v20",
+    "updatedAt": "2025-09-15T15:54:22Z",
+    "pdfUrl": "/Observability/CN-v20-17738959811/Observability-Design-and-Implementation.pdf",
+    "htmlUrl": "/Observability/CN-v20-17738959811/Observability-Design-and-Implementation.html",
+    "language": "CN",
+    "variant": "CN-v20-17738959811",
+    "tags": [
+      "CN",
+      "CN v20",
+      "Observability"
+    ],
+    "pathSegments": [
+      "Observability",
+      "CN-v20-17738959811"
+    ]
+  },
+  {
+    "slug": "the-indiedeveloper-fullstack-roadmap-cn-v20-17738959811-fullstack-roadmap-cn",
+    "title": "fullstack roadmap cn",
+    "description": "fullstack roadmap cn — The Indie Developer Fullstack Roadmap (edition CN v20, release CN-v20-17738959811, available as HTML).",
+    "category": "The Indie Developer Fullstack Roadmap",
+    "version": "CN v20",
+    "updatedAt": "2025-09-15T15:54:20Z",
+    "htmlUrl": "/The-IndieDeveloper-Fullstack-Roadmap/CN-v20-17738959811/fullstack-roadmap-cn.html",
+    "language": "CN",
+    "variant": "CN-v20-17738959811",
+    "tags": [
+      "CN",
+      "CN v20",
+      "The Indie Developer Fullstack Roadmap"
+    ],
+    "pathSegments": [
+      "The-IndieDeveloper-Fullstack-Roadmap",
+      "CN-v20-17738959811"
     ]
   }
 ]

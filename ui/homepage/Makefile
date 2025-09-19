@@ -71,22 +71,22 @@ test:
 	@yarn test || echo "No tests configured"
 
 build: init
-        yarn config set npmRegistryServer https://registry.npmmirror.com
-        @if [ -z "$(SKIP_SYNC)" ]; then \
-                $(MAKE) sync-dl-index; \
-        fi
-        @echo "🔨 Building homepage..."
-        yarn next build
+	yarn config set npmRegistryServer https://registry.npmmirror.com
+	@if [ -z "$(SKIP_SYNC)" ]; then \
+		$(MAKE) sync-dl-index; \
+		fi
+	@echo "🔨 Building homepage..."
+	yarn next build
 
 sync-dl-index:
-        @echo "📥 Fetching download & docs manifests..."
-        @mkdir -p public/dl-index
-        @if ! curl -fsSL https://dl.svc.plus/manifest.json -o public/dl-index/artifacts-manifest.json; then \
-                echo "⚠️  Unable to download artifacts manifest. Using existing snapshot."; \
-        fi
-        @if ! curl -fsSL https://dl.svc.plus/docs/all.json -o public/dl-index/docs-manifest.json; then \
-                echo "⚠️  Unable to download docs manifest. Using existing snapshot."; \
-        fi
+	@echo "📥 Fetching download & docs manifests..."
+	@mkdir -p public/dl-index
+	@if ! curl -fsSL https://dl.svc.plus/manifest.json -o public/dl-index/artifacts-manifest.json; then \
+            echo "⚠️  Unable to download artifacts manifest. Using existing snapshot."; \
+			fi
+	@if ! curl -fsSL https://dl.svc.plus/docs/all.json -o public/dl-index/docs-manifest.json; then \
+            echo "⚠️  Unable to download docs manifest. Using existing snapshot."; \
+    fi
 
 export:
 	@echo "📦 Exporting homepage static site to ./out ..."
