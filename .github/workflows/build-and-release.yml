@@ -71,3 +71,96 @@ jobs:
             release-artifacts/xcontrol-*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js for static export
+        if: github.ref == 'refs/heads/main'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+          cache-dependency-path: ui/homepage/yarn.lock
+
+      - name: Install homepage dependencies
+        if: github.ref == 'refs/heads/main'
+        working-directory: ui/homepage
+        run: yarn install --frozen-lockfile
+
+      - name: Run homepage export scripts
+        if: github.ref == 'refs/heads/main'
+        working-directory: ui/homepage
+        run: yarn prebuild
+
+      - name: Build homepage static bundle
+        if: github.ref == 'refs/heads/main'
+        working-directory: ui/homepage
+        run: yarn build:static
+
+      - name: Sync static bundle via rsync
+        if: github.ref == 'refs/heads/main'
+        env:
+          STATIC_EXPORT_SSH_KEY: ${{ secrets.STATIC_EXPORT_SSH_KEY }}
+          STATIC_EXPORT_HOST: ${{ secrets.STATIC_EXPORT_HOST }}
+          STATIC_EXPORT_USER: ${{ secrets.STATIC_EXPORT_USER }}
+          STATIC_EXPORT_PATH: ${{ secrets.STATIC_EXPORT_PATH }}
+        working-directory: ui/homepage
+        run: |
+          set -euo pipefail
+          install -m 700 -d ~/.ssh
+          echo "$STATIC_EXPORT_SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H "$STATIC_EXPORT_HOST" >> ~/.ssh/known_hosts
+          rsync -avz --delete ./out/ "${STATIC_EXPORT_USER}@${STATIC_EXPORT_HOST}:${STATIC_EXPORT_PATH}"
+
+      - name: Invalidate CloudFront cache
+        if: github.ref == 'refs/heads/main'
+        working-directory: ui/homepage
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
+
+  deploy-panel:
+    needs: release
+    uses: ./.github/workflows/deploy-xcontrol-panel.yml
+    secrets: inherit
+
+  update-mirror:
+    needs: release
+    uses: ./.github/workflows/update-mirror.yml
+    secrets: inherit
+
+  deploy:
+    needs:
+      - release
+      - deploy-panel
+      - update-mirror
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        site: [global-homepage.svc.plus, cn-homepage.svc.plus]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Ansible
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install ansible
+
+      - name: Configure SSH access
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          install -m 700 -d ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H "${{ matrix.site }}" >> ~/.ssh/known_hosts
+
+      - name: Run provisioning playbook
+        env:
+          ANSIBLE_USER: ${{ secrets.VPS_USER }}
+        run: |
+          set -euo pipefail
+          cd deploy/ansible
+          cat <<EOF > inventory.ini
+          [targets]
+          ${{ matrix.site }} ansible_user=${ANSIBLE_USER}
+          EOF
+          ansible-playbook -i inventory.ini run-playbook.yml

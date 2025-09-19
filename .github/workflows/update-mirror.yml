@@ -2,6 +2,7 @@ name: Update Mirror Metadata
 
 on:
   workflow_dispatch:
+  workflow_call:
   push:
     paths:
       - "scripts/gen_mirror_manifest.py"
