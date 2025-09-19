@@ -1,7 +1,8 @@
 import 'server-only'
 
 import feature from './feature.config'
-import docsIndex from '../../public/_build/docs_index.json'
+import docsManifest from '../../public/dl-index/docs-manifest.json'
+import fallbackDocsIndex from '../../public/_build/docs_index.json'
 
 export interface DocResource {
   slug: string
@@ -37,9 +38,12 @@ interface RawDocResource {
   pathSegments?: unknown
 }
 
-const RAW_DOCS = Array.isArray(docsIndex) ? (docsIndex as RawDocResource[]) : []
+const manifestDocs = Array.isArray(docsManifest) ? (docsManifest as RawDocResource[]) : []
+const fallbackDocs = Array.isArray(fallbackDocsIndex) ? (fallbackDocsIndex as RawDocResource[]) : []
 
-const DOCS_DATASET = RAW_DOCS.map((item) => normalizeResource(item as RawDocResource)).filter(
+const RAW_DOCS = manifestDocs.length > 0 ? manifestDocs : fallbackDocs
+
+export const DOCS_DATASET = RAW_DOCS.map((item) => normalizeResource(item as RawDocResource)).filter(
   (item): item is DocResource => item !== null,
 )
 

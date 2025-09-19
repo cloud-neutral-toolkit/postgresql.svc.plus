@@ -7,7 +7,7 @@ NODE_MAJOR ?= 22
 export PATH := $(GO_BIN):$(PATH)
 
 .PHONY: install install-openresty install-redis install-postgresql install-pgvector install-zhparser init-db \
-	build build-server build-homepage build-panel build-dl build-docs \
+        build update-homepage-manifests build-server build-homepage build-panel build-dl build-docs \
 	start start-openresty start-server start-homepage start-panel start-dl start-docs \
 	stop stop-server stop-homepage stop-panel stop-dl stop-docs stop-openresty restart
 
@@ -94,7 +94,7 @@ init-db:
 # Build targets
 # -----------------------------------------------------------------------------
 
-build: build-cli build-server build-homepage build-panel build-dl build-docs
+build: update-homepage-manifests build-cli build-server build-homepage build-panel build-dl build-docs
 
 build-cli:
 	$(MAKE) -C client build
@@ -103,7 +103,10 @@ build-server:
 	$(MAKE) -C server build
 
 build-homepage:
-	$(MAKE) -C ui/homepage build
+        $(MAKE) -C ui/homepage build SKIP_SYNC=1
+
+update-homepage-manifests:
+        $(MAKE) -C ui/homepage sync-dl-index
 
 build-panel:
 	$(MAKE) -C ui/panel build

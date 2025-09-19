@@ -4,11 +4,9 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 
 import Breadcrumbs, { Crumb } from '../../../components/download/Breadcrumbs'
-import { getDocResource } from '../resources'
+import { DOCS_DATASET, getDocResource } from '../resources'
 import feature from '../feature.config'
 import ClientTime from '../../components/ClientTime'
-import docsIndex from '../../../public/_build/docs_index.json'
-import type { DocResource } from '../resources'
 import DocViewSection, { type DocViewOption } from './DocViewSection'
 
 function buildBreadcrumbs(slug: string, docTitle: string): Crumb[] {
@@ -18,14 +16,12 @@ function buildBreadcrumbs(slug: string, docTitle: string): Crumb[] {
   ]
 }
 
-const DOCS_INDEX = docsIndex as DocResource[]
-
 export const generateStaticParams = () => {
   if (!feature.enabled) {
     return []
   }
 
-  return DOCS_INDEX.map((doc) => ({ name: doc.slug }))
+  return DOCS_DATASET.map((doc) => ({ name: doc.slug }))
 }
 
 export const dynamicParams = false

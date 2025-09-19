@@ -8,17 +8,52 @@ import {
   findListing,
   formatSegmentLabel,
 } from '../../../lib/download-data'
-import { getDownloadListings } from '../../../lib/download-manifest'
+import { DOWNLOAD_LISTINGS, getDownloadListings } from '../../../lib/download-manifest'
 import type { DirListing } from '../../../types/download'
-import docsPaths from '../../../public/_build/docs_paths.json'
 
 const allListings = getDownloadListings()
-const DOWNLOAD_PATHS = (docsPaths as string[]).filter((path) => typeof path === 'string')
+
+function collectDownloadParams(listings: DirListing[]): { segments: string[] }[] {
+  const params: { segments: string[] }[] = []
+  const root = findListing(listings, [])
+  if (!root) {
+    return params
+  }
+
+  const stack: { segments: string[]; listing: DirListing }[] = []
+  stack.push({ segments: [], listing: root })
+
+  while (stack.length > 0) {
+    const current = stack.pop()
+    if (!current) {
+      continue
+    }
+
+    for (const entry of current.listing.entries) {
+      if (entry.type !== 'dir') {
+        continue
+      }
+
+      const segment = entry.name.replace(/\/+$/g, '').trim()
+      if (!segment) {
+        continue
+      }
+
+      const nextSegments = [...current.segments, segment]
+      params.push({ segments: nextSegments })
+
+      const child = findListing(listings, nextSegments)
+      if (child) {
+        stack.push({ segments: nextSegments, listing: child })
+      }
+    }
+  }
+
+  return params
+}
 
 export function generateStaticParams() {
-  return DOWNLOAD_PATHS.filter((path) => path.trim().length > 0).map((path) => ({
-    segments: path.split('/').filter(Boolean),
-  }))
+  return collectDownloadParams(DOWNLOAD_LISTINGS)
 }
 
 export const dynamicParams = false

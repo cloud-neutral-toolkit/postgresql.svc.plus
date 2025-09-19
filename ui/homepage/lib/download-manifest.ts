@@ -1,12 +1,13 @@
-import manifestData from '../public/dl-index/manifest.json'
+import manifestData from '../public/dl-index/artifacts-manifest.json'
 import fallbackData from '../public/dl-index/all.json'
 import type { DirListing } from '../types/download'
 
-const manifestListings = (manifestData as DirListing[]) ?? []
-const fallbackListings = (fallbackData as DirListing[]) ?? []
+const manifestListings = Array.isArray(manifestData) ? (manifestData as DirListing[]) : []
+const fallbackListings = Array.isArray(fallbackData) ? (fallbackData as DirListing[]) : []
 
-const listings = manifestListings.length > 0 ? manifestListings : fallbackListings
+export const DOWNLOAD_LISTINGS: DirListing[] =
+  manifestListings.length > 0 ? manifestListings : fallbackListings
 
 export function getDownloadListings(): DirListing[] {
-  return listings
+  return DOWNLOAD_LISTINGS
 }
