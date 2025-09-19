@@ -1,3 +1,5 @@
+export const dynamic = 'error'
+
 import DownloadBrowser from '../../components/download/DownloadBrowser'
 import DownloadSummary from '../../components/download/DownloadSummary'
 import { buildDownloadSections, countFiles, findListing } from '../../lib/download-data'

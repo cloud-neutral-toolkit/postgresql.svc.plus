@@ -1,3 +1,5 @@
+export const dynamic = 'error'
+
 import { notFound } from 'next/navigation'
 
 import feature from './feature.config'

@@ -1,8 +1,7 @@
 import 'server-only'
 
-import { cache } from 'react'
-
 import feature from './feature.config'
+import docsIndex from '../../public/_build/docs_index.json'
 
 export interface DocResource {
   slug: string
@@ -38,38 +37,11 @@ interface RawDocResource {
   pathSegments?: unknown
 }
 
-const FALLBACK_DOCS: DocResource[] = []
+const RAW_DOCS = Array.isArray(docsIndex) ? (docsIndex as RawDocResource[]) : []
 
-const DOCS_MANIFEST_URL = process.env.DOCS_MANIFEST_URL || 'https://dl.svc.plus/docs/all.json'
-
-const loadManifest = cache(async (): Promise<DocResource[]> => {
-  try {
-    const response = await fetch(DOCS_MANIFEST_URL, {
-      cache: 'force-cache',
-      headers: {
-        accept: 'application/json',
-      },
-    })
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch docs manifest: ${response.status} ${response.statusText}`)
-    }
-
-    const payload = (await response.json()) as unknown
-    if (!Array.isArray(payload)) {
-      throw new Error('Docs manifest payload must be an array')
-    }
-
-    const resources = payload
-      .map((item) => normalizeResource(item as RawDocResource))
-      .filter((item): item is DocResource => item !== null)
-
-    return resources
-  } catch (error) {
-    console.error('[docs] Unable to load manifest, using fallback dataset.', error)
-    return FALLBACK_DOCS
-  }
-})
+const DOCS_DATASET = RAW_DOCS.map((item) => normalizeResource(item as RawDocResource)).filter(
+  (item): item is DocResource => item !== null,
+)
 
 function normalizeResource(item: RawDocResource): DocResource | null {
   if (!item || typeof item !== 'object') {
@@ -156,7 +128,7 @@ export async function getDocResources(): Promise<DocResource[]> {
     return []
   }
 
-  return loadManifest()
+  return DOCS_DATASET
 }
 
 export async function getDocResource(slug: string): Promise<DocResource | undefined> {
@@ -164,6 +136,5 @@ export async function getDocResource(slug: string): Promise<DocResource | undefi
     return undefined
   }
 
-  const resources = await loadManifest()
-  return resources.find((doc) => doc.slug === slug)
+  return DOCS_DATASET.find((doc) => doc.slug === slug)
 }

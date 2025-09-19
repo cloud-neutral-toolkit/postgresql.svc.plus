@@ -1,3 +1,5 @@
+export const dynamic = 'error'
+
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
@@ -6,26 +8,28 @@ import { CATALOG, PROVIDERS } from '@lib/iac/catalog'
 import type { ProviderKey } from '@lib/iac/types'
 
 import feature from '../feature.config'
+import cloudIacIndex from '../../../public/_build/cloud_iac_index.json'
 
 type PageParams = {
   provider: string
 }
 
+type CloudIacIndex = {
+  providers: { key: ProviderKey; label: string }[]
+}
+
+const CLOUD_IAC_INDEX = cloudIacIndex as CloudIacIndex
+
 const PROVIDER_MAP = new Map(PROVIDERS.map((provider) => [provider.key, provider.label] as const))
 
-export function generateMetadata({ params }: { params: PageParams }): Metadata {
-  const providerKey = params.provider as ProviderKey
-  const providerLabel = PROVIDER_MAP.get(providerKey)
-  if (!providerLabel) {
-    return {
-      title: 'Cloud IaC Catalog',
-    }
-  }
+export function generateStaticParams() {
+  return CLOUD_IAC_INDEX.providers.map((provider) => ({ provider: provider.key }))
+}
 
-  return {
-    title: `${providerLabel} · Cloud IaC Catalog`,
-    description: `${providerLabel} 核心云服务的 IaC 编排目录，涵盖计算、网络、存储、数据库等常用能力。`,
-  }
+export const dynamicParams = false
+
+export const metadata: Metadata = {
+  title: 'Cloud IaC Catalog',
 }
 
 export default function CloudIacProviderPage({ params }: { params: PageParams }) {

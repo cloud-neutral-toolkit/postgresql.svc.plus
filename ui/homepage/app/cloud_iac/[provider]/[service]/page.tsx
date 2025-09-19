@@ -1,3 +1,5 @@
+export const dynamic = 'error'
+
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
@@ -6,11 +8,19 @@ import { CATALOG, PROVIDERS } from '@lib/iac/catalog'
 import type { CatalogItem, ProviderKey } from '@lib/iac/types'
 
 import feature from '../../feature.config'
+import cloudIacIndex from '../../../../public/_build/cloud_iac_index.json'
 
 type PageParams = {
   provider: string
   service: string
 }
+
+type CloudIacIndex = {
+  providers: { key: ProviderKey; label: string }[]
+  services: { provider: ProviderKey; service: string }[]
+}
+
+const CLOUD_IAC_INDEX = cloudIacIndex as CloudIacIndex
 
 const PROVIDER_MAP = new Map(PROVIDERS.map((provider) => [provider.key, provider.label] as const))
 
@@ -18,21 +28,14 @@ function findCategoryBySlug(provider: ProviderKey, slug: string): CatalogItem | 
   return CATALOG.find((item) => item.iac?.[provider]?.detailSlug === slug)
 }
 
-export function generateMetadata({ params }: { params: PageParams }): Metadata {
-  const providerKey = params.provider as ProviderKey
-  const providerLabel = PROVIDER_MAP.get(providerKey)
-  const category = providerLabel ? findCategoryBySlug(providerKey, params.service) : undefined
-  if (!providerLabel || !category) {
-    return {
-      title: 'Cloud IaC Catalog',
-    }
-  }
+export function generateStaticParams() {
+  return CLOUD_IAC_INDEX.services.map((item) => ({ provider: item.provider, service: item.service }))
+}
 
-  const productName = category.products[providerKey] ?? category.title
-  return {
-    title: `${providerLabel} · ${productName} · Cloud IaC`,
-    description: `${providerLabel} 的 ${productName} IaC 详情页，提供 GitOps 配置、资源预览与成本估算。`,
-  }
+export const dynamicParams = false
+
+export const metadata: Metadata = {
+  title: 'Cloud IaC Catalog',
 }
 
 export default function CloudIacServicePage({ params }: { params: PageParams }) {

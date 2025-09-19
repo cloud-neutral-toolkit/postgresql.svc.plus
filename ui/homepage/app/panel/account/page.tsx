@@ -1,3 +1,5 @@
+export const dynamic = 'error'
+
 import Card from '../components/Card'
 
 export default function AccountPage() {

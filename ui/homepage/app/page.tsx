@@ -1,3 +1,5 @@
+export const dynamic = 'error'
+
 import Hero from '@components/Hero'
 import Features from '@components/Features'
 import OpenSource from '@components/OpenSource'

@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',         // 生成最小可运行产物（适合 1c1G）
+  output: 'export',             // 直接生成静态文件，便于部署到 S3 / Nginx
+  trailingSlash: true,
   reactStrictMode: true,
   compress: false,              // 压缩交给 Nginx，省 Node CPU
   images: { unoptimized: true },// 关闭服务端图片处理

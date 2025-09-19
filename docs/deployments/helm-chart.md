@@ -4,17 +4,106 @@ How to deploy XControl via Helm.
 
 ## Nginx 配置
 
-在使用 Helm 部署后，若需要通过 `cn-homepage.svc.plus` 和 `artifact.svc.plus` 提供静态页面与下载服务，可参考以下 Nginx 配置：
+Helm 部署既可以运行 Next.js Node 进程，也可以直接托管静态导出的页面。以下分别给出两种配置示例，便于在不同集群环境复用。
+
+### 动态渲染（Node.js 代理）
+
+如果希望在 Pod 内运行 Next.js 服务器，请将以下内容写入 `/usr/local/openresty/nginx/conf/sites-available/cn-homepage.svc.plus.conf`：
 
 ```nginx
-# 1. HTTP 自动跳转到 HTTPS
+server {
+  listen 80;
+  server_name www.svc.plus cn-homepage.svc.plus;
+  return 301 https://$host$request_uri;
+}
+
+server {
+  listen 443 ssl;
+  server_name www.svc.plus cn-homepage.svc.plus;
+
+  ssl_certificate     /etc/ssl/svc.plus.pem;
+  ssl_certificate_key /etc/ssl/svc.plus.rsa.key;
+  ssl_protocols       TLSv1.2 TLSv1.3;
+  ssl_ciphers         HIGH:!aNULL:!MD5;
+
+  location /api/ {
+    proxy_pass http://127.0.0.1:8080;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
+  location = /api/askai {
+    access_by_lua_block {
+      local redis = require "resty.redis"
+      local r = redis:new()
+      r:set_timeout(200)
+      local ok, err = r:connect("127.0.0.1", 6379)
+      if not ok then
+        ngx.log(ngx.ERR, "Redis connect error: ", err)
+        return ngx.exit(500)
+      end
+
+      local user = ngx.var.arg_user or ngx.var.remote_addr
+      local today = os.date("%Y%m%d")
+      local key = "limit:user:" .. user .. ":" .. today
+
+      local count, err = r:incr(key)
+      if count == 1 then r:expire(key, 86400) end
+      if count > 200 then
+        ngx.status = 429
+        ngx.header["Content-Type"] = "text/plain; charset=utf-8"
+        ngx.say("Too Many Requests: daily limit reached")
+        return ngx.exit(429)
+      end
+    }
+
+    proxy_pass http://127.0.0.1:8080;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
+  location ^~ /_next/ {
+    proxy_pass http://127.0.0.1:3000;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+  }
+
+  location /favicon.ico {
+    proxy_pass http://127.0.0.1:3000;
+  }
+
+  location / {
+    proxy_pass http://127.0.0.1:3000;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
+  location ~ /\. {
+    deny all;
+  }
+}
+```
+
+### 静态导出（无 Node 依赖）
+
+完成 `yarn build:static` 后，可直接托管 `ui/homepage/out` 目录：
+
+```nginx
 server {
   listen 80;
   server_name cn-homepage.svc.plus;
   return 301 https://cn-homepage.svc.plus$request_uri;
 }
 
-# 2. HTTPS 静态站部署 svc.plus
 server {
   listen 443 ssl http2;
   server_name cn-homepage.svc.plus;
@@ -24,62 +113,54 @@ server {
   ssl_protocols TLSv1.2 TLSv1.3;
   ssl_ciphers HIGH:!aNULL:!MD5;
 
-  # 3. 指向静态构建输出目录
   root /var/www/XControl/ui/homepage/out;
   index index.html;
 
-  # 4. 页面访问（含 SPA fallback）
+  error_page 404 /404/index.html;
+  error_page 500 502 503 504 /500/index.html;
+
   location / {
     try_files $uri $uri/ /index.html;
   }
 
-   # 5. 静态资源缓存优化
-   location ~* \.(?:ico|css|js|gif|jpe?g|png|woff2?)$ {
-     expires 30d;
-     access_log off;
-     add_header Cache-Control "public";
-   }
+  location ~* \.(?:ico|css|js|gif|jpe?g|png|woff2?)$ {
+    expires 30d;
+    access_log off;
+    add_header Cache-Control "public";
+  }
 
-   # 6. 转发后端 API
-   location /api/ {
-     proxy_pass http://127.0.0.1:8080/api/;
-     proxy_set_header Host $host;
-     proxy_set_header X-Real-IP $remote_addr;
-   }
+  location /api/ {
+    proxy_pass http://127.0.0.1:8080/api/;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+  }
 
-   # 7. 隐藏 . 文件（如 .DS_Store）
-   location ~ /\. {
-     deny all;
-   }
+  location ~ /\. {
+    deny all;
+  }
 }
 
-# 7. HTTPS 独立下载服务 artifact.svc.plus
 server {
   listen 443 ssl http2;
   server_name artifact.svc.plus;
 
-  # SSL 配置
   ssl_certificate /etc/ssl/svc.plus.pem;
   ssl_certificate_key /etc/ssl/svc.plus.rsa.key;
   ssl_protocols TLSv1.2 TLSv1.3;
   ssl_ciphers HIGH:!aNULL:!MD5;
 
-  # 映射统一目录
   root /data/update-server;
   index index.html;
 
-  # 显示目录索引，方便预览或手动下载
   autoindex on;
   autoindex_exact_size off;
   autoindex_localtime on;
 
-  # 允许所有子路径访问（包括你预留的）
   location / {
     add_header Accept-Ranges bytes;
     try_files $uri $uri/ =404;
   }
 
-  # 静态构建产物缓存优化
   location ~* \.(dmg|zip|tar\.gz|deb|rpm|exe|pkg|AppImage|apk|ipa)$ {
     expires 7d;
     access_log off;
@@ -88,7 +169,6 @@ server {
     try_files $uri =404;
   }
 
-  # 隐藏 . 文件
   location ~ /\. {
     deny all;
   }

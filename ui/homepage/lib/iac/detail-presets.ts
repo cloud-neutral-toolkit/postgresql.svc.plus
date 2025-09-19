@@ -35,7 +35,7 @@ type PreviewBuilder = (context: Context) => PreviewItem[]
 type CostBuilder = (context: Context) => CostItem[]
 type OutputBuilder = (context: Context) => OutputItem[]
 
-const SPEC_PRESETS: Record<CategoryKey, SpecBuilder> = {
+const SPEC_PRESETS: Partial<Record<CategoryKey, SpecBuilder>> = {
   compute: () => [
     { label: '实例规格', defaultValue: 't3.medium', description: '默认双核 4GB，适合通用业务与测试环境。' },
     { label: '节点数量', defaultValue: '2', description: '可按需调整 Auto Scaling 期望容量。' },
@@ -93,7 +93,7 @@ const SPEC_PRESETS: Record<CategoryKey, SpecBuilder> = {
   ],
 }
 
-const RESOURCE_PRESETS: Record<CategoryKey, PreviewBuilder> = {
+const RESOURCE_PRESETS: Partial<Record<CategoryKey, PreviewBuilder>> = {
   compute: ({ productName }) => [
     { title: 'Auto Scaling Group', description: '跨 2 个可用区部署，关联弹性伸缩策略与健康检查。' },
     { title: productName, description: '默认创建 2 台计算节点，挂载业务安全组与监控代理。' },
@@ -151,7 +151,7 @@ const RESOURCE_PRESETS: Record<CategoryKey, PreviewBuilder> = {
   ],
 }
 
-const COST_PRESETS: Record<CategoryKey, CostBuilder> = {
+const COST_PRESETS: Partial<Record<CategoryKey, CostBuilder>> = {
   compute: () => [
     { title: '计算实例', amount: '~$120', unit: '每月', description: '2 台按量付费 t3.medium 实例（含折扣）。' },
     { title: '块存储', amount: '~$18', unit: '每月', description: '100 GiB 通用型 SSD 存储与快照。' },
@@ -209,7 +209,7 @@ const COST_PRESETS: Record<CategoryKey, CostBuilder> = {
   ],
 }
 
-const OUTPUT_PRESETS: Record<CategoryKey, OutputBuilder> = {
+const OUTPUT_PRESETS: Partial<Record<CategoryKey, OutputBuilder>> = {
   compute: () => [
     { title: '实例私网 IP', value: '10.0.1.12 / 10.0.2.15', description: '可用于上游注册与服务发现。' },
     { title: '弹性伸缩组 ARN', value: 'arn:aws:autoscaling:…:group/app-asg', description: '便于监控、告警或后续自动化引用。' },
@@ -267,18 +267,54 @@ const OUTPUT_PRESETS: Record<CategoryKey, OutputBuilder> = {
   ],
 }
 
+const DEFAULT_SPEC_BUILDER: SpecBuilder = () => [
+  {
+    label: '自定义参数',
+    defaultValue: '按服务需求配置',
+    description: '该服务类别暂未提供默认模板，请根据实际情况补充配置。',
+  },
+]
+
+const DEFAULT_PREVIEW_BUILDER: PreviewBuilder = () => [
+  {
+    title: '服务概览',
+    description: '此类别尚未定义示例资源，请结合产品文档规划部署。',
+  },
+]
+
+const DEFAULT_COST_BUILDER: CostBuilder = () => [
+  {
+    title: '预估成本',
+    amount: '按使用计费',
+    unit: 'USD/月',
+    description: '根据配置选择与使用时长，参考各云厂商最新报价。',
+  },
+]
+
+const DEFAULT_OUTPUT_BUILDER: OutputBuilder = () => [
+  {
+    title: '部署结果',
+    value: '待填充',
+    description: '可在 GitOps 或 IaC 管道中补充具体输出变量。',
+  },
+]
+
 export function getSpecRows(context: Context): SpecRow[] {
-  return SPEC_PRESETS[context.category](context)
+  const builder = SPEC_PRESETS[context.category] ?? DEFAULT_SPEC_BUILDER
+  return builder(context)
 }
 
 export function getResourcePreview(context: Context): PreviewItem[] {
-  return RESOURCE_PRESETS[context.category](context)
+  const builder = RESOURCE_PRESETS[context.category] ?? DEFAULT_PREVIEW_BUILDER
+  return builder(context)
 }
 
 export function getCostPreview(context: Context): CostItem[] {
-  return COST_PRESETS[context.category](context)
+  const builder = COST_PRESETS[context.category] ?? DEFAULT_COST_BUILDER
+  return builder(context)
 }
 
 export function getOutputPreview(context: Context): OutputItem[] {
-  return OUTPUT_PRESETS[context.category](context)
+  const builder = OUTPUT_PRESETS[context.category] ?? DEFAULT_OUTPUT_BUILDER
+  return builder(context)
 }

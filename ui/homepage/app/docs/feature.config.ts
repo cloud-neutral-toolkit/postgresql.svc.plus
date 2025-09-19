@@ -5,7 +5,7 @@ const feature = createFeatureFlag({
   title: 'Documentation Library',
   description: 'Knowledge base resources sourced from dl.svc.plus',
   envVar: 'NEXT_PUBLIC_FEATURE_DOCS',
-  defaultEnabled: false,
+  defaultEnabled: true,
 })
 
 export default feature

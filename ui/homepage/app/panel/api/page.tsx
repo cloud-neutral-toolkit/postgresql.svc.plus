@@ -1,6 +1,6 @@
-import Card from '../components/Card'
+export const dynamic = 'error'
 
-export const dynamic = 'force-static'
+import Card from '../components/Card'
 
 export default function APIPage() {
   return (

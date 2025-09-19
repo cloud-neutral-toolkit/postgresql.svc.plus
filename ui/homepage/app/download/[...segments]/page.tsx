@@ -1,3 +1,5 @@
+export const dynamic = 'error'
+
 import DownloadListingContent from '../../../components/download/DownloadListingContent'
 import DownloadNotFound from '../../../components/download/DownloadNotFound'
 import {
@@ -8,13 +10,15 @@ import {
 } from '../../../lib/download-data'
 import { getDownloadListings } from '../../../lib/download-manifest'
 import type { DirListing } from '../../../types/download'
+import docsPaths from '../../../public/_build/docs_paths.json'
 
 const allListings = getDownloadListings()
+const DOWNLOAD_PATHS = (docsPaths as string[]).filter((path) => typeof path === 'string')
 
-export async function generateStaticParams() {
-  return allListings
-    .filter((listing) => listing.path)
-    .map((listing) => ({ segments: listing.path.split('/').filter(Boolean) }))
+export function generateStaticParams() {
+  return DOWNLOAD_PATHS.filter((path) => path.trim().length > 0).map((path) => ({
+    segments: path.split('/').filter(Boolean),
+  }))
 }
 
 export const dynamicParams = false
@@ -22,7 +26,7 @@ export const dynamicParams = false
 function getLatestModified(listing: DirListing): string | undefined {
   let latest: string | undefined
   for (const entry of listing.entries) {
-    if (entry.lastModified && (!latest || new Date(entry.lastModified).getTime() > new Date(latest).getTime())) {
+    if (entry.lastModified && (!latest || entry.lastModified > latest)) {
       latest = entry.lastModified
     }
   }

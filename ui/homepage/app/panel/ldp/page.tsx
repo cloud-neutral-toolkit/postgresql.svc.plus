@@ -1,5 +1,7 @@
 import Link from 'next/link'
 
+export const dynamic = 'error'
+
 import Card from '../components/Card'
 
 export default function LdpPage() {

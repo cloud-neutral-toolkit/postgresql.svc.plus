@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "tsx ../../scripts/fetch-dl-index.ts",
+    "prebuild": "tsx ../../scripts/export-slugs.ts && tsx ../../scripts/scan-md.ts && tsx ../../scripts/fetch-dl-index.ts",
     "build": "next build",
+    "build:static": "yarn prebuild && node ../../scripts/check-build.js && next build",
     "export": "next build",
     "start": "next start",
     "lint": "next lint"

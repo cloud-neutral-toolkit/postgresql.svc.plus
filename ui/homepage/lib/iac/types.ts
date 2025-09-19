@@ -10,6 +10,10 @@ export type CategoryKey =
   | 'data_service'
   | 'security'
   | 'iam'
+  | 'dns_cdn'
+  | 'edge_iot'
+  | 'observability'
+  | 'api_integration'
 
 export type ProviderKey = 'aws' | 'gcp' | 'azure' | 'aliyun'
 

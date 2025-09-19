@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image'
 import { useState } from 'react'
 import demoFeature from '../app/demo/feature.config'
 import docsFeature from '../app/docs/feature.config'
@@ -117,7 +118,14 @@ export default function Navbar() {
     <nav className="fixed top-0 w-full z-50 bg-white/70 backdrop-blur border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
         <a href="#" className="text-xl font-bold text-gray-900 flex items-center gap-2">
-          <img src="/icons/cloudnative_32.png" alt="logo" className="w-6 h-6" />
+          <Image
+            src="/icons/cloudnative_32.png"
+            alt="logo"
+            width={24}
+            height={24}
+            className="h-6 w-6"
+            unoptimized
+          />
           CloudNative Suite
         </a>
 

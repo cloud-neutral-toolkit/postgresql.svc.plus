@@ -1,10 +1,12 @@
+export const dynamic = 'error'
+
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowUpRight } from 'lucide-react'
 
-import { formatDate } from '../../lib/format'
 import { getDocResources } from './resources'
 import feature from './feature.config'
+import ClientTime from '../components/ClientTime'
 
 function formatMeta({
   category,
@@ -29,8 +31,8 @@ export default async function DocsHome() {
 
   const manifest = await getDocResources()
   const resources = [...manifest].sort((a, b) => {
-    const aTime = a.updatedAt ? new Date(a.updatedAt).getTime() : 0
-    const bTime = b.updatedAt ? new Date(b.updatedAt).getTime() : 0
+    const aTime = a.updatedAt ? Date.parse(a.updatedAt) : 0
+    const bTime = b.updatedAt ? Date.parse(b.updatedAt) : 0
     return bTime - aTime
   })
 
@@ -71,7 +73,11 @@ export default async function DocsHome() {
                           )}
                         </div>
                         <div className="flex items-center justify-between text-xs text-purple-500">
-                          {resource.updatedAt && <span>Updated {formatDate(resource.updatedAt)}</span>}
+                          {resource.updatedAt && (
+                            <span suppressHydrationWarning>
+                              Updated <ClientTime isoString={resource.updatedAt} />
+                            </span>
+                          )}
                           {resource.estimatedMinutes && <span>{resource.estimatedMinutes} min read</span>}
                         </div>
                       </div>
