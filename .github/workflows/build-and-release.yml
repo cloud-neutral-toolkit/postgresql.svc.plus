@@ -380,8 +380,15 @@ jobs:
 
       - name: Install Ansible
         run: |
+          set -euo pipefail
           python3 -m pip install --upgrade pip
           python3 -m pip install ansible
+          cat <<'EOF' > ~/.ansible.cfg
+          [defaults]
+          stdout_callback = yaml
+          callbacks_enabled = profile_tasks,timer
+          bin_ansible_callbacks = True
+          EOF
 
       - name: Configure Ansible Vault password
         env:
