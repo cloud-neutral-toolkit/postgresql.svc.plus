@@ -78,10 +78,24 @@ jobs:
     needs: [build-go] #, build-wasm
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
         with:
-          path: release-artifacts
-          merge-multiple: true
+          pattern: xcontrol-*
+          path: release-artifacts/downloads
+
+      - name: Collect release binaries
+        run: |
+          set -euo pipefail
+          mkdir -p release-artifacts
+          shopt -s globstar nullglob
+          for file in release-artifacts/downloads/**/*; do
+            if [[ -f "${file}" ]]; then
+              dest="release-artifacts/$(basename "${file}")"
+              mv "${file}" "${dest}"
+            fi
+          done
+          rm -rf release-artifacts/downloads
       - name: Setup Node.js for static export
         if: github.ref == 'refs/heads/main'
         uses: actions/setup-node@v4
