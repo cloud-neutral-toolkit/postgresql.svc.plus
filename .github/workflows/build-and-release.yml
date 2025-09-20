@@ -181,6 +181,8 @@ jobs:
       DEPLOY_ACTION: ${{ github.event.inputs.deploy_action || 'upgrade' }}
       DEPLOY_DRY_RUN: ${{ github.event.inputs.deploy_dry_run || 'true' }}
       ANSIBLE_USER: ${{ secrets.VPS_USER }}
+      ANSIBLE_STDOUT_CALLBACK: yaml
+      ANSIBLE_LOAD_CALLBACK_PLUGINS: 'true'
     steps:
       - uses: actions/checkout@v4
 
@@ -355,6 +357,8 @@ jobs:
       DEPLOY_ACTION: ${{ github.event.inputs.deploy_action || 'upgrade' }}
       DEPLOY_DRY_RUN: ${{ github.event.inputs.deploy_dry_run || 'true' }}
       ANSIBLE_USER: ${{ secrets.VPS_USER }}
+      ANSIBLE_STDOUT_CALLBACK: yaml
+      ANSIBLE_LOAD_CALLBACK_PLUGINS: 'true'
     steps:
       - uses: actions/checkout@v4
 
