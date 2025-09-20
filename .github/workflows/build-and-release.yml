@@ -242,11 +242,27 @@ jobs:
           REMOTE_HOST: ${{ secrets.VPS_USER }}@${{ matrix.site }}
         run: |
           set -euo pipefail
-          src="artifacts/homepage/ui/homepage/out"
-          if [[ ! -d "$src" ]]; then
-            src="artifacts/homepage/out"
+          src=""
+          candidates=(
+            "artifacts/homepage/ui/homepage/out"
+            "artifacts/homepage/out"
+            "artifacts/homepage/homepage-static-export/ui/homepage/out"
+            "artifacts/homepage/homepage-static-export/out"
+          )
+          for candidate in "${candidates[@]}"; do
+            if [[ -d "${candidate}" ]]; then
+              src="${candidate}"
+              break
+            fi
+          done
+          if [[ -z "${src}" ]]; then
+            # As a last resort, search for an "out" directory under artifacts/homepage
+            mapfile -t found < <(find artifacts/homepage -mindepth 1 -maxdepth 5 -type d -name out 2>/dev/null | sort)
+            if [[ ${#found[@]} -gt 0 ]]; then
+              src="${found[0]}"
+            fi
           fi
-          if [[ ! -d "$src" ]]; then
+          if [[ -z "${src}" ]]; then
             echo "Static export directory not found under artifacts/homepage" >&2
             exit 1
           fi
