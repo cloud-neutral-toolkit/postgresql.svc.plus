@@ -396,10 +396,6 @@ jobs:
         working-directory: gitops
         run: |
           set -euo pipefail
-          cat <<EOF > playbooks/inventory.ini
-          [targets]
-          ${{ matrix.site }} ansible_user=${ANSIBLE_USER}
-          EOF
 
           echo "inventory=playbooks/inventory.ini" >> "$GITHUB_OUTPUT"
           echo "skip=false" >> "$GITHUB_OUTPUT"
