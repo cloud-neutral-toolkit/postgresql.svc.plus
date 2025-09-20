@@ -133,6 +133,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Determine deployment context
+        run: |
+          set -euo pipefail
+          dry_run="${DEPLOY_DRY_RUN}"
+          if [[ "${GITHUB_EVENT_NAME}" != "workflow_dispatch" ]]; then
+            dry_run="true"
+          fi
+          echo "EFFECTIVE_DRY_RUN=${dry_run}" >> "$GITHUB_ENV"
+          action="${DEPLOY_ACTION:-upgrade}"
+          if [[ -z "${action}" ]]; then
+            action="upgrade"
+          fi
+          echo "EFFECTIVE_DEPLOY_ACTION=${action}" >> "$GITHUB_ENV"
+
 
       - name: Download xcontrol server artifact
         uses: actions/download-artifact@v4
@@ -269,6 +283,20 @@ jobs:
       ANSIBLE_USER: ${{ secrets.VPS_USER }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Determine deployment context
+        run: |
+          set -euo pipefail
+          dry_run="${DEPLOY_DRY_RUN}"
+          if [[ "${GITHUB_EVENT_NAME}" != "workflow_dispatch" ]]; then
+            dry_run="true"
+          fi
+          echo "EFFECTIVE_DRY_RUN=${dry_run}" >> "$GITHUB_ENV"
+          action="${DEPLOY_ACTION:-upgrade}"
+          if [[ -z "${action}" ]]; then
+            action="upgrade"
+          fi
+          echo "EFFECTIVE_DEPLOY_ACTION=${action}" >> "$GITHUB_ENV"
 
       - name: Checkout infrastructure playbooks
         uses: actions/checkout@v4
