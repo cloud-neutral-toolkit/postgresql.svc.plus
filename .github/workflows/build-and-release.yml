@@ -369,6 +369,18 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install ansible
 
+      - name: Configure Ansible Vault password
+        env:
+          ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${ANSIBLE_VAULT_PASSWORD:-}" ]]; then
+            echo "ANSIBLE_VAULT_PASSWORD secret is not configured" >&2
+            exit 1
+          fi
+          printf '%s' "${ANSIBLE_VAULT_PASSWORD}" > ~/.vault_password
+          chmod 600 ~/.vault_password
+
       - name: Configure SSH access
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
