@@ -242,50 +242,28 @@ jobs:
           REMOTE_HOST: ${{ secrets.VPS_USER }}@${{ matrix.site }}
         run: |
           set -euo pipefail
-          src=""
-          # Attempt to extract any downloaded archive if the artifact was
-          # delivered as a single zip file (the default behaviour of
-          # actions/download-artifact@v4).
-          shopt -s nullglob
-          zip_candidates=(
-            "artifacts/homepage/homepage-static-export.zip"
-            "artifacts/homepage/homepage-static-export/homepage-static-export.zip"
-            "artifacts/homepage/homepage-static-export/*.zip"
-          )
-          for archive in "${zip_candidates[@]}"; do
-            for file in ${archive}; do
-              if [[ -f "${file}" ]]; then
-                dest_dir="${file%.zip}"
-                mkdir -p "${dest_dir}"
-                unzip -oq "${file}" -d "${dest_dir}"
-              fi
-            done
-          done
-          shopt -u nullglob
-
-          candidates=(
-            "artifacts/homepage/ui/homepage/out"
-            "artifacts/homepage/out"
-            "artifacts/homepage/homepage-static-export/ui/homepage/out"
-            "artifacts/homepage/homepage-static-export/out"
-            "artifacts/homepage/homepage-static-export/homepage-static-export/ui/homepage/out"
-            "artifacts/homepage/homepage-static-export/homepage-static-export/out"
-          )
-          for candidate in "${candidates[@]}"; do
-            if [[ -d "${candidate}" ]]; then
-              src="${candidate}"
-              break
-            fi
-          done
-          if [[ -z "${src}" ]]; then
-            # As a last resort, search for an "out" directory under artifacts/homepage
-            mapfile -t found < <(find artifacts/homepage -mindepth 1 -maxdepth 5 -type d -name out 2>/dev/null | sort)
-            if [[ ${#found[@]} -gt 0 ]]; then
-              src="${found[0]}"
-            fi
+          artifact_zip=""
+          if [[ -f "artifacts/homepage/homepage-static-export.zip" ]]; then
+            artifact_zip="artifacts/homepage/homepage-static-export.zip"
+          else
+            artifact_zip=$(find artifacts/homepage -maxdepth 3 -type f -name 'homepage-static-export.zip' | head -n 1)
           fi
-          if [[ -z "${src}" ]]; then
-            echo "Static export directory not found under artifacts/homepage" >&2
+          if [[ -z "${artifact_zip}" ]]; then
+            echo "homepage-static-export.zip not found under artifacts/homepage" >&2
+            exit 1
+          fi
+
+          dest_root="artifacts/homepage/out"
+          rm -rf "${dest_root}"
+          mkdir -p "${dest_root}"
+          unzip -oq "${artifact_zip}" -d "${dest_root}"
+
+          src="${dest_root}"
+          if [[ -d "${dest_root}/out" ]]; then
+            src="${dest_root}/out"
+          fi
+          if [[ ! -d "${src}" ]]; then
+            echo "Static export directory not found after extracting artifact" >&2
             exit 1
           fi
           flags=("-avz" "--delete")
