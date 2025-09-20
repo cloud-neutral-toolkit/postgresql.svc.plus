@@ -243,11 +243,33 @@ jobs:
         run: |
           set -euo pipefail
           src=""
+          # Attempt to extract any downloaded archive if the artifact was
+          # delivered as a single zip file (the default behaviour of
+          # actions/download-artifact@v4).
+          shopt -s nullglob
+          zip_candidates=(
+            "artifacts/homepage/homepage-static-export.zip"
+            "artifacts/homepage/homepage-static-export/homepage-static-export.zip"
+            "artifacts/homepage/homepage-static-export/*.zip"
+          )
+          for archive in "${zip_candidates[@]}"; do
+            for file in ${archive}; do
+              if [[ -f "${file}" ]]; then
+                dest_dir="${file%.zip}"
+                mkdir -p "${dest_dir}"
+                unzip -oq "${file}" -d "${dest_dir}"
+              fi
+            done
+          done
+          shopt -u nullglob
+
           candidates=(
             "artifacts/homepage/ui/homepage/out"
             "artifacts/homepage/out"
             "artifacts/homepage/homepage-static-export/ui/homepage/out"
             "artifacts/homepage/homepage-static-export/out"
+            "artifacts/homepage/homepage-static-export/homepage-static-export/ui/homepage/out"
+            "artifacts/homepage/homepage-static-export/homepage-static-export/out"
           )
           for candidate in "${candidates[@]}"; do
             if [[ -d "${candidate}" ]]; then
