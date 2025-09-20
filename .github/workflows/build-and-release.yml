@@ -198,6 +198,19 @@ jobs:
         with:
           name: homepage-static-export
           path: artifacts/homepage
+          if-no-artifact-found: ignore
+
+      - name: Check homepage static bundle availability
+        id: homepage_static_export
+        run: |
+          set -euo pipefail
+          artifact="artifacts/homepage/homepage-static-export.tar.gz"
+          if [[ -f "${artifact}" ]]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Homepage static export artifact was not downloaded; skipping sync." >&2
+            echo "available=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Configure SSH access
         env:
@@ -237,6 +250,7 @@ jobs:
           fi
 
       - name: Sync homepage static export
+        if: steps.homepage_static_export.outputs.available == 'true'
         env:
           REMOTE_HOST: ${{ secrets.VPS_USER }}@${{ matrix.site }}
         run: |
@@ -246,7 +260,7 @@ jobs:
 
           rm -rf "${dest_root}"
           mkdir -p "${dest_root}"
-          tar -xvpf "${artifact}" -d "${dest_root}"
+          tar -xvzf "${artifact}" -C "${dest_root}"
 
           src="${dest_root}"
           if [[ -d "${dest_root}/out" ]]; then
