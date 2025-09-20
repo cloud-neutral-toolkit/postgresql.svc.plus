@@ -133,6 +133,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Checkout infrastructure playbooks
+        uses: actions/checkout@v4
+        with:
+          repository: svc-design/gitops
+          path: gitops
+
       - name: Normalise deployment parameters
         run: |
           set -euo pipefail
@@ -346,24 +352,99 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H "${{ matrix.site }}" >> ~/.ssh/known_hosts
 
-      - name: Run provisioning playbook
+      - name: Prepare provisioning inputs
+        id: prepare_provisioning
+        working-directory: gitops
         run: |
           set -euo pipefail
-          cd deploy/ansible
-          cat <<EOF > inventory.ini
+          cat <<EOF > playbooks/inventory.ini
           [targets]
           ${{ matrix.site }} ansible_user=${ANSIBLE_USER}
           EOF
+
+          echo "inventory=playbooks/inventory.ini" >> "$GITHUB_OUTPUT"
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
           extra_flags=()
           if [[ "${EFFECTIVE_DRY_RUN}" == "true" ]]; then
             extra_flags+=("--check")
           fi
+          printf 'extra_flags=%s\n' "${extra_flags[*]}" >> "$GITHUB_OUTPUT"
+
+          redis_playbook="playbooks/deploy_redis_vhosts.yml"
+          if [[ ! -f "$redis_playbook" ]]; then
+            echo "Required playbook ${redis_playbook} was not found" >&2
+            exit 1
+          fi
+          echo "redis_playbook=${redis_playbook}" >> "$GITHUB_OUTPUT"
+
+          postgres_playbook="playbooks/deploy_postgre_vhosts.yml"
+          if [[ ! -f "$postgres_playbook" ]]; then
+            if [[ -f "playbooks/deploy_postgres_vhosts.yml" ]]; then
+              postgres_playbook="playbooks/deploy_postgres_vhosts.yml"
+            else
+              echo "Required playbook ${postgres_playbook} was not found" >&2
+              exit 1
+            fi
+          fi
+          echo "postgres_playbook=${postgres_playbook}" >> "$GITHUB_OUTPUT"
+
+          openresty_playbook="playbooks/deploy_openresty_vhosts.yml"
+          if [[ ! -f "$openresty_playbook" ]]; then
+            echo "Required playbook ${openresty_playbook} was not found" >&2
+            exit 1
+          fi
+          echo "openresty_playbook=${openresty_playbook}" >> "$GITHUB_OUTPUT"
+
           case "${EFFECTIVE_DEPLOY_ACTION}" in
-            backup-rollout)
-              extra_flags+=("--tags" "backup,rollout")
-              ;;
-            upgrade|init|migrate|destroy)
-              extra_flags+=("--tags" "${EFFECTIVE_DEPLOY_ACTION}")
+            destroy|backup|backup-rollout|restore)
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              echo "Action ${EFFECTIVE_DEPLOY_ACTION} is not supported for homepage provisioning playbooks" >&2
+              exit 0
               ;;
           esac
-          ansible-playbook -i inventory.ini run-playbook.yml "${extra_flags[@]}" --extra-vars "deploy_action=${EFFECTIVE_DEPLOY_ACTION} dry_run=${EFFECTIVE_DRY_RUN}"
+
+      - name: Provision Redis vhosts
+        if: steps.prepare_provisioning.outputs.skip != 'true'
+        working-directory: gitops
+        env:
+          INVENTORY: ${{ steps.prepare_provisioning.outputs.inventory }}
+          EXTRA_FLAGS: ${{ steps.prepare_provisioning.outputs.extra_flags }}
+          REDIS_PLAYBOOK: ${{ steps.prepare_provisioning.outputs.redis_playbook }}
+        run: |
+          set -euo pipefail
+          flags=()
+          if [[ -n "${EXTRA_FLAGS}" ]]; then
+            flags+=(${EXTRA_FLAGS})
+          fi
+          ansible-playbook -i "${INVENTORY}" "${REDIS_PLAYBOOK}" "${flags[@]}" --limit "${{ matrix.site }}"
+
+      - name: Provision PostgreSQL vhosts
+        if: steps.prepare_provisioning.outputs.skip != 'true'
+        working-directory: gitops
+        env:
+          INVENTORY: ${{ steps.prepare_provisioning.outputs.inventory }}
+          EXTRA_FLAGS: ${{ steps.prepare_provisioning.outputs.extra_flags }}
+          POSTGRES_PLAYBOOK: ${{ steps.prepare_provisioning.outputs.postgres_playbook }}
+        run: |
+          set -euo pipefail
+          flags=()
+          if [[ -n "${EXTRA_FLAGS}" ]]; then
+            flags+=(${EXTRA_FLAGS})
+          fi
+          ansible-playbook -i "${INVENTORY}" "${POSTGRES_PLAYBOOK}" "${flags[@]}" --limit "${{ matrix.site }}"
+
+      - name: Provision OpenResty vhosts
+        if: steps.prepare_provisioning.outputs.skip != 'true'
+        working-directory: gitops
+        env:
+          INVENTORY: ${{ steps.prepare_provisioning.outputs.inventory }}
+          EXTRA_FLAGS: ${{ steps.prepare_provisioning.outputs.extra_flags }}
+          OPENRESTY_PLAYBOOK: ${{ steps.prepare_provisioning.outputs.openresty_playbook }}
+        run: |
+          set -euo pipefail
+          flags=()
+          if [[ -n "${EXTRA_FLAGS}" ]]; then
+            flags+=(${EXTRA_FLAGS})
+          fi
+          ansible-playbook -i "${INVENTORY}" "${OPENRESTY_PLAYBOOK}" "${flags[@]}" --limit "${{ matrix.site }}"
