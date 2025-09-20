@@ -77,17 +77,6 @@ jobs:
         with:
           path: release-artifacts
           merge-multiple: true
-      - name: Publish GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: daily-${{ github.run_number }}
-          name: Daily Build ${{ github.run_number }}
-          files: |
-            # release-artifacts/askai_limiter.wasm
-            release-artifacts/xcontrol-*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Setup Node.js for static export
         if: github.ref == 'refs/heads/main'
         uses: actions/setup-node@v4
@@ -111,12 +100,56 @@ jobs:
         working-directory: ui/homepage
         run: yarn build:static
 
+      - name: Create homepage static archive
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          mkdir -p release-artifacts
+          src="ui/homepage/out"
+          if [[ ! -d "$src" ]]; then
+            echo "Homepage static export directory not found" >&2
+            exit 1
+          fi
+          tar -czf release-artifacts/homepage-static-export.tar.gz -C "$src" .
+
       - name: Upload homepage static bundle artifact
         if: github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
           name: homepage-static-export
           path: ui/homepage/out
+
+      - name: Prepare release assets
+        run: |
+          set -euo pipefail
+          mkdir -p release-artifacts
+          files=()
+          if compgen -G "release-artifacts/xcontrol-*" > /dev/null; then
+            while IFS= read -r file; do
+              files+=("${file}")
+            done < <(printf '%s\n' release-artifacts/xcontrol-*)
+          fi
+          if [[ -f "release-artifacts/homepage-static-export.tar.gz" ]]; then
+            files+=("release-artifacts/homepage-static-export.tar.gz")
+          fi
+          if [[ ${#files[@]} -eq 0 ]]; then
+            echo "No release assets were found" >&2
+            exit 1
+          fi
+          {
+            printf 'RELEASE_FILES<<EOF\n'
+            printf '%s\n' "${files[@]}"
+            printf 'EOF\n'
+          } >> "$GITHUB_ENV"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: daily-${{ github.run_number }}
+          name: Daily Build ${{ github.run_number }}
+          files: ${{ env.RELEASE_FILES }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   pre-setup:
     needs:
