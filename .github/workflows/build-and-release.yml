@@ -30,6 +30,11 @@ jobs:
         goarch: [amd64]
     steps:
       - uses: actions/checkout@v4
+      - name: Ensure clean Go cache directories
+        run: |
+          set -euo pipefail
+          rm -rf "${HOME}/.cache/go-build"
+          rm -rf "${HOME}/go/pkg/mod"
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
