@@ -133,42 +133,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Checkout infrastructure playbooks
-        uses: actions/checkout@v4
-        with:
-          repository: svc-design/gitops
-          path: gitops
-
-      - name: Normalise deployment parameters
-        run: |
-          set -euo pipefail
-          action="${DEPLOY_ACTION:-upgrade}"
-          action="$(echo "$action" | tr '[:upper:]' '[:lower:]')"
-          case "$action" in
-            magrate)
-              action="migrate"
-              ;;
-            backup-rollout)
-              action="backup-rollout"
-              ;;
-            init|migrate|upgrade|destroy)
-              ;;
-            *)
-              action="upgrade"
-              ;;
-          esac
-          echo "EFFECTIVE_DEPLOY_ACTION=$action" >> "$GITHUB_ENV"
-
-          raw="${DEPLOY_DRY_RUN:-true}"
-          raw="$(echo "$raw" | tr '[:upper:]' '[:lower:]')"
-          case "$raw" in
-            false|no|off|0)
-              echo "EFFECTIVE_DRY_RUN=false" >> "$GITHUB_ENV"
-              ;;
-            *)
-              echo "EFFECTIVE_DRY_RUN=true" >> "$GITHUB_ENV"
-              ;;
-          esac
 
       - name: Download xcontrol server artifact
         uses: actions/download-artifact@v4
@@ -306,36 +270,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Normalise deployment parameters
-        run: |
-          set -euo pipefail
-          action="${DEPLOY_ACTION:-upgrade}"
-          action="$(echo "$action" | tr '[:upper:]' '[:lower:]')"
-          case "$action" in
-            magrate)
-              action="migrate"
-              ;;
-            backup-rollout)
-              action="backup-rollout"
-              ;;
-            init|migrate|upgrade|destroy)
-              ;;
-            *)
-              action="upgrade"
-              ;;
-          esac
-          echo "EFFECTIVE_DEPLOY_ACTION=$action" >> "$GITHUB_ENV"
-
-          raw="${DEPLOY_DRY_RUN:-true}"
-          raw="$(echo "$raw" | tr '[:upper:]' '[:lower:]')"
-          case "$raw" in
-            false|no|off|0)
-              echo "EFFECTIVE_DRY_RUN=false" >> "$GITHUB_ENV"
-              ;;
-            *)
-              echo "EFFECTIVE_DRY_RUN=true" >> "$GITHUB_ENV"
-              ;;
-          esac
+      - name: Checkout infrastructure playbooks
+        uses: actions/checkout@v4
+        with:
+          repository: svc-design/gitops
+          path: gitops
 
       - name: Install Ansible
         run: |
