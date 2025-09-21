@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useState } from 'react'
+import { PanelLeftOpen } from 'lucide-react'
 import { Sidebar } from '../components/insight/layout/Sidebar'
 import { TopBar } from '../components/insight/layout/TopBar'
 import { TopologyStrip } from '../components/insight/topology/TopologyStrip'
@@ -25,6 +26,8 @@ export default function InsightWorkbench() {
     logql: [],
     traceql: []
   })
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [sidebarHidden, setSidebarHidden] = useState(false)
 
   const handleSelectSection = useCallback((section: string) => {
     setActiveSection(section)
@@ -64,16 +67,31 @@ export default function InsightWorkbench() {
   )
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100">
+    <div className="relative min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100">
+      {sidebarHidden && (
+        <button
+          type="button"
+          onClick={() => setSidebarHidden(false)}
+          className="fixed left-4 top-4 z-20 flex items-center gap-2 rounded-full border border-slate-800 bg-slate-900/80 px-4 py-2 text-sm text-slate-200 shadow-lg backdrop-blur transition hover:border-slate-700 hover:text-slate-100"
+        >
+          <PanelLeftOpen className="h-4 w-4" />
+          Show menu
+        </button>
+      )}
       <div className="mx-auto flex min-h-screen max-w-7xl flex-col lg:flex-row">
-        <Sidebar
-          topologyMode={state.topologyMode}
-          activeLanguages={state.activeLanguages}
-          activeSection={activeSection}
-          onSelectSection={handleSelectSection}
-          onTopologyChange={mode => updateState({ topologyMode: mode })}
-          onToggleLanguage={toggleLanguage}
-        />
+        {!sidebarHidden && (
+          <Sidebar
+            topologyMode={state.topologyMode}
+            activeLanguages={state.activeLanguages}
+            activeSection={activeSection}
+            onSelectSection={handleSelectSection}
+            onTopologyChange={mode => updateState({ topologyMode: mode })}
+            onToggleLanguage={toggleLanguage}
+            onToggleCollapse={() => setSidebarCollapsed(prev => !prev)}
+            onHide={() => setSidebarHidden(true)}
+            collapsed={sidebarCollapsed}
+          />
+        )}
         <main className="flex-1 px-4 py-8 lg:px-8">
           <div className="grid gap-8 lg:grid-cols-[minmax(0,2.4fr)_minmax(0,1fr)]">
             <div className="space-y-6">
