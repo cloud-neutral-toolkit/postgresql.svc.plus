@@ -8,7 +8,6 @@ import { TopologyCanvas } from '../components/insight/topology/TopologyCanvas'
 import { ExploreBuilder } from '../components/insight/explore/ExploreBuilder'
 import { VizArea } from '../components/insight/viz/VizArea'
 import { SLOPanel } from '../components/insight/slo/SLOPanel'
-import { SnippetLibrary } from '../components/insight/snippets/SnippetLibrary'
 import { AIAssistant } from '../components/insight/ai/Assistant'
 import { useInsightState } from '../components/insight/store/useInsightState'
 import { DataSource, QueryLanguage } from '../components/insight/store/urlState'
@@ -32,20 +31,6 @@ export default function InsightWorkbench() {
     const el = document.getElementById(section)
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }, [])
-
-  const snippetInsert = useCallback(
-    (query: string, domain: DataSource) => {
-      const language: QueryLanguage = domain === 'metrics' ? 'promql' : domain === 'logs' ? 'logql' : 'traceql'
-      const nextActive = Array.from(new Set([...state.activeLanguages, language]))
-      updateState({
-        queries: { ...state.queries, [language]: query },
-        dataSource: domain,
-        queryLanguage: language,
-        activeLanguages: nextActive
-      })
-    },
-    [state.activeLanguages, state.queries, updateState]
-  )
 
   const updateHistory = useCallback(
     (language: QueryLanguage, items: string[]) => {
@@ -113,9 +98,6 @@ export default function InsightWorkbench() {
             <aside className="space-y-6">
               <section id="slo">
                 <SLOPanel state={state} />
-              </section>
-              <section>
-                <SnippetLibrary state={state} onInsert={snippetInsert} />
               </section>
               <section id="ai">
                 <AIAssistant state={state} />
