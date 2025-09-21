@@ -47,12 +47,6 @@ const defaultRecord = <T,>(value: T): Record<QueryLanguage, T> => ({
   traceql: value
 })
 
-const orgOptions = ['global-org', 'ecommerce', 'payments']
-const projectOptions = ['observability', 'checkout', 'growth']
-const envOptions = ['production', 'staging', 'dev']
-const regionOptions = ['us-west-2', 'eu-central-1', 'ap-southeast-1']
-const timeRanges = ['15m', '1h', '6h', '24h', '7d']
-
 export function ExploreBuilder({
   state,
   updateState,
@@ -236,18 +230,9 @@ export function ExploreBuilder({
         {!isCollapsed && (
           <div className="mt-4 flex flex-1 flex-col gap-4">
             {inputMode === 'menu' ? (
-              <div className="grid gap-3 text-xs text-slate-200 sm:grid-cols-2 lg:grid-cols-4">
-                <MenuSelect label="Org" value={state.org} onChange={value => updateState({ org: value })} options={orgOptions} />
-                <MenuSelect
-                  label="Project"
-                  value={state.project}
-                  onChange={value => updateState({ project: value })}
-                  options={projectOptions}
-                />
-                <MenuSelect label="Environment" value={state.env} onChange={value => updateState({ env: value })} options={envOptions} />
-                <MenuSelect label="Region" value={state.region} onChange={value => updateState({ region: value })} options={regionOptions} />
-                <MenuTimeRange value={state.timeRange} onChange={value => updateState({ timeRange: value })} />
-                <div className="sm:col-span-2 lg:col-span-4">
+              <div className="space-y-3 text-xs text-slate-200">
+                <ContextSummary state={state} />
+                <div>
                   <p className="text-[11px] uppercase tracking-wide text-slate-500">Query preview</p>
                   <pre className="mt-2 max-h-32 overflow-auto rounded-2xl border border-slate-800 bg-slate-950/60 p-3 text-xs text-emerald-200">
                     {state.queries[language] || meta.placeholder}
@@ -328,63 +313,29 @@ export function ExploreBuilder({
   return <div className="space-y-4">{panels}</div>
 }
 
-interface MenuSelectProps {
-  label: string
-  value: string
-  onChange: (value: string) => void
-  options: string[]
-}
+function ContextSummary({ state }: { state: InsightState }) {
+  const context = [
+    { label: 'Org', value: state.org },
+    { label: 'Environment', value: state.env },
+    { label: 'Region', value: state.region },
+    { label: 'Project', value: state.project },
+    { label: 'Time range', value: state.timeRange }
+  ]
 
-function MenuSelect({ label, value, onChange, options }: MenuSelectProps) {
   return (
-    <label className="flex flex-col gap-1">
-      <span className="text-[11px] uppercase tracking-wide text-slate-500">{label}</span>
-      <select
-        value={value}
-        onChange={event => onChange(event.target.value)}
-        className="rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2 text-sm text-slate-200"
-      >
-        {options.map(option => (
-          <option key={option} value={option} className="bg-slate-900 text-slate-200">
-            {option}
-          </option>
-        ))}
-      </select>
-    </label>
-  )
-}
-
-interface MenuTimeRangeProps {
-  value: string
-  onChange: (value: string) => void
-}
-
-function MenuTimeRange({ value, onChange }: MenuTimeRangeProps) {
-  return (
-    <label className="flex flex-col gap-1 sm:col-span-2 lg:col-span-4">
-      <span className="text-[11px] uppercase tracking-wide text-slate-500">Time range</span>
-      <div className="flex flex-wrap items-center gap-2">
-        {timeRanges.map(range => (
-          <button
-            key={range}
-            type="button"
-            onClick={() => onChange(range)}
-            className={`rounded-xl px-3 py-1 text-xs font-medium transition ${
-              value === range
-                ? 'bg-emerald-500/20 text-emerald-200'
-                : 'border border-slate-800 bg-slate-950/60 text-slate-400 hover:text-slate-100'
-            }`}
+    <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-3">
+      <p className="text-[11px] uppercase tracking-wide text-slate-500">Global context</p>
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        {context.map(item => (
+          <span
+            key={item.label}
+            className="flex items-center gap-2 rounded-full border border-slate-800 bg-slate-900/70 px-3 py-1 text-xs text-slate-200"
           >
-            {range}
-          </button>
+            <span className="text-slate-500">{item.label}</span>
+            <span className="font-medium text-slate-100">{item.value}</span>
+          </span>
         ))}
-        <input
-          value={value}
-          onChange={event => onChange(event.target.value)}
-          className="w-32 rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-1.5 text-xs text-slate-200"
-          placeholder="Custom"
-        />
       </div>
-    </label>
+    </div>
   )
 }

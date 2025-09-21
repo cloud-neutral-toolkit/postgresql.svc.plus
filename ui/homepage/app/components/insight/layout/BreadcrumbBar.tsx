@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { InsightState } from '../../insight/store/urlState'
+import { TimeRangePicker } from './TimeRangePicker'
 
 interface BreadcrumbBarProps {
   state: InsightState
@@ -28,17 +29,19 @@ export function BreadcrumbBar({ state, updateState, shareableLink }: BreadcrumbB
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-3 text-sm text-slate-200">
+    <div className="flex w-full flex-wrap items-center gap-3 text-sm text-slate-200">
       <Selector label="Org" value={state.org} options={orgs} onChange={org => updateState({ org })} />
+      <Separator />
+      <Selector label="Environment" value={state.env} options={envs} onChange={env => updateState({ env })} />
+      <Separator />
+      <Selector label="Region" value={state.region} options={regions} onChange={region => updateState({ region })} />
       <Separator />
       <Selector label="Project" value={state.project} options={projects} onChange={project => updateState({ project })} />
       <Separator />
-      <Selector label="Env" value={state.env} options={envs} onChange={env => updateState({ env })} />
-      <Separator />
-      <Selector label="Region" value={state.region} options={regions} onChange={region => updateState({ region })} />
+      <TimeRangePicker state={state} updateState={updateState} />
       <button
         onClick={handleCopy}
-        className="ml-auto flex items-center gap-2 rounded-xl border border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-800 transition"
+        className="ml-auto flex items-center gap-2 rounded-xl border border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:bg-slate-800"
       >
         {copied ? 'Link copied!' : 'Copy share link'}
       </button>
@@ -58,12 +61,12 @@ function Selector({
   onChange: (value: string) => void
 }) {
   return (
-    <label className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-1.5 shadow-inner">
+    <label className="flex min-w-[160px] flex-1 items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-1.5 shadow-inner">
       <span className="text-xs uppercase tracking-wide text-slate-500">{label}</span>
       <select
         value={value}
         onChange={event => onChange(event.target.value)}
-        className="bg-transparent text-sm font-medium focus:outline-none"
+        className="w-full bg-transparent text-sm font-medium focus:outline-none"
       >
         {options.map(option => (
           <option key={option} value={option} className="bg-slate-900">
