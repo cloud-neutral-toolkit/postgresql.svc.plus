@@ -73,9 +73,13 @@ export function serializeInsightState(state: InsightState): string {
       case 'queries':
         params.set(STATE_KEY_MAP[key], encodeURIComponent(JSON.stringify(value)))
         break
-      case 'activeLanguages':
-        params.set(STATE_KEY_MAP[key], value.join(','))
+      case 'activeLanguages': {
+        const activeLanguages = Array.isArray(value)
+          ? value
+          : [value as QueryLanguage]
+        params.set(STATE_KEY_MAP[key], activeLanguages.join(','))
         break
+      }
       default:
         params.set(STATE_KEY_MAP[key], String(value))
     }
