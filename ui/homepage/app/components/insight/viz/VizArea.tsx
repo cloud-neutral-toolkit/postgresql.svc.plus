@@ -1,11 +1,19 @@
 'use client'
 
-import { ReactNode } from 'react'
+import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { buildCorrelatedQuery } from '../../insight/services/correlator'
 import { DataSource, InsightState } from '../../insight/store/urlState'
 import { MetricsChart } from './MetricsChart'
+import { MetricsTable } from './MetricsTable'
+import { MetricsTopStats } from './MetricsTopStats'
 import { LogsViewer } from './LogsViewer'
+import { LogsTable } from './LogsTable'
+import { LogsTopStats } from './LogsTopStats'
 import { TracesWaterfall } from './TracesWaterfall'
+import { TracesTable } from './TracesTable'
+import { TracesTopStats } from './TracesTopStats'
+
+type ViewMode = 'trend' | 'table' | 'top'
 
 interface VizAreaProps {
   state: InsightState
@@ -15,6 +23,20 @@ interface VizAreaProps {
 
 export function VizArea({ state, data, onUpdate }: VizAreaProps) {
   const mode = state.dataSource
+  const [viewMode, setViewMode] = useState<ViewMode>('trend')
+
+  useEffect(() => {
+    setViewMode('trend')
+  }, [mode])
+
+  const viewOptions = useMemo(
+    () => [
+      { id: 'trend' as ViewMode, label: 'Trend chart' },
+      { id: 'table' as ViewMode, label: 'Table' },
+      { id: 'top' as ViewMode, label: 'Top stats' }
+    ],
+    []
+  )
 
   function correlate(target: DataSource) {
     const language: InsightState['queryLanguage'] = target === 'metrics' ? 'promql' : target === 'logs' ? 'logql' : 'traceql'
@@ -32,13 +54,35 @@ export function VizArea({ state, data, onUpdate }: VizAreaProps) {
   }
 
   function renderContent(): ReactNode {
+    const metricsSeries = Array.isArray(data) ? data : []
+    const logs = Array.isArray(data) ? data : []
+    const traces = Array.isArray(data) ? data : []
+
     switch (mode) {
       case 'metrics':
-        return <MetricsChart series={Array.isArray(data) ? data : []} />
+        if (viewMode === 'table') {
+          return <MetricsTable series={metricsSeries} />
+        }
+        if (viewMode === 'top') {
+          return <MetricsTopStats series={metricsSeries} />
+        }
+        return <MetricsChart series={metricsSeries} />
       case 'logs':
-        return <LogsViewer logs={Array.isArray(data) ? data : []} />
+        if (viewMode === 'table') {
+          return <LogsTable logs={logs} />
+        }
+        if (viewMode === 'top') {
+          return <LogsTopStats logs={logs} />
+        }
+        return <LogsViewer logs={logs} />
       case 'traces':
-        return <TracesWaterfall spans={Array.isArray(data) ? data : []} />
+        if (viewMode === 'table') {
+          return <TracesTable spans={traces} />
+        }
+        if (viewMode === 'top') {
+          return <TracesTopStats spans={traces} />
+        }
+        return <TracesWaterfall spans={traces} />
       default:
         return null
     }
@@ -48,7 +92,20 @@ export function VizArea({ state, data, onUpdate }: VizAreaProps) {
     <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-lg shadow-slate-950/20">
       <div className="flex flex-wrap items-center gap-3">
         <h3 className="text-sm font-semibold text-slate-200">{modeLabel[mode]}</h3>
-        <div className="ml-auto flex items-center gap-2 text-xs text-slate-300">
+        <div className="ml-auto flex flex-wrap items-center gap-2 text-xs text-slate-300">
+          <div className="flex overflow-hidden rounded-xl border border-slate-800">
+            {viewOptions.map(option => (
+              <button
+                key={option.id}
+                onClick={() => setViewMode(option.id)}
+                className={`px-3 py-1 text-xs transition ${
+                  viewMode === option.id ? 'bg-slate-800 text-slate-100' : 'bg-slate-900/50 text-slate-400 hover:bg-slate-800'
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
           <button onClick={() => correlate('metrics')} className="rounded-xl border border-slate-800 px-3 py-1 hover:bg-slate-800">
             Link to Metrics
           </button>
