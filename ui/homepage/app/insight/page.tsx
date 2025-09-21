@@ -1,17 +1,27 @@
 'use client'
 
-import { useCallback, useState } from 'react'
-import { PanelLeftOpen } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import type { Layout } from 'react-grid-layout'
+import { ChevronLeft, ChevronRight, PanelLeftOpen } from 'lucide-react'
 import { Sidebar } from '../components/insight/layout/Sidebar'
-import { TopBar } from '../components/insight/layout/TopBar'
-import { TopologyStrip } from '../components/insight/topology/TopologyStrip'
-import { TopologyCanvas } from '../components/insight/topology/TopologyCanvas'
-import { ExploreBuilder } from '../components/insight/explore/ExploreBuilder'
+import { WorkspaceHeader } from '../components/insight/layout/WorkspaceHeader'
+import { WorkspaceGrid } from '../components/insight/layout/WorkspaceGrid'
+import { NetworkTopologyPanel } from '../components/insight/topology/NetworkTopologyPanel'
+import { ExploreBuilder, languageMeta } from '../components/insight/explore/ExploreBuilder'
 import { VizArea } from '../components/insight/viz/VizArea'
 import { SLOPanel } from '../components/insight/slo/SLOPanel'
 import { AIAssistant } from '../components/insight/ai/Assistant'
 import { useInsightState } from '../components/insight/store/useInsightState'
 import { DataSource, QueryLanguage } from '../components/insight/store/urlState'
+
+const LAYOUT_STORAGE_KEY = 'insight-workspace-layout-v1'
+
+const DEFAULT_LAYOUT: Layout[] = [
+  { i: 'network', x: 0, y: 0, w: 6, h: 8, minW: 4, minH: 6 },
+  { i: 'promql', x: 6, y: 0, w: 6, h: 8, minW: 4, minH: 6 },
+  { i: 'logql', x: 0, y: 8, w: 6, h: 8, minW: 4, minH: 6 },
+  { i: 'traceql', x: 6, y: 8, w: 6, h: 8, minW: 4, minH: 6 }
+]
 
 export default function InsightWorkbench() {
   const { state, updateState, shareableLink } = useInsightState()
@@ -28,6 +38,11 @@ export default function InsightWorkbench() {
   })
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [sidebarHidden, setSidebarHidden] = useState(false)
+  const [panelLayout, setPanelLayout] = useState<Layout[]>(() => DEFAULT_LAYOUT.map(item => ({ ...item })))
+  const [layoutDirty, setLayoutDirty] = useState(false)
+  const [layoutStatus, setLayoutStatus] = useState<string | null>(null)
+  const [detailsCollapsed, setDetailsCollapsed] = useState(false)
+  const statusTimeout = useRef<number | null>(null)
 
   const handleSelectSection = useCallback((section: string) => {
     setActiveSection(section)
@@ -66,6 +81,127 @@ export default function InsightWorkbench() {
     [state.activeLanguages, updateState]
   )
 
+  const handleLayoutChange = useCallback((next: Layout[]) => {
+    setPanelLayout(next)
+    setLayoutDirty(true)
+  }, [])
+
+  const resetStatusMessage = useCallback(() => {
+    if (statusTimeout.current) {
+      window.clearTimeout(statusTimeout.current)
+      statusTimeout.current = null
+    }
+  }, [])
+
+  const handleSaveLayout = useCallback(() => {
+    if (typeof window === 'undefined') return
+    window.localStorage.setItem(LAYOUT_STORAGE_KEY, JSON.stringify(panelLayout))
+    setLayoutDirty(false)
+    setLayoutStatus('Layout saved locally')
+    resetStatusMessage()
+    statusTimeout.current = window.setTimeout(() => setLayoutStatus(null), 2200)
+  }, [panelLayout, resetStatusMessage])
+
+  const handleResetLayout = useCallback(() => {
+    setPanelLayout(DEFAULT_LAYOUT.map(item => ({ ...item })))
+    setLayoutDirty(false)
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(LAYOUT_STORAGE_KEY)
+    }
+    setLayoutStatus('Layout reset to default')
+    resetStatusMessage()
+    statusTimeout.current = window.setTimeout(() => setLayoutStatus(null), 2200)
+  }, [resetStatusMessage])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const stored = window.localStorage.getItem(LAYOUT_STORAGE_KEY)
+    if (!stored) return
+    try {
+      const parsed = JSON.parse(stored) as Layout[]
+      if (!Array.isArray(parsed)) return
+      const merged = DEFAULT_LAYOUT.map(item => {
+        const match = parsed.find(entry => entry.i === item.i)
+        return match ? { ...item, ...match } : { ...item }
+      })
+      setPanelLayout(merged)
+      setLayoutDirty(false)
+    } catch (error) {
+      console.error('Failed to restore insight layout', error)
+    }
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (statusTimeout.current) {
+        window.clearTimeout(statusTimeout.current)
+      }
+    }
+  }, [])
+
+  const keyMetrics = useMemo(
+    () => [
+      {
+        label: 'Availability',
+        value: state.topologyMode === 'network' ? '99.96%' : '99.90%',
+        trend: '+0.3% vs last 7d',
+        tone: 'positive' as const
+      },
+      {
+        label: 'P95 latency',
+        value: state.topologyMode === 'network' ? '82 ms' : '248 ms',
+        trend: `${state.timeRange} window`,
+        tone: 'neutral' as const
+      },
+      {
+        label: 'Error rate',
+        value: state.topologyMode === 'application' ? '0.7%' : '0.4%',
+        trend: 'Target < 1%',
+        tone: 'warning' as const
+      }
+    ],
+    [state.timeRange, state.topologyMode]
+  )
+
+  const explorerPanels = (language: QueryLanguage, domId?: string) => {
+    const enabled = state.activeLanguages.includes(language)
+    return {
+      id: language,
+      domId,
+      minW: 4,
+      minH: 6,
+      content: enabled ? (
+        <ExploreBuilder
+          state={state}
+          updateState={updateState}
+          history={history}
+          setHistory={updateHistory}
+          onResults={updateResults}
+          panelLanguages={[language]}
+        />
+      ) : (
+        <DisabledExplorerCard language={language} onEnable={() => toggleLanguage(language)} />
+      )
+    }
+  }
+
+  const panels = [
+    {
+      id: 'network',
+      domId: 'topology',
+      minW: 4,
+      minH: 6,
+      content: <NetworkTopologyPanel state={state} updateState={updateState} />
+    },
+    explorerPanels('promql', 'explore'),
+    explorerPanels('logql'),
+    explorerPanels('traceql')
+  ]
+
+  const layoutColumns = detailsCollapsed
+    ? 'lg:grid-cols-[minmax(0,1fr)_220px]'
+    : 'lg:grid-cols-[minmax(0,2.4fr)_minmax(0,1fr)]'
+
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100">
       {sidebarHidden && (
@@ -93,37 +229,116 @@ export default function InsightWorkbench() {
           />
         )}
         <main className="flex-1 px-4 py-8 lg:px-8">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,2.4fr)_minmax(0,1fr)]">
+          <div className={`grid gap-8 ${layoutColumns}`}>
             <div className="space-y-6">
-              <TopBar state={state} updateState={updateState} shareableLink={shareableLink} />
-              <section id="topology" className="space-y-4">
-                <TopologyStrip state={state} updateState={updateState} />
-                <TopologyCanvas state={state} updateState={updateState} />
-              </section>
-              <section id="explore">
-                <ExploreBuilder
-                  state={state}
-                  updateState={updateState}
-                  history={history}
-                  setHistory={updateHistory}
-                  onResults={updateResults}
+              <WorkspaceHeader
+                state={state}
+                updateState={updateState}
+                shareableLink={shareableLink}
+                onSaveLayout={handleSaveLayout}
+                onResetLayout={handleResetLayout}
+                layoutDirty={layoutDirty}
+                statusMessage={layoutStatus}
+              />
+              <div id="explore">
+                <WorkspaceGrid
+                  layout={panelLayout}
+                  defaultLayout={DEFAULT_LAYOUT}
+                  panels={panels}
+                  onLayoutChange={handleLayoutChange}
+                  draggableHandle=".panel-drag-handle"
                 />
-              </section>
+              </div>
               <section id="visualize">
                 <VizArea state={state} data={resultData[state.queryLanguage]} onUpdate={updateState} />
               </section>
             </div>
-            <aside className="space-y-6">
-              <section id="slo">
-                <SLOPanel state={state} />
-              </section>
-              <section id="ai">
-                <AIAssistant state={state} />
-              </section>
+            <aside className="relative">
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setDetailsCollapsed(prev => !prev)}
+                  className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/70 px-3 py-1 text-xs text-slate-300 transition hover:border-slate-700 hover:text-slate-100"
+                >
+                  {detailsCollapsed ? (
+                    <>
+                      <ChevronLeft className="h-4 w-4" /> Expand insights
+                    </>
+                  ) : (
+                    <>
+                      Collapse insights <ChevronRight className="h-4 w-4" />
+                    </>
+                  )}
+                </button>
+              </div>
+              {detailsCollapsed ? (
+                <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/70 p-4 text-xs text-slate-300">
+                  <h3 className="text-sm font-semibold text-slate-100">Key health metrics</h3>
+                  <p className="text-[11px] text-slate-500">Pinned while the panel is collapsed for quick status checks.</p>
+                  <div className="grid gap-3">
+                    {keyMetrics.map(metric => (
+                      <div
+                        key={metric.label}
+                        className="rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2"
+                      >
+                        <p className="text-[11px] uppercase tracking-wide text-slate-500">{metric.label}</p>
+                        <p className="text-lg font-semibold text-slate-100">{metric.value}</p>
+                        <p
+                          className={`text-[11px] ${
+                            metric.tone === 'positive'
+                              ? 'text-emerald-300'
+                              : metric.tone === 'warning'
+                              ? 'text-amber-300'
+                              : 'text-slate-400'
+                          }`}
+                        >
+                          {metric.trend}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <section id="slo">
+                    <SLOPanel state={state} />
+                  </section>
+                  <section id="ai">
+                    <AIAssistant state={state} />
+                  </section>
+                </div>
+              )}
             </aside>
           </div>
         </main>
       </div>
     </div>
+  )
+}
+
+interface DisabledExplorerCardProps {
+  language: QueryLanguage
+  onEnable: () => void
+}
+
+function DisabledExplorerCard({ language, onEnable }: DisabledExplorerCardProps) {
+  const meta = languageMeta[language]
+  return (
+    <section className="flex h-full flex-col rounded-2xl border border-dashed border-slate-800 bg-slate-900/40 p-5">
+      <header className="panel-drag-handle mb-4">
+        <h3 className="text-sm font-semibold text-slate-200">{meta.label}</h3>
+        <p className="text-xs text-slate-400">Enable this explorer from the navigation to build queries.</p>
+      </header>
+      <div className="flex flex-1 flex-col items-start justify-center gap-4 text-sm text-slate-400">
+        <p>Capture metrics, logs or traces by toggling the language on the left-hand menu.</p>
+        <button
+          type="button"
+          onClick={onEnable}
+          className="rounded-xl border border-emerald-500/60 bg-emerald-500/10 px-3 py-2 text-xs font-medium text-emerald-200 transition hover:border-emerald-400/80"
+        >
+          Enable {meta.label.split(' ')[0]}
+        </button>
+      </div>
+    </section>
   )
 }

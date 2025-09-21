@@ -16,7 +16,6 @@ export interface InsightState {
   queryLanguage: QueryLanguage
   queries: Record<QueryLanguage, string>
   activeLanguages: QueryLanguage[]
-  queryMode: QueryInputMode
   builderMode: BuilderMode
   timeRange: string
 }
@@ -37,7 +36,6 @@ export const DEFAULT_INSIGHT_STATE: InsightState = {
     traceql: 'traces{service="checkout"} | duration > 250ms'
   },
   activeLanguages: ['promql'],
-  queryMode: 'ql',
   builderMode: 'visual',
   timeRange: '1h'
 }
@@ -54,7 +52,6 @@ const STATE_KEY_MAP: Record<keyof InsightState, string> = {
   queryLanguage: 'ql',
   queries: 'qs',
   activeLanguages: 'qls',
-  queryMode: 'qm',
   builderMode: 'bm',
   timeRange: 'tr'
 }
@@ -151,9 +148,6 @@ export function deserializeInsightState(hash: string): InsightState {
           next.activeLanguages = [...DEFAULT_INSIGHT_STATE.activeLanguages]
         }
         break
-      case 'queryMode':
-        next.queryMode = value as QueryInputMode
-        break
       case 'timeRange':
         next.timeRange = value
         break
@@ -173,9 +167,6 @@ export function deserializeInsightState(hash: string): InsightState {
   }
   if (!['visual', 'code'].includes(next.builderMode)) {
     next.builderMode = DEFAULT_INSIGHT_STATE.builderMode
-  }
-  if (!['ql', 'menu'].includes(next.queryMode)) {
-    next.queryMode = DEFAULT_INSIGHT_STATE.queryMode
   }
   next.activeLanguages = next.activeLanguages.filter(language =>
     ['promql', 'logql', 'traceql'].includes(language)
