@@ -5,6 +5,7 @@ import type { Layout } from 'react-grid-layout'
 import { ChevronLeft, ChevronRight, PanelLeftOpen } from 'lucide-react'
 import { Sidebar } from '../components/insight/layout/Sidebar'
 import { WorkspaceHeader } from '../components/insight/layout/WorkspaceHeader'
+import { BreadcrumbBar } from '../components/insight/layout/BreadcrumbBar'
 import { WorkspaceGrid } from '../components/insight/layout/WorkspaceGrid'
 import { NetworkTopologyPanel } from '../components/insight/topology/NetworkTopologyPanel'
 import { ExploreBuilder, languageMeta } from '../components/insight/explore/ExploreBuilder'
@@ -198,12 +199,10 @@ export default function InsightWorkbench() {
     explorerPanels('traceql')
   ]
 
-  const layoutColumns = detailsCollapsed
-    ? 'lg:grid-cols-[minmax(0,1fr)_220px]'
-    : 'lg:grid-cols-[minmax(0,2.4fr)_minmax(0,1fr)]'
+  const insightAsideWidth = detailsCollapsed ? 'lg:w-60 xl:w-64' : 'lg:w-80 xl:w-96'
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100">
+    <div className="relative flex min-h-screen flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100">
       {sidebarHidden && (
         <button
           type="button"
@@ -214,103 +213,117 @@ export default function InsightWorkbench() {
           Show menu
         </button>
       )}
-      <div className="mx-auto flex min-h-screen max-w-7xl flex-col lg:flex-row">
+      <header className="flex-shrink-0 border-b border-slate-800 bg-slate-950/70">
+        <div className="mx-auto w-full max-w-7xl px-4 py-4 lg:px-8">
+          <BreadcrumbBar state={state} updateState={updateState} shareableLink={shareableLink} />
+        </div>
+      </header>
+      <div className="flex flex-1 overflow-hidden">
         {!sidebarHidden && (
-          <Sidebar
-            topologyMode={state.topologyMode}
-            activeLanguages={state.activeLanguages}
-            activeSection={activeSection}
-            onSelectSection={handleSelectSection}
-            onTopologyChange={mode => updateState({ topologyMode: mode })}
-            onToggleLanguage={toggleLanguage}
-            onToggleCollapse={() => setSidebarCollapsed(prev => !prev)}
-            onHide={() => setSidebarHidden(true)}
-            collapsed={sidebarCollapsed}
-          />
-        )}
-        <main className="flex-1 px-4 py-8 lg:px-8">
-          <div className={`grid gap-8 ${layoutColumns}`}>
-            <div className="space-y-6">
-              <WorkspaceHeader
-                state={state}
-                updateState={updateState}
-                shareableLink={shareableLink}
-                onSaveLayout={handleSaveLayout}
-                onResetLayout={handleResetLayout}
-                layoutDirty={layoutDirty}
-                statusMessage={layoutStatus}
-              />
-              <div id="explore">
-                <WorkspaceGrid
-                  layout={panelLayout}
-                  defaultLayout={DEFAULT_LAYOUT}
-                  panels={panels}
-                  onLayoutChange={handleLayoutChange}
-                  draggableHandle=".panel-drag-handle"
-                />
-              </div>
-              <section id="visualize">
-                <VizArea state={state} data={resultData[state.queryLanguage]} onUpdate={updateState} />
-              </section>
-            </div>
-            <aside className="relative">
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setDetailsCollapsed(prev => !prev)}
-                  className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/70 px-3 py-1 text-xs text-slate-300 transition hover:border-slate-700 hover:text-slate-100"
-                >
-                  {detailsCollapsed ? (
-                    <>
-                      <ChevronLeft className="h-4 w-4" /> Expand insights
-                    </>
-                  ) : (
-                    <>
-                      Collapse insights <ChevronRight className="h-4 w-4" />
-                    </>
-                  )}
-                </button>
-              </div>
-              {detailsCollapsed ? (
-                <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/70 p-4 text-xs text-slate-300">
-                  <h3 className="text-sm font-semibold text-slate-100">Key health metrics</h3>
-                  <p className="text-[11px] text-slate-500">Pinned while the panel is collapsed for quick status checks.</p>
-                  <div className="grid gap-3">
-                    {keyMetrics.map(metric => (
-                      <div
-                        key={metric.label}
-                        className="rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2"
-                      >
-                        <p className="text-[11px] uppercase tracking-wide text-slate-500">{metric.label}</p>
-                        <p className="text-lg font-semibold text-slate-100">{metric.value}</p>
-                        <p
-                          className={`text-[11px] ${
-                            metric.tone === 'positive'
-                              ? 'text-emerald-300'
-                              : metric.tone === 'warning'
-                              ? 'text-amber-300'
-                              : 'text-slate-400'
-                          }`}
-                        >
-                          {metric.trend}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  <section id="slo">
-                    <SLOPanel state={state} />
-                  </section>
-                  <section id="ai">
-                    <AIAssistant state={state} />
-                  </section>
-                </div>
-              )}
-            </aside>
+          <div className="flex-shrink-0">
+            <Sidebar
+              topologyMode={state.topologyMode}
+              activeLanguages={state.activeLanguages}
+              activeSection={activeSection}
+              onSelectSection={handleSelectSection}
+              onTopologyChange={mode => updateState({ topologyMode: mode })}
+              onToggleLanguage={toggleLanguage}
+              onToggleCollapse={() => setSidebarCollapsed(prev => !prev)}
+              onHide={() => setSidebarHidden(true)}
+              collapsed={sidebarCollapsed}
+            />
           </div>
-        </main>
+        )}
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <div className="flex flex-1 flex-col overflow-y-auto px-4 py-6 lg:px-8">
+            <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
+              <main className="flex-1 space-y-6">
+                <WorkspaceHeader
+                  state={state}
+                  updateState={updateState}
+                  shareableLink={shareableLink}
+                  onSaveLayout={handleSaveLayout}
+                  onResetLayout={handleResetLayout}
+                  layoutDirty={layoutDirty}
+                  statusMessage={layoutStatus}
+                  showBreadcrumb={false}
+                />
+                <div id="explore">
+                  <WorkspaceGrid
+                    layout={panelLayout}
+                    defaultLayout={DEFAULT_LAYOUT}
+                    panels={panels}
+                    onLayoutChange={handleLayoutChange}
+                    draggableHandle=".panel-drag-handle"
+                  />
+                </div>
+                <section id="visualize">
+                  <VizArea state={state} data={resultData[state.queryLanguage]} onUpdate={updateState} />
+                </section>
+              </main>
+              <aside
+                className={`mt-6 w-full flex-shrink-0 lg:mt-0 ${insightAsideWidth} lg:self-stretch lg:overflow-y-auto`}
+              >
+                <div className="flex flex-col gap-4">
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => setDetailsCollapsed(prev => !prev)}
+                      className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/70 px-3 py-1 text-xs text-slate-300 transition hover:border-slate-700 hover:text-slate-100"
+                    >
+                      {detailsCollapsed ? (
+                        <>
+                          <ChevronLeft className="h-4 w-4" /> Expand insights
+                        </>
+                      ) : (
+                        <>
+                          Collapse insights <ChevronRight className="h-4 w-4" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  {detailsCollapsed ? (
+                    <div className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/70 p-4 text-xs text-slate-300">
+                      <h3 className="text-sm font-semibold text-slate-100">Key health metrics</h3>
+                      <p className="text-[11px] text-slate-500">Pinned while the panel is collapsed for quick status checks.</p>
+                      <div className="grid gap-3">
+                        {keyMetrics.map(metric => (
+                          <div
+                            key={metric.label}
+                            className="rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2"
+                          >
+                            <p className="text-[11px] uppercase tracking-wide text-slate-500">{metric.label}</p>
+                            <p className="text-lg font-semibold text-slate-100">{metric.value}</p>
+                            <p
+                              className={`text-[11px] ${
+                                metric.tone === 'positive'
+                                  ? 'text-emerald-300'
+                                  : metric.tone === 'warning'
+                                  ? 'text-amber-300'
+                                  : 'text-slate-400'
+                              }`}
+                            >
+                              {metric.trend}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      <section id="slo">
+                        <SLOPanel state={state} />
+                      </section>
+                      <section id="ai">
+                        <AIAssistant state={state} />
+                      </section>
+                    </div>
+                  )}
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )

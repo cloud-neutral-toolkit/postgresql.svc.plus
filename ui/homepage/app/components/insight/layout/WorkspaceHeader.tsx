@@ -11,6 +11,7 @@ interface WorkspaceHeaderProps {
   onResetLayout: () => void
   layoutDirty: boolean
   statusMessage?: string | null
+  showBreadcrumb?: boolean
 }
 
 export function WorkspaceHeader({
@@ -20,13 +21,18 @@ export function WorkspaceHeader({
   onSaveLayout,
   onResetLayout,
   layoutDirty,
-  statusMessage
+  statusMessage,
+  showBreadcrumb = true
 }: WorkspaceHeaderProps) {
   return (
     <header className="rounded-2xl border border-slate-800 bg-slate-900/70 px-6 py-5 shadow-lg shadow-slate-950/20">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="space-y-2">
-          <BreadcrumbBar state={state} updateState={updateState} shareableLink={shareableLink} />
+          {showBreadcrumb ? (
+            <BreadcrumbBar state={state} updateState={updateState} shareableLink={shareableLink} />
+          ) : (
+            <h2 className="text-lg font-semibold text-slate-100">Workspace controls</h2>
+          )}
           <p className="text-xs text-slate-400">
             Drag any panel handle to reorganize the workspace. Saved layouts stay local to your browser.
           </p>
