@@ -17,6 +17,7 @@ export function VizArea({ state, data, onUpdate }: VizAreaProps) {
   const mode = state.dataSource
 
   function correlate(target: DataSource) {
+    const language: InsightState['queryLanguage'] = target === 'metrics' ? 'promql' : target === 'logs' ? 'logql' : 'traceql'
     const query = buildCorrelatedQuery(target, {
       service: state.service || 'checkout',
       namespace: state.namespace,
@@ -24,8 +25,9 @@ export function VizArea({ state, data, onUpdate }: VizAreaProps) {
     })
     onUpdate({
       dataSource: target,
-      queryLanguage: target === 'metrics' ? 'promql' : target === 'logs' ? 'logql' : 'traceql',
-      query
+      queryLanguage: language,
+      queries: { ...state.queries, [language]: query },
+      activeLanguages: Array.from(new Set([...state.activeLanguages, language]))
     })
   }
 

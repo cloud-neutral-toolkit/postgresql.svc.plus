@@ -45,10 +45,12 @@ export function TopologyCanvas({ state, updateState }: TopologyCanvasProps) {
       namespace: state.namespace,
       timeRange: state.timeRange
     })
+    const language = target === 'metrics' ? 'promql' : target === 'logs' ? 'logql' : 'traceql'
     updateState({
       dataSource: target,
-      queryLanguage: target === 'metrics' ? 'promql' : target === 'logs' ? 'logql' : 'traceql',
-      query,
+      queryLanguage: language,
+      queries: { ...state.queries, [language]: query },
+      activeLanguages: Array.from(new Set([...state.activeLanguages, language])),
       service: contextMenu.node.service ?? contextMenu.node.label
     })
     setContextMenu({ visible: false, x: 0, y: 0 })

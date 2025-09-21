@@ -2,6 +2,7 @@ export type TopologyMode = 'application' | 'network' | 'resource'
 export type DataSource = 'metrics' | 'logs' | 'traces'
 export type BuilderMode = 'visual' | 'code'
 export type QueryLanguage = 'promql' | 'logql' | 'traceql'
+export type QueryInputMode = 'ql' | 'menu'
 
 export interface InsightState {
   org: string
@@ -13,7 +14,9 @@ export interface InsightState {
   service: string
   dataSource: DataSource
   queryLanguage: QueryLanguage
-  query: string
+  queries: Record<QueryLanguage, string>
+  activeLanguages: QueryLanguage[]
+  queryMode: QueryInputMode
   builderMode: BuilderMode
   timeRange: string
 }
@@ -28,7 +31,13 @@ export const DEFAULT_INSIGHT_STATE: InsightState = {
   service: '',
   dataSource: 'metrics',
   queryLanguage: 'promql',
-  query: 'sum(rate(http_requests_total{job="api"}[5m]))',
+  queries: {
+    promql: 'sum(rate(http_requests_total{job="api"}[5m]))',
+    logql: '{service="checkout"} |= "error"',
+    traceql: 'traces{service="checkout"} | duration > 250ms'
+  },
+  activeLanguages: ['promql'],
+  queryMode: 'ql',
   builderMode: 'visual',
   timeRange: '1h'
 }
@@ -43,7 +52,9 @@ const STATE_KEY_MAP: Record<keyof InsightState, string> = {
   service: 'svc',
   dataSource: 'ds',
   queryLanguage: 'ql',
-  query: 'q',
+  queries: 'qs',
+  activeLanguages: 'qls',
+  queryMode: 'qm',
   builderMode: 'bm',
   timeRange: 'tr'
 }
@@ -56,7 +67,18 @@ export function serializeInsightState(state: InsightState): string {
   const params = new URLSearchParams()
   ;(Object.keys(STATE_KEY_MAP) as (keyof InsightState)[]).forEach(key => {
     const value = state[key]
-    if (value) params.set(STATE_KEY_MAP[key], value)
+    if (value === undefined || value === null) return
+
+    switch (key) {
+      case 'queries':
+        params.set(STATE_KEY_MAP[key], encodeURIComponent(JSON.stringify(value)))
+        break
+      case 'activeLanguages':
+        params.set(STATE_KEY_MAP[key], value.join(','))
+        break
+      default:
+        params.set(STATE_KEY_MAP[key], String(value))
+    }
   })
   return params.toString()
 }
@@ -102,8 +124,31 @@ export function deserializeInsightState(hash: string): InsightState {
       case 'service':
         next.service = value
         break
-      case 'query':
-        next.query = value
+      case 'queries':
+        try {
+          const decoded = decodeURIComponent(value)
+          const parsed = JSON.parse(decoded)
+          next.queries = {
+            promql: parsed.promql || DEFAULT_INSIGHT_STATE.queries.promql,
+            logql: parsed.logql || DEFAULT_INSIGHT_STATE.queries.logql,
+            traceql: parsed.traceql || DEFAULT_INSIGHT_STATE.queries.traceql
+          }
+        } catch (error) {
+          console.error('Failed to parse queries from URL state', error)
+          next.queries = { ...DEFAULT_INSIGHT_STATE.queries }
+        }
+        break
+      case 'activeLanguages':
+        next.activeLanguages = value
+          .split(',')
+          .map(item => item.trim())
+          .filter(Boolean) as QueryLanguage[]
+        if (next.activeLanguages.length === 0) {
+          next.activeLanguages = [...DEFAULT_INSIGHT_STATE.activeLanguages]
+        }
+        break
+      case 'queryMode':
+        next.queryMode = value as QueryInputMode
         break
       case 'timeRange':
         next.timeRange = value
@@ -124,6 +169,24 @@ export function deserializeInsightState(hash: string): InsightState {
   }
   if (!['visual', 'code'].includes(next.builderMode)) {
     next.builderMode = DEFAULT_INSIGHT_STATE.builderMode
+  }
+  if (!['ql', 'menu'].includes(next.queryMode)) {
+    next.queryMode = DEFAULT_INSIGHT_STATE.queryMode
+  }
+  next.activeLanguages = next.activeLanguages.filter(language =>
+    ['promql', 'logql', 'traceql'].includes(language)
+  ) as QueryLanguage[]
+  if (next.activeLanguages.length === 0) {
+    next.activeLanguages = [...DEFAULT_INSIGHT_STATE.activeLanguages]
+  }
+  if (!next.queries) {
+    next.queries = { ...DEFAULT_INSIGHT_STATE.queries }
+  } else {
+    next.queries = {
+      promql: next.queries.promql || DEFAULT_INSIGHT_STATE.queries.promql,
+      logql: next.queries.logql || DEFAULT_INSIGHT_STATE.queries.logql,
+      traceql: next.queries.traceql || DEFAULT_INSIGHT_STATE.queries.traceql
+    }
   }
 
   return next

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { fetchPromQL } from '../../insight/services/adapters/prometheus'
 import { fetchLogs } from '../../insight/services/adapters/logs'
 import { fetchTraces } from '../../insight/services/adapters/traces'
@@ -11,156 +11,222 @@ import { QueryHistoryPanel } from '@components/common/QueryHistoryPanel'
 interface ExploreBuilderProps {
   state: InsightState
   updateState: (partial: Partial<InsightState>) => void
-  history: string[]
-  setHistory: (history: string[]) => void
-  onResults: (data: any) => void
+  history: Record<QueryLanguage, string[]>
+  setHistory: (language: QueryLanguage, next: string[]) => void
+  onResults: (language: QueryLanguage, data: any) => void
 }
 
-type DataSourceDefinition = {
-  id: DataSource
-  label: string
-  language: QueryLanguage
+const languageMeta: Record<
+  QueryLanguage,
+  { label: string; description: string; dataSource: DataSource; placeholder: string }
+> = {
+  promql: {
+    label: 'PromQL Explorer',
+    description: 'Build metrics queries for service SLOs and alerts.',
+    dataSource: 'metrics',
+    placeholder: 'sum(rate(http_requests_total{job="api"}[5m]))'
+  },
+  logql: {
+    label: 'LogQL Explorer',
+    description: 'Stream and filter structured application logs.',
+    dataSource: 'logs',
+    placeholder: '{service="checkout"} |= "error"'
+  },
+  traceql: {
+    label: 'TraceQL Explorer',
+    description: 'Slice and dice distributed tracing data.',
+    dataSource: 'traces',
+    placeholder: 'traces{service="checkout"} | duration > 250ms'
+  }
 }
 
-const dataSources: DataSourceDefinition[] = [
-  { id: 'metrics', label: 'Prometheus', language: 'promql' },
-  { id: 'logs', label: 'Logs', language: 'logql' },
-  { id: 'traces', label: 'Traces', language: 'traceql' }
-]
+const defaultRecord = <T,>(value: T): Record<QueryLanguage, T> => ({
+  promql: value,
+  logql: value,
+  traceql: value
+})
 
 export function ExploreBuilder({ state, updateState, history, setHistory, onResults }: ExploreBuilderProps) {
-  const [chips, setChips] = useState<string[]>([])
-  const [isRunning, setIsRunning] = useState(false)
-  const [message, setMessage] = useState('')
+  const [chipsMap, setChipsMap] = useState<Record<QueryLanguage, string[]>>(defaultRecord<string[]>([]))
+  const [runningMap, setRunningMap] = useState<Record<QueryLanguage, boolean>>(defaultRecord<boolean>(false))
+  const [messageMap, setMessageMap] = useState<Record<QueryLanguage, string>>(defaultRecord<string>(''))
+  const [collapsedMap, setCollapsedMap] = useState<Record<QueryLanguage, boolean>>(defaultRecord<boolean>(false))
 
   useEffect(() => {
-    if (state.service && !chips.includes(`service="${state.service}"`)) {
-      setChips(prev => [...prev, `service="${state.service}"`])
-    }
-  }, [state.service, chips])
+    if (!state.service) return
+    setChipsMap(prev => {
+      const serviceChip = `service="${state.service}"`
+      const next: Record<QueryLanguage, string[]> = { ...prev }
+      state.activeLanguages.forEach(language => {
+        if (!next[language]) {
+          next[language] = []
+        }
+        if (!next[language].includes(serviceChip)) {
+          next[language] = [...next[language], serviceChip]
+        }
+      })
+      return next
+    })
+  }, [state.service, state.activeLanguages])
 
-  async function runQuery() {
-    setIsRunning(true)
-    setMessage('')
+  const activePanels = useMemo(() => state.activeLanguages, [state.activeLanguages])
+
+  async function runQuery(language: QueryLanguage) {
+    const query = state.queries[language] || ''
+    if (!query) return
+    const meta = languageMeta[language]
+    setRunningMap(prev => ({ ...prev, [language]: true }))
+    setMessageMap(prev => ({ ...prev, [language]: '' }))
     try {
       let result: any
-      if (state.dataSource === 'metrics') {
-        result = await fetchPromQL(state.query)
-      } else if (state.dataSource === 'logs') {
-        result = await fetchLogs(state.query)
+      if (meta.dataSource === 'metrics') {
+        result = await fetchPromQL(query)
+      } else if (meta.dataSource === 'logs') {
+        result = await fetchLogs(query)
       } else {
-        result = await fetchTraces(state.query)
+        result = await fetchTraces(query)
       }
-      onResults(result)
-      const nextHistory = [state.query, ...history.filter(item => item !== state.query)].slice(0, 15)
-      setHistory(nextHistory)
-      setMessage('Query executed successfully')
+      onResults(language, result)
+      const nextHistory = [query, ...(history[language] || []).filter(item => item !== query)].slice(0, 15)
+      setHistory(language, nextHistory)
+      setMessageMap(prev => ({ ...prev, [language]: 'Query executed successfully' }))
     } catch (err) {
       console.error(err)
-      setMessage('Query failed. Please try again later.')
+      setMessageMap(prev => ({ ...prev, [language]: 'Query failed. Please try again later.' }))
     } finally {
-      setIsRunning(false)
+      setRunningMap(prev => ({ ...prev, [language]: false }))
     }
   }
 
-  function removeChip(label: string) {
-    setChips(prev => prev.filter(item => item !== label))
+  function removeChip(language: QueryLanguage, label: string) {
+    setChipsMap(prev => ({
+      ...prev,
+      [language]: (prev[language] || []).filter(item => item !== label)
+    }))
   }
 
   function toggleMode() {
     updateState({ builderMode: state.builderMode === 'visual' ? 'code' : 'visual' })
   }
 
-  function handleInsert(query: string) {
-    updateState({ query })
+  function handleQueryChange(language: QueryLanguage, value: string) {
+    const dataSource = languageMeta[language].dataSource
+    updateState({
+      queries: { ...state.queries, [language]: value },
+      queryLanguage: language,
+      dataSource,
+      activeLanguages: Array.from(new Set([...state.activeLanguages, language]))
+    })
+  }
+
+  function handleHistoryInsert(language: QueryLanguage, query: string) {
+    handleQueryChange(language, query)
+  }
+
+  function handleCollapse(language: QueryLanguage) {
+    setCollapsedMap(prev => ({ ...prev, [language]: !prev[language] }))
+  }
+
+  if (activePanels.length === 0) {
+    return (
+      <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 text-sm text-slate-300">
+        Select a query language from the navigation to start exploring data.
+      </div>
+    )
   }
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-lg shadow-slate-950/20">
-        <div className="flex flex-wrap items-center gap-2">
-          {dataSources.map(source => (
-            <button
-              key={source.id}
-              onClick={() =>
-                updateState({
-                  dataSource: source.id,
-                  queryLanguage: source.language,
-                  query: state.query,
-                  builderMode: state.builderMode
-                })
-              }
-              className={`rounded-xl px-3 py-1.5 text-sm font-medium transition ${
-                state.dataSource === source.id
-                  ? 'bg-emerald-500/20 text-emerald-200 border border-emerald-500/60'
-                  : 'bg-slate-950/50 text-slate-300 border border-slate-800 hover:border-slate-700'
-              }`}
-            >
-              {source.label}
-            </button>
-          ))}
-          <span className="ml-auto text-xs uppercase tracking-wide text-slate-500">{state.queryLanguage}</span>
-        </div>
-        <div className="mt-4 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-slate-200">{state.builderMode === 'visual' ? 'Visual Builder' : 'Code Editor'}</h3>
-          <button onClick={toggleMode} className="text-xs text-emerald-300 hover:text-emerald-200">
-            Switch to {state.builderMode === 'visual' ? 'code' : 'visual'} mode
-          </button>
-        </div>
-        <div className="mt-3 space-y-3">
-          {state.builderMode === 'visual' ? (
-            <div className="space-y-3">
-              <QueryChips labels={chips} onRemove={removeChip} />
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="flex flex-col gap-1 text-xs text-slate-400">
-                  Aggregation
-                  <select className="rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2 text-sm text-slate-200">
-                    <option>sum</option>
-                    <option>avg</option>
-                    <option>max</option>
-                  </select>
-                </label>
-                <label className="flex flex-col gap-1 text-xs text-slate-400">
-                  Window
-                  <select className="rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2 text-sm text-slate-200">
-                    <option>5m</option>
-                    <option>15m</option>
-                    <option>1h</option>
-                  </select>
-                </label>
+    <div className="space-y-4">
+      {activePanels.map(language => {
+        const meta = languageMeta[language]
+        const chips = chipsMap[language] || []
+        const historyItems = history[language] || []
+        const isCollapsed = collapsedMap[language]
+
+        return (
+          <section key={language} className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-lg shadow-slate-950/20">
+            <header className="flex flex-wrap items-start gap-3">
+              <div>
+                <h3 className="text-sm font-semibold text-slate-200">{meta.label}</h3>
+                <p className="text-xs text-slate-400">{meta.description}</p>
               </div>
-              <textarea
-                value={state.query}
-                onChange={event => updateState({ query: event.target.value })}
-                className="h-32 w-full rounded-2xl border border-slate-800 bg-slate-950/60 p-3 text-sm text-slate-200 shadow-inner"
-              />
-            </div>
-          ) : (
-            <textarea
-              value={state.query}
-              onChange={event => updateState({ query: event.target.value })}
-              className="h-48 w-full rounded-2xl border border-slate-800 bg-slate-950/60 p-3 font-mono text-sm text-slate-200 shadow-inner"
-            />
-          )}
-        </div>
-        <div className="mt-4 flex items-center gap-3">
-          <button
-            onClick={runQuery}
-            disabled={isRunning}
-            className="rounded-xl bg-emerald-500/80 px-4 py-2 text-sm font-semibold text-emerald-950 shadow-lg disabled:opacity-50"
-          >
-            {isRunning ? 'Running…' : 'Run query'}
-          </button>
-          <button
-            onClick={() => setHistory([state.query, ...history])}
-            className="rounded-xl border border-slate-700 px-3 py-2 text-xs text-slate-300 hover:bg-slate-800"
-          >
-            Save as snippet
-          </button>
-          {message && <span className="text-xs text-slate-400">{message}</span>}
-        </div>
-      </div>
-      <QueryHistoryPanel history={history} onInsert={handleInsert} onClear={() => setHistory([])} />
+              <div className="ml-auto flex items-center gap-2 text-xs text-slate-400">
+                <button onClick={() => handleCollapse(language)} className="rounded-xl border border-slate-700 px-3 py-1 hover:bg-slate-800">
+                  {isCollapsed ? 'Expand' : 'Collapse'}
+                </button>
+                <button onClick={toggleMode} className="rounded-xl border border-slate-700 px-3 py-1 hover:bg-slate-800">
+                  {state.builderMode === 'visual' ? 'Switch to code' : 'Switch to visual'}
+                </button>
+              </div>
+            </header>
+            {!isCollapsed && (
+              <div className="mt-4 space-y-4">
+                {state.builderMode === 'visual' ? (
+                  <div className="space-y-3">
+                    <QueryChips labels={chips} onRemove={label => removeChip(language, label)} />
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <label className="flex flex-col gap-1 text-xs text-slate-400">
+                        Aggregation
+                        <select className="rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2 text-sm text-slate-200">
+                          <option>sum</option>
+                          <option>avg</option>
+                          <option>max</option>
+                        </select>
+                      </label>
+                      <label className="flex flex-col gap-1 text-xs text-slate-400">
+                        Window
+                        <select className="rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2 text-sm text-slate-200">
+                          <option>5m</option>
+                          <option>15m</option>
+                          <option>1h</option>
+                        </select>
+                      </label>
+                    </div>
+                    <textarea
+                      value={state.queries[language] || ''}
+                      onChange={event => handleQueryChange(language, event.target.value)}
+                      placeholder={meta.placeholder}
+                      className="h-32 w-full rounded-2xl border border-slate-800 bg-slate-950/60 p-3 text-sm text-slate-200 shadow-inner"
+                    />
+                  </div>
+                ) : (
+                  <textarea
+                    value={state.queries[language] || ''}
+                    onChange={event => handleQueryChange(language, event.target.value)}
+                    placeholder={meta.placeholder}
+                    className="h-48 w-full rounded-2xl border border-slate-800 bg-slate-950/60 p-3 font-mono text-sm text-slate-200 shadow-inner"
+                  />
+                )}
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    onClick={() => runQuery(language)}
+                    disabled={runningMap[language]}
+                    className="rounded-xl bg-emerald-500/80 px-4 py-2 text-sm font-semibold text-emerald-950 shadow-lg disabled:opacity-50"
+                  >
+                    {runningMap[language] ? 'Running…' : 'Run query'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      const query = state.queries[language] || meta.placeholder
+                      const unique = [query, ...historyItems.filter(item => item !== query)].slice(0, 15)
+                      setHistory(language, unique)
+                    }}
+                    className="rounded-xl border border-slate-700 px-3 py-2 text-xs text-slate-300 hover:bg-slate-800"
+                  >
+                    Save to history
+                  </button>
+                  {messageMap[language] && <span className="text-xs text-slate-400">{messageMap[language]}</span>}
+                </div>
+                <QueryHistoryPanel
+                  history={historyItems}
+                  onInsert={query => handleHistoryInsert(language, query)}
+                  onClear={() => setHistory(language, [])}
+                />
+              </div>
+            )}
+          </section>
+        )
+      })}
     </div>
   )
 }
