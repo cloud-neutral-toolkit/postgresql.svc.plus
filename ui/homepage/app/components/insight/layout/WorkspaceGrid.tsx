@@ -4,9 +4,6 @@ import { ReactNode, useEffect, useMemo, useState } from 'react'
 import dynamic from 'next/dynamic'
 import type { Layout, ReactGridLayoutProps } from 'react-grid-layout'
 
-import 'react-grid-layout/css/styles.css'
-import 'react-resizable/css/styles.css'
-
 interface WorkspacePanel {
   id: string
   domId?: string
