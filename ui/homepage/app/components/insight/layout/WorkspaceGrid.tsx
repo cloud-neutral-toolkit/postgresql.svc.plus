@@ -21,7 +21,17 @@ interface WorkspaceGridProps {
 }
 
 const ReactGridLayout = dynamic<ReactGridLayoutProps>(
-  () => import('react-grid-layout').then(mod => mod.WidthProvider(mod.default)),
+  () =>
+    import('react-grid-layout').then(mod => {
+      const baseComponent = mod.default
+      const widthProvider = mod.WidthProvider ?? mod.default?.WidthProvider
+
+      if (!widthProvider) {
+        throw new Error('Unable to load react-grid-layout WidthProvider')
+      }
+
+      return widthProvider(baseComponent)
+    }),
   { ssr: false }
 )
 
