@@ -70,6 +70,11 @@ export default function Navbar() {
           feature: cloudIacFeature,
         },
         {
+          key: 'insight',
+          label: nav.services.insight,
+          href: '/insight',
+        },
+        {
           key: 'docs',
           label: nav.services.docs,
           href: '/docs',

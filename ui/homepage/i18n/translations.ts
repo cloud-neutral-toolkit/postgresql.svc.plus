@@ -87,6 +87,7 @@ export type Translation = {
       title: string
       artifact: string
       cloudIac: string
+      insight: string
       docs: string
     }
     account: {
@@ -127,6 +128,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
         title: 'Services',
         artifact: 'Artifact / Mirror',
         cloudIac: 'Cloud IaC Catalog',
+        insight: 'Insight Workbench',
         docs: 'Docs / Solutions',
       },
       account: {
@@ -234,6 +236,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
         title: '服务',
         artifact: 'Artifact / 镜像',
         cloudIac: 'Cloud IaC 编排',
+        insight: 'Insight 工作台',
         docs: '文档 / 解决方案',
       },
       account: {
