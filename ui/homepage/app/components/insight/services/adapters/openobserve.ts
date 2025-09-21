@@ -7,11 +7,11 @@ export function createOpenObserveClient(options: ClientOptions = {}) {
   const { baseUrl = '/api', token } = options
 
   async function request<T>(path: string, init?: RequestInit): Promise<T> {
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-      ...(init?.headers || {})
+    const headers = new Headers(init?.headers)
+    if (!headers.has('Content-Type')) {
+      headers.set('Content-Type', 'application/json')
     }
-    if (token) headers['Authorization'] = `Bearer ${token}`
+    if (token) headers.set('Authorization', `Bearer ${token}`)
     const res = await fetch(`${baseUrl}${path}`, {
       ...init,
       headers

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { fetchPromQL } from '../../insight/services/adapters/prometheus'
 import { fetchLogs } from '../../insight/services/adapters/logs'
 import { fetchTraces } from '../../insight/services/adapters/traces'
-import { InsightState } from '../../insight/store/urlState'
+import { DataSource, InsightState, QueryLanguage } from '../../insight/store/urlState'
 import { QueryChips } from '@components/common/QueryChips'
 import { QueryHistoryPanel } from '@components/common/QueryHistoryPanel'
 
@@ -16,10 +16,16 @@ interface ExploreBuilderProps {
   onResults: (data: any) => void
 }
 
-const dataSources = [
-  { id: 'metrics', label: 'Prometheus', language: 'promql' as const },
-  { id: 'logs', label: 'Logs', language: 'logql' as const },
-  { id: 'traces', label: 'Traces', language: 'traceql' as const }
+type DataSourceDefinition = {
+  id: DataSource
+  label: string
+  language: QueryLanguage
+}
+
+const dataSources: DataSourceDefinition[] = [
+  { id: 'metrics', label: 'Prometheus', language: 'promql' },
+  { id: 'logs', label: 'Logs', language: 'logql' },
+  { id: 'traces', label: 'Traces', language: 'traceql' }
 ]
 
 export function ExploreBuilder({ state, updateState, history, setHistory, onResults }: ExploreBuilderProps) {
