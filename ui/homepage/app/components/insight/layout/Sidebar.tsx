@@ -1,6 +1,6 @@
 'use client'
 
-import { BarChart3, BellRing, Compass, Layers, Sparkles, type LucideIcon, PanelLeftClose, PanelLeftOpen, EyeOff } from 'lucide-react'
+import { BellRing, Compass, Layers, Sparkles, type LucideIcon, PanelLeftClose, PanelLeftOpen, EyeOff } from 'lucide-react'
 
 import { QueryLanguage, TopologyMode } from '../../insight/store/urlState'
 
@@ -19,7 +19,6 @@ interface SidebarProps {
 const sections: { id: string; label: string; icon: LucideIcon }[] = [
   { id: 'topology', label: 'Topology', icon: Layers },
   { id: 'explore', label: 'Explore', icon: Compass },
-  { id: 'visualize', label: 'Visualize', icon: BarChart3 },
   { id: 'slo', label: 'SLO & Alerts', icon: BellRing },
   { id: 'ai', label: 'AI Assistant', icon: Sparkles }
 ]

@@ -38,6 +38,8 @@ export function VizArea({ state, data, onUpdate }: VizAreaProps) {
     []
   )
 
+  const title = modeLabel[mode]
+
   function correlate(target: DataSource) {
     const language: InsightState['queryLanguage'] = target === 'metrics' ? 'promql' : target === 'logs' ? 'logql' : 'traceql'
     const query = buildCorrelatedQuery(target, {
@@ -91,8 +93,8 @@ export function VizArea({ state, data, onUpdate }: VizAreaProps) {
   return (
     <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-lg shadow-slate-950/20">
       <div className="flex flex-wrap items-center gap-3">
-        <h3 className="text-sm font-semibold text-slate-200">{modeLabel[mode]}</h3>
-        <div className="ml-auto flex flex-wrap items-center gap-2 text-xs text-slate-300">
+        {title && <h3 className="text-sm font-semibold text-slate-200">{title}</h3>}
+        <div className={`${title ? 'ml-auto ' : ''}flex flex-wrap items-center gap-2 text-xs text-slate-300`}>
           <div className="flex overflow-hidden rounded-xl border border-slate-800">
             {viewOptions.map(option => (
               <button
@@ -126,7 +128,7 @@ export function VizArea({ state, data, onUpdate }: VizAreaProps) {
 }
 
 const modeLabel: Record<DataSource, string> = {
-  metrics: 'Metrics visualizations',
+  metrics: '',
   logs: 'Log stream',
   traces: 'Trace waterfall'
 }
