@@ -6,31 +6,37 @@
         "name": "deb/",
         "href": "/deb/",
         "type": "dir",
-        "lastModified": "2025-07-29T05:17:40Z"
+        "lastModified": "2025-09-19T02:01:25Z"
       },
       {
         "name": "offline-package/",
         "href": "/offline-package/",
         "type": "dir",
-        "lastModified": "2025-09-14T12:49:17Z"
+        "lastModified": "2025-09-19T01:55:53Z"
       },
       {
         "name": "otel/",
         "href": "/otel/",
         "type": "dir",
-        "lastModified": "2025-09-03T08:18:36Z"
+        "lastModified": "2025-09-19T01:55:53Z"
       },
       {
         "name": "rpm/",
         "href": "/rpm/",
         "type": "dir",
-        "lastModified": "2025-07-29T05:17:40Z"
+        "lastModified": "2025-09-19T01:55:53Z"
+      },
+      {
+        "name": "sealos/",
+        "href": "/sealos/",
+        "type": "dir",
+        "lastModified": "2025-09-19T01:55:53Z"
       },
       {
         "name": "xstream/",
         "href": "/xstream/",
         "type": "dir",
-        "lastModified": "2025-08-15T06:26:59Z"
+        "lastModified": "2025-09-19T01:55:53Z"
       }
     ]
   },
@@ -42,7 +48,7 @@
         "href": "/deb/example.deb",
         "type": "file",
         "size": 0,
-        "lastModified": "2025-07-29T05:17:40Z"
+        "lastModified": "2025-09-19T02:01:25Z"
       }
     ]
   },
@@ -53,31 +59,31 @@
         "name": "apisix-gateway/",
         "href": "/offline-package/apisix-gateway/",
         "type": "dir",
-        "lastModified": "2025-09-14T12:49:17Z"
+        "lastModified": "2025-09-19T02:01:24Z"
       },
       {
         "name": "k3s/",
         "href": "/offline-package/k3s/",
         "type": "dir",
-        "lastModified": "2025-09-14T10:13:38Z"
+        "lastModified": "2025-09-19T02:01:24Z"
       },
       {
         "name": "kong-gateway/",
         "href": "/offline-package/kong-gateway/",
         "type": "dir",
-        "lastModified": "2025-09-14T12:17:41Z"
+        "lastModified": "2025-09-19T02:01:24Z"
       },
       {
         "name": "nginx-ingress/",
         "href": "/offline-package/nginx-ingress/",
         "type": "dir",
-        "lastModified": "2025-09-14T11:18:37Z"
+        "lastModified": "2025-09-19T02:01:24Z"
       },
       {
         "name": "sealos/",
         "href": "/offline-package/sealos/",
         "type": "dir",
-        "lastModified": "2025-09-14T11:03:05Z"
+        "lastModified": "2025-09-19T02:01:24Z"
       }
     ]
   },
@@ -239,7 +245,7 @@
         "name": "OpenTelemetry/",
         "href": "/otel/OpenTelemetry/",
         "type": "dir",
-        "lastModified": "2025-09-03T08:18:36Z"
+        "lastModified": "2025-09-19T02:01:40Z"
       }
     ]
   },
@@ -250,7 +256,7 @@
         "name": "v0.133.0/",
         "href": "/otel/OpenTelemetry/v0.133.0/",
         "type": "dir",
-        "lastModified": "2025-09-03T08:19:08Z"
+        "lastModified": "2025-09-19T02:01:40Z"
       }
     ]
   },
@@ -292,37 +298,72 @@
     "entries": []
   },
   {
+    "path": "sealos/",
+    "entries": [
+      {
+        "name": "offline-sealos-5/",
+        "href": "/sealos/offline-sealos-5/",
+        "type": "dir",
+        "lastModified": "2025-09-19T03:19:15Z"
+      },
+      {
+        "name": "offline-sealos-6/",
+        "href": "/sealos/offline-sealos-6/",
+        "type": "dir",
+        "lastModified": "2025-09-19T03:19:15Z"
+      },
+      {
+        "name": "offline-sealos-8/",
+        "href": "/sealos/offline-sealos-8/",
+        "type": "dir",
+        "lastModified": "2025-09-19T03:19:15Z"
+      }
+    ]
+  },
+  {
+    "path": "sealos/offline-sealos-5/",
+    "entries": []
+  },
+  {
+    "path": "sealos/offline-sealos-6/",
+    "entries": []
+  },
+  {
+    "path": "sealos/offline-sealos-8/",
+    "entries": []
+  },
+  {
     "path": "xstream/",
     "entries": [
       {
         "name": "android/",
         "href": "/xstream/android/",
         "type": "dir",
-        "lastModified": "2025-08-04T06:26:15Z"
+        "lastModified": "2025-09-19T02:01:47Z"
       },
       {
         "name": "ios/",
         "href": "/xstream/ios/",
         "type": "dir",
-        "lastModified": "2025-08-04T06:26:20Z"
+        "lastModified": "2025-09-19T02:01:47Z"
       },
       {
         "name": "linux/",
         "href": "/xstream/linux/",
         "type": "dir",
-        "lastModified": "2025-08-15T06:26:54Z"
+        "lastModified": "2025-09-19T02:01:47Z"
       },
       {
         "name": "macos/",
         "href": "/xstream/macos/",
         "type": "dir",
-        "lastModified": "2025-08-15T06:26:57Z"
+        "lastModified": "2025-09-19T02:01:47Z"
       },
       {
         "name": "windows/",
         "href": "/xstream/windows/",
         "type": "dir",
-        "lastModified": "2025-08-15T07:57:10Z"
+        "lastModified": "2025-09-19T02:01:47Z"
       }
     ]
   },
@@ -333,7 +374,7 @@
         "name": "latest/",
         "href": "/xstream/android/latest/",
         "type": "dir",
-        "lastModified": "2025-08-04T06:26:24Z"
+        "lastModified": "2025-09-19T02:01:47Z"
       }
     ]
   },
@@ -356,7 +397,7 @@
         "name": "latest/",
         "href": "/xstream/ios/latest/",
         "type": "dir",
-        "lastModified": "2025-08-04T06:26:30Z"
+        "lastModified": "2025-09-19T02:01:47Z"
       }
     ]
   },
@@ -379,13 +420,13 @@
         "name": "latest/",
         "href": "/xstream/linux/latest/",
         "type": "dir",
-        "lastModified": "2025-08-04T06:26:25Z"
+        "lastModified": "2025-09-19T02:01:48Z"
       },
       {
         "name": "stable/",
         "href": "/xstream/linux/stable/",
         "type": "dir",
-        "lastModified": "2025-08-15T06:27:05Z"
+        "lastModified": "2025-09-19T02:01:48Z"
       }
     ]
   },
@@ -420,19 +461,19 @@
         "name": "docs/",
         "href": "/xstream/macos/docs/",
         "type": "dir",
-        "lastModified": "2025-07-30T05:23:59Z"
+        "lastModified": "2025-09-19T02:01:49Z"
       },
       {
         "name": "latest/",
         "href": "/xstream/macos/latest/",
         "type": "dir",
-        "lastModified": "2025-08-04T06:26:26Z"
+        "lastModified": "2025-09-19T02:01:49Z"
       },
       {
         "name": "stable/",
         "href": "/xstream/macos/stable/",
         "type": "dir",
-        "lastModified": "2025-08-15T06:27:07Z"
+        "lastModified": "2025-09-19T02:01:49Z"
       }
     ]
   },
@@ -478,25 +519,25 @@
         "name": "latest/",
         "href": "/xstream/windows/latest/",
         "type": "dir",
-        "lastModified": "2025-08-04T06:26:26Z"
+        "lastModified": "2025-09-19T02:01:51Z"
       },
       {
         "name": "stable/",
         "href": "/xstream/windows/stable/",
         "type": "dir",
-        "lastModified": "2025-08-15T06:27:09Z"
+        "lastModified": "2025-09-19T02:01:51Z"
       },
       {
         "name": "win10/",
         "href": "/xstream/windows/win10/",
         "type": "dir",
-        "lastModified": "2025-08-15T07:57:09Z"
+        "lastModified": "2025-09-19T02:01:51Z"
       },
       {
         "name": "win11/",
         "href": "/xstream/windows/win11/",
         "type": "dir",
-        "lastModified": "2025-08-15T07:57:10Z"
+        "lastModified": "2025-09-19T02:01:51Z"
       }
     ]
   },
