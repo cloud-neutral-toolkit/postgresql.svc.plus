@@ -29,4 +29,4 @@ yarn dev
 
 ## Feature Flag
 
-`app/cloud_iac/feature.config.ts` 定义了 `NEXT_PUBLIC_FEATURE_CLOUD_IAC` 环境变量。将其设置为 `0`/`false` 可在生产环境中临时关闭入口。
+`next.config.js` 会读取 `config/feature-toggles.json` 中的 `appModules.cloud_iac` 配置以决定入口是否展示与页面是否可访问。将该节点的 `enabled` 设置为 `false`（或为特定云厂商 / 服务节点设为 `false`）即可在生产环境中按需关闭。

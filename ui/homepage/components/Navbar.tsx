@@ -1,16 +1,11 @@
 'use client'
 import Image from 'next/image'
 import { useEffect, useMemo, useState } from 'react'
-import demoFeature from '../app/demo/feature.config'
-import docsFeature from '../app/docs/feature.config'
-import cloudIacFeature from '../app/cloud_iac/feature.config'
-import loginFeature from '../app/login/feature.config'
-import registerFeature from '../app/register/feature.config'
 import { useLanguage } from '../i18n/LanguageProvider'
 import { translations } from '../i18n/translations'
 import LanguageToggle from './LanguageToggle'
 import ReleaseChannelSelector, { ReleaseChannel } from './ReleaseChannelSelector'
-import type { FeatureFlag } from '@lib/featureFlags'
+import { getFeatureToggleInfo } from '@lib/featureToggles'
 
 const CHANNEL_ORDER: ReleaseChannel[] = ['stable', 'beta', 'develop']
 const RELEASE_CHANNEL_STORAGE_KEY = 'cloudnative-suite.releaseChannels'
@@ -19,8 +14,9 @@ type NavSubItem = {
   key: string
   label: string
   href: string
-  feature?: FeatureFlag
+  togglePath?: string
   channels?: ReleaseChannel[]
+  enabled?: boolean
 }
 
 type NavItem = {
@@ -101,23 +97,25 @@ export default function Navbar() {
           key: 'artifact',
           label: nav.services.artifact,
           href: '/download',
+          togglePath: '/download',
         },
         {
           key: 'cloudIac',
           label: nav.services.cloudIac,
           href: '/cloud_iac',
-          feature: cloudIacFeature,
+          togglePath: '/cloud_iac',
         },
         {
           key: 'insight',
           label: nav.services.insight,
           href: '/insight',
+          togglePath: '/insight',
         },
         {
           key: 'docs',
           label: nav.services.docs,
           href: '/docs',
-          feature: docsFeature,
+          togglePath: '/docs',
         },
       ],
     },
@@ -129,20 +127,19 @@ export default function Navbar() {
           key: 'register',
           label: nav.account.register,
           href: '/register',
-          feature: registerFeature,
+          togglePath: '/register',
         },
         {
           key: 'login',
           label: nav.account.login,
           href: '/login',
-          feature: loginFeature,
+          togglePath: '/login',
         },
         {
           key: 'demo',
           label: nav.account.demo,
           href: '/demo',
-          feature: demoFeature,
-          channels: ['beta'],
+          togglePath: '/demo',
         },
       ],
     },
@@ -151,25 +148,30 @@ export default function Navbar() {
   const visibleNavItems: NavItem[] = navItems
     .map((item) => ({
       ...item,
-      children: item.children.filter((child) => {
-        const childChannels = child.channels?.length ? child.channels : ['stable']
-        const matchesChannel = childChannels.some((channel) => selectedChannelSet.has(channel))
-        if (!matchesChannel) {
-          return false
-        }
+      children: item.children
+        .map((child) => {
+          if (!child.togglePath) {
+            return { ...child, enabled: true }
+          }
 
-        if (!child.feature) {
-          return true
-        }
+          const { enabled, channel } = getFeatureToggleInfo('globalNavigation', child.togglePath)
+          const derivedChannels = child.channels ?? (channel ? [channel] : undefined)
 
-        if (child.feature.enabled || child.feature.defaultEnabled) {
-          return true
-        }
+          return {
+            ...child,
+            enabled,
+            channels: derivedChannels,
+          }
+        })
+        .filter((child) => {
+          if (child.enabled === false) {
+            return false
+          }
 
-        return childChannels.some(
-          (channel) => channel !== 'stable' && selectedChannelSet.has(channel),
-        )
-      }),
+          const childChannels = child.channels?.length ? child.channels : ['stable']
+          return childChannels.some((channel) => selectedChannelSet.has(channel))
+        })
+        .map(({ enabled: _enabled, ...child }) => child),
     }))
     .filter((item) => item.children.length > 0)
 

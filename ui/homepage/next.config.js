@@ -3,67 +3,7 @@
  * - children 支持精确路径、动态段([param])、以及通配符(*)。
  * - 当某个节点 enabled 为 false 时，其所有子级都会默认关闭。
  */
-const featureToggles = {
-  /**
-   * 全局导航的功能开关，按需控制一级导航入口。
-   */
-  globalNavigation: {
-    enabled: true,
-    children: {
-      docs: { enabled: true, channel: 'beta' },
-      demo: { enabled: true, channel: 'develop' },
-      download: { enabled: true, channel: 'stable' },
-      insight: { enabled: true, channel: 'develop' },
-      login: { enabled: true, channel: 'develop' },
-      register: { enabled: true, channel: 'develop' },
-      cloud_iac: { enabled: true, channel: 'develop' },
-      panel: { enabled: false, channel: 'develop' },
-    },
-  },
-  /**
-   * 应用模块功能控制。支持到 URL 三层的逐级开关，如 /cloud_iac/[provider]/[service]。
-   */
-  appModules: {
-    enabled: true,
-    children: {
-      cloud_iac: {
-        enabled: true,
-        children: {
-          '[provider]': {
-            enabled: true,
-            children: {
-              '[service]': { enabled: true },
-            },
-          },
-          aliyun: {
-            enabled: true,
-            children: {
-              ack: { enabled: true },
-              'aliyun-emr': { enabled: false },
-              '[service]': { enabled: true },
-            },
-          },
-          aws: {
-            enabled: true,
-            children: {
-              eks: { enabled: true },
-              '[service]': { enabled: true },
-            },
-          },
-        },
-      },
-      docs: { enabled: true },
-      download: {
-        enabled: true,
-        children: {
-          '[...segments]': { enabled: true },
-        },
-      },
-      insight: { enabled: true },
-      demo: { enabled: true },
-    },
-  },
-}
+const featureToggles = require('./config/feature-toggles.json')
 
 const normalizeSegments = (pathname = '') =>
   pathname

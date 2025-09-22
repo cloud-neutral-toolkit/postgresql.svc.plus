@@ -2,10 +2,10 @@ export const dynamic = 'error'
 
 import { notFound, redirect } from 'next/navigation'
 
-import feature from './feature.config'
+import { isFeatureEnabled } from '@lib/featureToggles'
 
 export default function RegisterPage() {
-  if (!feature.enabled) {
+  if (!isFeatureEnabled('globalNavigation', '/register')) {
     notFound()
   }
 

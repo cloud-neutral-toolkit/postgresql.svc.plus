@@ -2,11 +2,11 @@ export const dynamic = 'error'
 
 import { notFound } from 'next/navigation'
 
-import feature from './feature.config'
+import { isFeatureEnabled } from '@lib/featureToggles'
 import DemoContent from './DemoContent'
 
 export default function DemoPage() {
-  if (!feature.enabled) {
+  if (!isFeatureEnabled('appModules', '/demo')) {
     notFound()
   }
 

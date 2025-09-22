@@ -1,6 +1,6 @@
 import 'server-only'
 
-import feature from './feature.config'
+import { isFeatureEnabled } from '@lib/featureToggles'
 import docsManifest from '../../public/dl-index/docs-manifest.json'
 import fallbackDocsIndex from '../../public/_build/docs_index.json'
 
@@ -127,8 +127,10 @@ function normalizeResource(item: RawDocResource): DocResource | null {
   return resource
 }
 
+const isDocsModuleEnabled = () => isFeatureEnabled('appModules', '/docs')
+
 export async function getDocResources(): Promise<DocResource[]> {
-  if (!feature.enabled) {
+  if (!isDocsModuleEnabled()) {
     return []
   }
 
@@ -136,7 +138,7 @@ export async function getDocResources(): Promise<DocResource[]> {
 }
 
 export async function getDocResource(slug: string): Promise<DocResource | undefined> {
-  if (!feature.enabled) {
+  if (!isDocsModuleEnabled()) {
     return undefined
   }
 

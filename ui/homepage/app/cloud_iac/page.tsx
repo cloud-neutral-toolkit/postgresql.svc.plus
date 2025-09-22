@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation'
 import CloudIacCatalog from '@components/iac/CloudIacCatalog'
 import { CATALOG, PROVIDERS } from '@lib/iac/catalog'
 
-import feature from './feature.config'
+import { isFeatureEnabled } from '@lib/featureToggles'
 
 export const metadata: Metadata = {
   title: 'Cloud IaC Catalog',
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 }
 
 export default function CloudIacPage() {
-  if (!feature.enabled) {
+  if (!isFeatureEnabled('appModules', '/cloud_iac')) {
     notFound()
   }
 

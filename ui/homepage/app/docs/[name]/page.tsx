@@ -5,7 +5,7 @@ import type { Metadata } from 'next'
 
 import Breadcrumbs, { Crumb } from '../../../components/download/Breadcrumbs'
 import { DOCS_DATASET, getDocResource } from '../resources'
-import feature from '../feature.config'
+import { isFeatureEnabled } from '@lib/featureToggles'
 import ClientTime from '../../components/ClientTime'
 import DocViewSection, { type DocViewOption } from './DocViewSection'
 
@@ -17,7 +17,7 @@ function buildBreadcrumbs(slug: string, docTitle: string): Crumb[] {
 }
 
 export const generateStaticParams = () => {
-  if (!feature.enabled) {
+  if (!isFeatureEnabled('appModules', '/docs')) {
     return []
   }
 
@@ -35,7 +35,7 @@ export default async function DocPage({
 }: {
   params: { name: string }
 }) {
-  if (!feature.enabled) {
+  if (!isFeatureEnabled('appModules', '/docs')) {
     notFound()
   }
 

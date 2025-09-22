@@ -1,10 +1,18 @@
 export const dynamic = 'error'
 
+import { notFound } from 'next/navigation'
+
 import DownloadBrowser from '../../components/download/DownloadBrowser'
 import DownloadSummary from '../../components/download/DownloadSummary'
 import { buildDownloadSections, countFiles, findListing } from '../../lib/download-data'
 import { getDownloadListings } from '../../lib/download-manifest'
+import { isFeatureEnabled } from '@lib/featureToggles'
+
 export default function DownloadHome() {
+  if (!isFeatureEnabled('appModules', '/download')) {
+    notFound()
+  }
+
   const allListings = getDownloadListings()
   const sectionsMap = buildDownloadSections(allListings)
   const rootListing = findListing(allListings, [])

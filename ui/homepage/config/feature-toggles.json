@@ -1,0 +1,55 @@
+{
+  "globalNavigation": {
+    "enabled": true,
+    "children": {
+      "docs": { "enabled": true, "channel": "beta" },
+      "demo": { "enabled": true, "channel": "develop" },
+      "download": { "enabled": true, "channel": "stable" },
+      "insight": { "enabled": true, "channel": "develop" },
+      "login": { "enabled": true, "channel": "develop" },
+      "register": { "enabled": true, "channel": "develop" },
+      "cloud_iac": { "enabled": true, "channel": "develop" },
+      "panel": { "enabled": false, "channel": "develop" }
+    }
+  },
+  "appModules": {
+    "enabled": true,
+    "children": {
+      "cloud_iac": {
+        "enabled": true,
+        "children": {
+          "[provider]": {
+            "enabled": true,
+            "children": {
+              "[service]": { "enabled": true }
+            }
+          },
+          "aliyun": {
+            "enabled": true,
+            "children": {
+              "ack": { "enabled": true },
+              "aliyun-emr": { "enabled": false },
+              "[service]": { "enabled": true }
+            }
+          },
+          "aws": {
+            "enabled": true,
+            "children": {
+              "eks": { "enabled": true },
+              "[service]": { "enabled": true }
+            }
+          }
+        }
+      },
+      "docs": { "enabled": true },
+      "download": {
+        "enabled": true,
+        "children": {
+          "[...segments]": { "enabled": true }
+        }
+      },
+      "insight": { "enabled": true },
+      "demo": { "enabled": true }
+    }
+  }
+}

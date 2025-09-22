@@ -7,8 +7,8 @@ import ServiceDetailView from '@components/iac/ServiceDetailView'
 import { CATALOG, PROVIDERS } from '@lib/iac/catalog'
 import type { CatalogItem, ProviderKey } from '@lib/iac/types'
 
-import feature from '../../feature.config'
 import cloudIacIndex from '../../../../public/_build/cloud_iac_index.json'
+import { isFeatureEnabled } from '@lib/featureToggles'
 
 type PageParams = {
   provider: string
@@ -39,17 +39,19 @@ export const metadata: Metadata = {
 }
 
 export default function CloudIacServicePage({ params }: { params: PageParams }) {
-  if (!feature.enabled) {
+  const providerKey = params.provider as ProviderKey
+  const serviceSlug = params.service
+
+  if (!isFeatureEnabled('appModules', `/cloud_iac/${providerKey}/${serviceSlug}`)) {
     notFound()
   }
 
-  const providerKey = params.provider as ProviderKey
   const providerLabel = PROVIDER_MAP.get(providerKey)
   if (!providerLabel) {
     notFound()
   }
 
-  const category = findCategoryBySlug(providerKey, params.service)
+  const category = findCategoryBySlug(providerKey, serviceSlug)
   if (!category) {
     notFound()
   }

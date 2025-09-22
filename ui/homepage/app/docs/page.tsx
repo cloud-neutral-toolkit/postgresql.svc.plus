@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation'
 import { ArrowUpRight } from 'lucide-react'
 
 import { getDocResources } from './resources'
-import feature from './feature.config'
+import { isFeatureEnabled } from '@lib/featureToggles'
 import ClientTime from '../components/ClientTime'
 
 function formatMeta({
@@ -25,7 +25,7 @@ function formatMeta({
 }
 
 export default async function DocsHome() {
-  if (!feature.enabled) {
+  if (!isFeatureEnabled('appModules', '/docs')) {
     notFound()
   }
 
