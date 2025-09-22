@@ -16,31 +16,11 @@ interface SidebarProps {
   collapsed: boolean
 }
 
-const sections: { id: string; label: string; description: string; icon: LucideIcon }[] = [
-  {
-    id: 'topology',
-    label: 'Topology',
-    description: 'Switch between application, network or resource graphs.',
-    icon: Layers
-  },
-  {
-    id: 'explore',
-    label: 'Explore',
-    description: 'Open data explorers that match your active query language.',
-    icon: Compass
-  },
-  {
-    id: 'slo',
-    label: 'SLO & Alerts',
-    description: 'Stay ahead of error budget risk with live SLO health.',
-    icon: BellRing
-  },
-  {
-    id: 'ai',
-    label: 'AI Assistant',
-    description: 'Ask questions about signals and get narrative context.',
-    icon: Sparkles
-  }
+const sections: { id: string; label: string; icon: LucideIcon }[] = [
+  { id: 'topology', label: 'Topology', icon: Layers },
+  { id: 'explore', label: 'Explore', icon: Compass },
+  { id: 'slo', label: 'SLO & Alerts', icon: BellRing },
+  { id: 'ai', label: 'AI Assistant', icon: Sparkles }
 ]
 
 const topologyOptions: { id: TopologyMode; label: string; hint: string }[] = [
@@ -101,35 +81,47 @@ export function Sidebar({
         </div>
       </div>
 
-      <div className={`flex flex-col gap-6 ${collapsed ? 'items-center' : ''}`}>
-        <nav className={`flex flex-col gap-2 ${collapsed ? 'items-center' : ''}`}>
-          {sections.map(section => {
-            const active = activeSection === section.id
-            const Icon = section.icon
-            return (
-              <div key={section.id} className="group relative">
-                <button
-                  onClick={() => onSelectSection(section.id)}
-                  className={`flex h-10 w-10 items-center justify-center rounded-xl border transition ${
-                    active
-                      ? 'border-emerald-500/80 bg-emerald-500/10 text-emerald-200 shadow-lg shadow-emerald-500/10'
-                      : 'border-slate-800 bg-slate-900/80 text-slate-300 hover:border-slate-700 hover:text-slate-100'
+      <nav className={`space-y-1 ${collapsed ? 'flex flex-col items-center gap-2 space-y-0' : ''}`}>
+        {sections.map(section => {
+          const active = activeSection === section.id
+          const Icon = section.icon
+          return (
+            <div key={section.id} className={`group relative ${collapsed ? 'w-full' : ''}`}>
+              <button
+                onClick={() => onSelectSection(section.id)}
+                className={`w-full rounded-xl transition ${
+                  collapsed
+                    ? 'flex flex-col items-center gap-2 px-2 py-3'
+                    : 'flex items-center gap-3 px-3 py-2 text-left'
+                } ${
+                  active
+                    ? 'bg-slate-800 text-slate-100 shadow-inner shadow-slate-800/60'
+                    : 'text-slate-300 hover:bg-slate-800/60'
+                }`}
+                title={section.label}
+              >
+                <span
+                  className={`flex h-10 w-10 items-center justify-center rounded-xl border ${
+                    active ? 'border-slate-700 bg-slate-800 text-slate-100' : 'border-slate-800 bg-slate-900 text-slate-400'
                   }`}
-                  aria-label={section.label}
-                  type="button"
                 >
-                  <Icon className="h-4 w-4" />
-                </button>
+                  <Icon className="h-5 w-5" />
+                </span>
+                {!collapsed && <span className="font-medium">{section.label}</span>}
+              </button>
+
+              {section.id === 'topology' && (
                 <div
-                  className="pointer-events-none absolute left-full top-1/2 ml-3 hidden w-56 -translate-y-1/2 flex-col gap-2 rounded-2xl border border-slate-800 bg-slate-950/95 p-3 text-left text-xs text-slate-300 shadow-xl backdrop-blur group-hover:pointer-events-auto group-hover:flex group-focus-within:pointer-events-auto group-focus-within:flex"
+                  className={`pointer-events-none absolute z-20 hidden w-60 rounded-2xl border border-slate-800 bg-slate-950/90 p-3 text-left shadow-xl backdrop-blur transition group-hover:pointer-events-auto group-hover:flex group-focus-within:pointer-events-auto group-focus-within:flex ${
+                    collapsed ? 'left-full top-1/2 ml-3 -translate-y-1/2' : 'left-full top-1/2 ml-4 -translate-y-1/2'
+                  }`}
                 >
-                  <div>
-                    <p className="text-sm font-semibold text-slate-100">{section.label}</p>
-                    <p className="leading-relaxed text-slate-400">{section.description}</p>
-                  </div>
-                  {section.id === 'topology' && (
-                    <div className="flex flex-col gap-2 text-sm text-slate-200">
+                  <div className="flex flex-col gap-2 text-sm text-slate-200">
+                    <div>
                       <p className="text-xs uppercase tracking-wide text-slate-400">Topology mode</p>
+                      <p className="text-xs text-slate-500">Hover to select how the topology map is rendered.</p>
+                    </div>
+                    <div className="flex flex-col gap-2">
                       {topologyOptions.map(option => {
                         const activeMode = topologyMode === option.id
                         return (
@@ -149,44 +141,48 @@ export function Sidebar({
                         )
                       })}
                     </div>
-                  )}
-                </div>
-              </div>
-            )
-          })}
-        </nav>
-        <div className={`flex w-full flex-col gap-2 ${collapsed ? 'items-center' : ''}`}>
-          {!collapsed && <p className="text-[10px] uppercase tracking-wide text-slate-500">Languages</p>}
-          <div className={`flex flex-col gap-2 ${collapsed ? 'items-center' : ''}`}>
-            {languageOptions.map(option => {
-              const activeLanguage = activeLanguages.includes(option.id)
-              return (
-                <div key={option.id} className="group relative">
-                  <button
-                    onClick={() => onToggleLanguage(option.id)}
-                    className={`flex h-9 w-9 items-center justify-center rounded-lg border text-xs font-semibold transition ${
-                      activeLanguage
-                        ? 'border-emerald-500/80 bg-emerald-500/10 text-emerald-200'
-                        : 'border-slate-800 bg-slate-900/80 text-slate-300 hover:border-slate-700 hover:text-slate-100'
-                    }`}
-                    aria-pressed={activeLanguage}
-                    aria-label={option.label}
-                    type="button"
-                  >
-                    {option.label.substring(0, 2).toUpperCase()}
-                  </button>
-                  <div
-                    className="pointer-events-none absolute left-full top-1/2 ml-3 hidden w-48 -translate-y-1/2 flex-col gap-1 rounded-2xl border border-slate-800 bg-slate-950/95 p-3 text-left text-xs text-slate-300 shadow-xl backdrop-blur group-hover:pointer-events-auto group-hover:flex group-focus-within:pointer-events-auto group-focus-within:flex"
-                  >
-                    <p className="text-sm font-semibold text-slate-100">{option.label}</p>
-                    <p className="leading-relaxed text-slate-400">{option.description}</p>
                   </div>
                 </div>
-              )
-            })}
-          </div>
-        </div>
-      </div>
+              )}
+
+              {section.id === 'explore' && (
+                <div
+                  className={`pointer-events-none absolute z-20 hidden w-64 rounded-2xl border border-slate-800 bg-slate-950/90 p-3 text-left shadow-xl backdrop-blur transition group-hover:pointer-events-auto group-hover:flex group-focus-within:pointer-events-auto group-focus-within:flex ${
+                    collapsed ? 'left-full top-1/2 ml-3 -translate-y-1/2' : 'left-full top-1/2 ml-4 -translate-y-1/2'
+                  }`}
+                >
+                  <div className="flex flex-col gap-2 text-sm text-slate-200">
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-400">Query domains</p>
+                      <p className="text-xs text-slate-500">Toggle languages to open matching explorers.</p>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      {languageOptions.map(option => {
+                        const activeLanguage = activeLanguages.includes(option.id)
+                        return (
+                          <button
+                            key={option.id}
+                            className={`flex items-center justify-between rounded-xl border px-3 py-2 text-left text-sm transition ${
+                              activeLanguage
+                                ? 'border-emerald-500/70 bg-emerald-500/10 text-emerald-200'
+                                : 'border-slate-800 bg-slate-900/70 text-slate-200 hover:border-slate-700'
+                            }`}
+                            onClick={() => onToggleLanguage(option.id)}
+                            type="button"
+                          >
+                            <span className="font-medium">{option.label}</span>
+                            <span className="text-xs text-slate-400">{option.description}</span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </nav>
 
       <div
         className={`rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-800/80 to-slate-900 shadow-inner ${
