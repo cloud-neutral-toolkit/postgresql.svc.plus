@@ -67,17 +67,22 @@ export function serializeInsightState(state: InsightState): string {
     if (value === undefined || value === null) return
 
     switch (key) {
-      case 'queries':
-        if (!value) return
+      case 'queries': {
+        const queries = state.queries
+        if (!queries) return
         const customQueries: Partial<Record<QueryLanguage, string>> = {}
-        ;(Object.keys(value) as QueryLanguage[]).forEach(language => {
-          if (value[language] !== DEFAULT_INSIGHT_STATE.queries[language]) {
-            customQueries[language] = value[language]
+        ;(Object.keys(queries) as QueryLanguage[]).forEach(language => {
+          if (queries[language] !== DEFAULT_INSIGHT_STATE.queries[language]) {
+            customQueries[language] = queries[language]
           }
         })
         if (Object.keys(customQueries).length === 0) return
-        params.set(STATE_KEY_MAP[key], encodeURIComponent(JSON.stringify(customQueries)))
+        params.set(
+          STATE_KEY_MAP[key],
+          encodeURIComponent(JSON.stringify(customQueries))
+        )
         break
+      }
       case 'activeLanguages': {
         const activeLanguages = Array.isArray(value)
           ? value

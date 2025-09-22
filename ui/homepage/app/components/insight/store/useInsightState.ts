@@ -25,11 +25,10 @@ function getBasePath(pathname: string): string {
   return `/${relevant.join('/')}`
 }
 
-function getShareIdFromPath(pathname: string): string {
-  const segments = getSegments(pathname)
-  const insightIndex = segments.indexOf('insight')
-  if (insightIndex === -1) return ''
-  return segments[insightIndex + 1] || ''
+function getShareIdFromSearch(search: string): string {
+  if (!search) return ''
+  const params = new URLSearchParams(search)
+  return params.get('share') ?? ''
 }
 
 function encodeStateId(value: string): string {
@@ -75,7 +74,7 @@ export function useInsightState() {
     if (typeof window === 'undefined') {
       return DEFAULT_INSIGHT_STATE
     }
-    const shareId = getShareIdFromPath(window.location.pathname)
+    const shareId = getShareIdFromSearch(window.location.search)
     if (shareId) {
       const decoded = decodeStateId(shareId)
       if (decoded) {
@@ -88,7 +87,7 @@ export function useInsightState() {
   useEffect(() => {
     if (typeof window === 'undefined') return
     const syncFromLocation = () => {
-      const shareId = getShareIdFromPath(window.location.pathname)
+      const shareId = getShareIdFromSearch(window.location.search)
       if (shareId) {
         const decoded = decodeStateId(shareId)
         if (decoded) {
@@ -113,11 +112,25 @@ export function useInsightState() {
   useEffect(() => {
     if (typeof window === 'undefined') return
     const encoded = encodeStateId(serializedState)
-    const basePath = getBasePath(window.location.pathname)
-    const nextPath = encoded ? `${basePath}/${encoded}` : basePath
-    const currentPath = window.location.pathname
-    if (currentPath !== nextPath || window.location.hash) {
-      window.history.replaceState({}, '', nextPath)
+    const currentUrl = new URL(window.location.href)
+    const basePath = getBasePath(currentUrl.pathname)
+    if (currentUrl.pathname !== basePath) {
+      currentUrl.pathname = basePath
+    }
+    if (encoded) {
+      currentUrl.searchParams.set('share', encoded)
+    } else {
+      currentUrl.searchParams.delete('share')
+    }
+    if (!currentUrl.searchParams.toString()) {
+      currentUrl.search = ''
+    }
+    if (currentUrl.hash) {
+      currentUrl.hash = ''
+    }
+    const nextUrl = currentUrl.toString()
+    if (nextUrl !== window.location.href) {
+      window.history.replaceState({}, '', nextUrl)
     }
   }, [serializedState])
 
@@ -131,7 +144,7 @@ export function useInsightState() {
     if (!baseUrl) {
       return encoded || ''
     }
-    return encoded ? `${baseUrl}/${encoded}` : baseUrl
+    return encoded ? `${baseUrl}?share=${encoded}` : baseUrl
   }, [serializedState])
 
   return { state, updateState, shareableLink }
