@@ -3,6 +3,24 @@ type CountTemplate = {
   plural: string
 }
 
+type ReleaseChannelMeta = {
+  name: string
+  description: string
+}
+
+type ReleaseChannelLabels = {
+  label: string
+  summaryPrefix: string
+  stable: ReleaseChannelMeta
+  beta: ReleaseChannelMeta
+  develop: ReleaseChannelMeta
+  badges: {
+    stable: string
+    beta: string
+    develop: string
+  }
+}
+
 type DownloadTranslation = {
   home: {
     title: string
@@ -96,6 +114,7 @@ export type Translation = {
       login: string
       demo: string
     }
+    releaseChannels: ReleaseChannelLabels
   }
   termsTitle: string
   termsPoints: string[]
@@ -136,6 +155,27 @@ export const translations: Record<'en' | 'zh', Translation> = {
         register: 'Register',
         login: 'Login',
         demo: 'Demo',
+      },
+      releaseChannels: {
+        label: 'Preview',
+        summaryPrefix: 'Mode',
+        stable: {
+          name: 'Stable',
+          description: 'Reliable production-ready experience.',
+        },
+        beta: {
+          name: 'Beta',
+          description: 'Early access to upcoming features for evaluation.',
+        },
+        develop: {
+          name: 'Develop',
+          description: 'Latest experimental changes and prototypes.',
+        },
+        badges: {
+          stable: 'Stable',
+          beta: 'Beta',
+          develop: 'Dev',
+        },
       },
     },
     termsTitle: 'Terms of Service',
@@ -244,6 +284,27 @@ export const translations: Record<'en' | 'zh', Translation> = {
         register: '注册',
         login: '登录',
         demo: '演示',
+      },
+      releaseChannels: {
+        label: '体验版本',
+        summaryPrefix: '模式',
+        stable: {
+          name: '稳定',
+          description: '推荐的默认体验。',
+        },
+        beta: {
+          name: '测试',
+          description: '提前体验即将上线的新功能。',
+        },
+        develop: {
+          name: '开发',
+          description: '预览仍在开发中的实验特性。',
+        },
+        badges: {
+          stable: '稳定',
+          beta: '测试',
+          develop: '开发',
+        },
       },
     },
     termsTitle: '服务条款',

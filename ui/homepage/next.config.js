@@ -10,14 +10,14 @@ const featureToggles = {
   globalNavigation: {
     enabled: true,
     children: {
-      docs: { enabled: true },
-      demo: { enabled: true },
-      download: { enabled: true },
-      insight: { enabled: true },
-      login: { enabled: true },
-      register: { enabled: true },
-      cloud_iac: { enabled: true },
-      panel: { enabled: false },
+      docs: { enabled: true, channel: 'stable' },
+      demo: { enabled: true, channel: 'beta' },
+      download: { enabled: true, channel: 'stable' },
+      insight: { enabled: true, channel: 'stable' },
+      login: { enabled: true, channel: 'stable' },
+      register: { enabled: true, channel: 'stable' },
+      cloud_iac: { enabled: true, channel: 'stable' },
+      panel: { enabled: false, channel: 'develop' },
     },
   },
   /**

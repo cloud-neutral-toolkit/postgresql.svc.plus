@@ -1,6 +1,6 @@
 'use client'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import demoFeature from '../app/demo/feature.config'
 import docsFeature from '../app/docs/feature.config'
 import cloudIacFeature from '../app/cloud_iac/feature.config'
@@ -9,13 +9,18 @@ import registerFeature from '../app/register/feature.config'
 import { useLanguage } from '../i18n/LanguageProvider'
 import { translations } from '../i18n/translations'
 import LanguageToggle from './LanguageToggle'
+import ReleaseChannelSelector, { ReleaseChannel } from './ReleaseChannelSelector'
 import type { FeatureFlag } from '@lib/featureFlags'
+
+const CHANNEL_ORDER: ReleaseChannel[] = ['stable', 'beta', 'develop']
+const RELEASE_CHANNEL_STORAGE_KEY = 'cloudnative-suite.releaseChannels'
 
 type NavSubItem = {
   key: string
   label: string
   href: string
   feature?: FeatureFlag
+  channels?: ReleaseChannel[]
 }
 
 type NavItem = {
@@ -29,8 +34,42 @@ export default function Navbar() {
   const [openSection, setOpenSection] = useState<string | null>(null)
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
   const [activeItem, setActiveItem] = useState<string | null>(null)
+  const [selectedChannels, setSelectedChannels] = useState<ReleaseChannel[]>(['stable'])
   const { language } = useLanguage()
   const nav = translations[language].nav
+  const channelLabels = nav.releaseChannels
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const stored = window.localStorage.getItem(RELEASE_CHANNEL_STORAGE_KEY)
+    if (!stored) return
+
+    try {
+      const parsed = JSON.parse(stored) as unknown
+      if (!Array.isArray(parsed)) return
+
+      const normalized = CHANNEL_ORDER.filter((channel) => parsed.includes(channel))
+      if (normalized.length === 0) return
+
+      const restored = normalized.includes('stable') ? normalized : ['stable', ...normalized]
+      setSelectedChannels((current) => {
+        if (current.length === restored.length && current.every((value, index) => value === restored[index])) {
+          return current
+        }
+        return restored
+      })
+    } catch (error) {
+      console.warn('Failed to restore release channels selection', error)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    window.localStorage.setItem(RELEASE_CHANNEL_STORAGE_KEY, JSON.stringify(selectedChannels))
+  }, [selectedChannels])
+
+  const selectedChannelSet = useMemo(() => new Set(selectedChannels), [selectedChannels])
 
   const navItems: NavItem[] = [
     {
@@ -103,6 +142,7 @@ export default function Navbar() {
           label: nav.account.demo,
           href: '/demo',
           feature: demoFeature,
+          channels: ['beta'],
         },
       ],
     },
@@ -111,9 +151,51 @@ export default function Navbar() {
   const visibleNavItems: NavItem[] = navItems
     .map((item) => ({
       ...item,
-      children: item.children.filter((child) => child.feature?.defaultEnabled !== false),
+      children: item.children.filter((child) => {
+        const childChannels = child.channels?.length ? child.channels : ['stable']
+        const matchesChannel = childChannels.some((channel) => selectedChannelSet.has(channel))
+        if (!matchesChannel) {
+          return false
+        }
+
+        if (!child.feature) {
+          return true
+        }
+
+        if (child.feature.enabled || child.feature.defaultEnabled) {
+          return true
+        }
+
+        return childChannels.some(
+          (channel) => channel !== 'stable' && selectedChannelSet.has(channel),
+        )
+      }),
     }))
     .filter((item) => item.children.length > 0)
+
+  const toggleChannel = (channel: ReleaseChannel) => {
+    if (channel === 'stable') return
+    setSelectedChannels((prev) =>
+      prev.includes(channel) ? prev.filter((value) => value !== channel) : [...prev, channel],
+    )
+  }
+
+  const getPreviewBadge = (channels?: ReleaseChannel[]) => {
+    if (!channels || channels.length === 0) {
+      return null
+    }
+
+    const previewChannel = channels.find((channel) => channel !== 'stable')
+    if (!previewChannel) {
+      return null
+    }
+
+    return (
+      <span className="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium uppercase text-purple-600">
+        {channelLabels.badges[previewChannel]}
+      </span>
+    )
+  }
 
   const toggleSection = (section: string) => {
     setOpenSection((prev) => (prev === section ? null : section))
@@ -167,7 +249,10 @@ export default function Navbar() {
                           target={isExternal ? '_blank' : undefined}
                           rel={isExternal ? 'noopener noreferrer' : undefined}
                         >
-                          {child.label}
+                          <span className="flex items-center gap-2">
+                            <span>{child.label}</span>
+                            {getPreviewBadge(child.channels)}
+                          </span>
                         </a>
                       )
                     })}
@@ -176,6 +261,7 @@ export default function Navbar() {
               </div>
             )
           })}
+          <ReleaseChannelSelector selected={selectedChannels} onToggle={toggleChannel} />
           <LanguageToggle />
         </div>
 
@@ -233,26 +319,30 @@ export default function Navbar() {
                       <a
                         key={child.key}
                         href={child.href}
-                        onClick={() => {
-                          setMenuOpen(false)
-                          setActiveMenu(item.key)
-                          setActiveItem(child.key)
-                        }}
-                        className={`block py-1 text-gray-900 hover:text-purple-600 ${
-                          activeItem === child.key ? 'text-purple-600' : ''
-                        }`}
-                        target={isExternal ? '_blank' : undefined}
-                        rel={isExternal ? 'noopener noreferrer' : undefined}
-                      >
-                        {child.label}
-                      </a>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-          ))}
-          <div className="pt-2">
+                      onClick={() => {
+                        setMenuOpen(false)
+                        setActiveMenu(item.key)
+                        setActiveItem(child.key)
+                      }}
+                      className={`block py-1 text-gray-900 hover:text-purple-600 ${
+                        activeItem === child.key ? 'text-purple-600' : ''
+                      }`}
+                      target={isExternal ? '_blank' : undefined}
+                      rel={isExternal ? 'noopener noreferrer' : undefined}
+                    >
+                      <span className="flex items-center gap-2">
+                        <span>{child.label}</span>
+                        {getPreviewBadge(child.channels)}
+                      </span>
+                    </a>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        ))}
+          <div className="pt-2 flex flex-col gap-2">
+            <ReleaseChannelSelector selected={selectedChannels} onToggle={toggleChannel} />
             <LanguageToggle />
           </div>
         </div>
