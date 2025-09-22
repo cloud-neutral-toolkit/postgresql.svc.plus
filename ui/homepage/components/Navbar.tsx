@@ -261,8 +261,14 @@ export default function Navbar() {
               </div>
             )
           })}
-          <ReleaseChannelSelector selected={selectedChannels} onToggle={toggleChannel} />
-          <LanguageToggle />
+          <div className="flex flex-col items-end gap-2">
+            <LanguageToggle />
+            <ReleaseChannelSelector
+              selected={selectedChannels}
+              onToggle={toggleChannel}
+              variant="compact"
+            />
+          </div>
         </div>
 
         {/* Mobile Hamburger Button */}
