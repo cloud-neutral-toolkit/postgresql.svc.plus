@@ -261,12 +261,12 @@ export default function Navbar() {
               </div>
             )
           })}
-          <div className="flex flex-col items-end gap-2">
+          <div className="flex items-center gap-3">
             <LanguageToggle />
             <ReleaseChannelSelector
               selected={selectedChannels}
               onToggle={toggleChannel}
-              variant="compact"
+              variant="icon"
             />
           </div>
         </div>
