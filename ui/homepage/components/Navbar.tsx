@@ -8,6 +8,7 @@ import ReleaseChannelSelector, { ReleaseChannel } from './ReleaseChannelSelector
 import { getFeatureToggleInfo } from '@lib/featureToggles'
 
 const CHANNEL_ORDER: ReleaseChannel[] = ['stable', 'beta', 'develop']
+const DEFAULT_CHANNELS: ReleaseChannel[] = ['stable']
 const RELEASE_CHANNEL_STORAGE_KEY = 'cloudnative-suite.releaseChannels'
 
 type NavSubItem = {
@@ -48,7 +49,9 @@ export default function Navbar() {
       const normalized = CHANNEL_ORDER.filter((channel) => parsed.includes(channel))
       if (normalized.length === 0) return
 
-      const restored = normalized.includes('stable') ? normalized : ['stable', ...normalized]
+      const restored: ReleaseChannel[] = normalized.includes('stable')
+        ? normalized
+        : [...DEFAULT_CHANNELS, ...normalized]
       setSelectedChannels((current) => {
         if (current.length === restored.length && current.every((value, index) => value === restored[index])) {
           return current
@@ -168,7 +171,9 @@ export default function Navbar() {
             return false
           }
 
-          const childChannels = child.channels?.length ? child.channels : ['stable']
+          const childChannels: ReleaseChannel[] = child.channels?.length
+            ? child.channels
+            : DEFAULT_CHANNELS
           return childChannels.some((channel) => selectedChannelSet.has(channel))
         })
         .map(({ enabled: _enabled, ...child }) => child),
