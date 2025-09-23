@@ -18,8 +18,10 @@ on:
         default: upgrade
       deploy_dry_run:
         description: "Run deployment steps in dry-run mode"
-        type: boolean
-        default: true
+        type: choice
+        options:
+          - true
+          - false
 
 jobs:
   build-go:
@@ -161,12 +163,18 @@ jobs:
             printf 'EOF\n'
           } >> "$GITHUB_ENV"
 
+
+      - name: Generate Release Notes
+        run: |
+          bash scripts/gen-changelog.sh v0.2.0 daily-${{ github.run_number }}
+
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: daily-${{ github.run_number }}
           name: Daily Build ${{ github.run_number }}
           files: ${{ env.RELEASE_FILES }}
+          body_path: docs/changelog_daily-${{ github.run_number }}.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
