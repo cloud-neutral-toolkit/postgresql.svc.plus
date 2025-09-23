@@ -5,9 +5,24 @@ FROM_TAG=${1:-""}
 TO_TAG=${2:-"HEAD"}
 
 # 检查 FROM_TAG
-if [[ -n "$FROM_TAG" ]] && ! git rev-parse "$FROM_TAG" >/dev/null 2>&1; then
-  echo "❌ Error: tag $FROM_TAG not found" >&2
-  exit 1
+if [[ -n "$FROM_TAG" ]]; then
+  if ! git rev-parse "$FROM_TAG" >/dev/null 2>&1; then
+    echo "⚠️  Tag $FROM_TAG not found, using previous tag instead" >&2
+    if FALLBACK_TAG=$(git describe --tags --abbrev=0 2>/dev/null); then
+      FROM_TAG="$FALLBACK_TAG"
+    else
+      FALLBACK_TAG=$(git tag --sort=-creatordate | head -n 1 || true)
+      if [[ -n "$FALLBACK_TAG" ]]; then
+        FROM_TAG="$FALLBACK_TAG"
+      else
+        echo "⚠️  No existing tags found, defaulting to empty range" >&2
+        FROM_TAG=""
+      fi
+    fi
+    if [[ -n "$FROM_TAG" ]]; then
+      echo "ℹ️  Using fallback tag: $FROM_TAG" >&2
+    fi
+  fi
 fi
 
 # 检查 TO_TAG
