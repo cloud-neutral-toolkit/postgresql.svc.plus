@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ExternalLink, FileText, Monitor } from 'lucide-react'
 
 export type ViewMode = 'pdf' | 'html'
@@ -25,6 +25,16 @@ interface DocViewSectionProps {
 
 export default function DocViewSection({ docTitle, options }: DocViewSectionProps) {
   const [activeId, setActiveId] = useState<ViewMode | undefined>(options[0]?.id)
+
+  useEffect(() => {
+    if (!options.length) {
+      setActiveId(undefined)
+      return
+    }
+    if (!activeId || !options.some((option) => option.id === activeId)) {
+      setActiveId(options[0].id)
+    }
+  }, [options, activeId])
 
   const activeView = useMemo(() => {
     if (!options.length) return undefined

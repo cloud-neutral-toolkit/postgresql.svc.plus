@@ -19,6 +19,9 @@ export interface DocResource {
   language?: string
   variant?: string
   pathSegments?: string[]
+  collection?: string
+  collectionSlug?: string
+  collectionLabel?: string
 }
 
 interface RawDocResource {
@@ -36,6 +39,9 @@ interface RawDocResource {
   language?: unknown
   variant?: unknown
   pathSegments?: unknown
+  collection?: unknown
+  collectionSlug?: unknown
+  collectionLabel?: unknown
 }
 
 const manifestDocs = Array.isArray(docsManifest) ? (docsManifest as RawDocResource[]) : []
@@ -46,6 +52,166 @@ const RAW_DOCS = manifestDocs.length > 0 ? manifestDocs : fallbackDocs
 export const DOCS_DATASET = RAW_DOCS.map((item) => normalizeResource(item as RawDocResource)).filter(
   (item): item is DocResource => item !== null,
 )
+
+export interface DocVersionOption {
+  id: string
+  label: string
+  resource: DocResource
+  pathSegment?: string
+}
+
+export interface DocCollection {
+  slug: string
+  title: string
+  description: string
+  category?: string
+  updatedAt?: string
+  estimatedMinutes?: number
+  tags: string[]
+  latestVersionLabel?: string
+  latestVariant?: string
+  versions: DocVersionOption[]
+  defaultVersionId?: string
+  directory?: string
+}
+
+function slugifySegment(value: string): string {
+  const base = value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+  return base || value.toLowerCase().replace(/\s+/g, '-') || 'doc'
+}
+
+function humanizeSegment(value: string): string {
+  if (!value) return ''
+  const withSpaces = value
+    .replace(/[_-]+/g, ' ')
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+  const normalized = withSpaces.replace(/\s+/g, ' ').trim()
+  if (!normalized) return value
+  return normalized
+    .split(' ')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
+}
+
+function parseUpdatedAt(value?: string): number {
+  if (!value) return 0
+  const ts = Date.parse(value)
+  return Number.isNaN(ts) ? 0 : ts
+}
+
+interface CollectionAccumulator {
+  directory: string
+  slug: string
+  label: string
+  docs: DocResource[]
+}
+
+function buildCollections(docs: DocResource[]): DocCollection[] {
+  const map = new Map<string, CollectionAccumulator>()
+  const usedSlugs = new Set<string>()
+
+  const ensureUniqueSlug = (slug: string) => {
+    let candidate = slug || 'doc'
+    if (!usedSlugs.has(candidate)) {
+      usedSlugs.add(candidate)
+      return candidate
+    }
+    let counter = 2
+    while (usedSlugs.has(`${candidate}-${counter}`)) {
+      counter += 1
+    }
+    const unique = `${candidate}-${counter}`
+    usedSlugs.add(unique)
+    return unique
+  }
+
+  for (const doc of docs) {
+    const directory = doc.collection ?? doc.pathSegments?.[0] ?? doc.category ?? doc.slug
+    if (!directory) {
+      continue
+    }
+    if (directory === 'all.json' || directory === 'dir.json') {
+      continue
+    }
+
+    const slug = doc.collectionSlug ?? slugifySegment(directory)
+    const label = doc.collectionLabel ?? doc.category ?? humanizeSegment(directory)
+    const key = directory
+    const existing = map.get(key)
+    if (existing) {
+      existing.docs.push(doc)
+      continue
+    }
+
+    map.set(key, {
+      directory,
+      slug: ensureUniqueSlug(slug),
+      label,
+      docs: [doc],
+    })
+  }
+
+  const collections: DocCollection[] = []
+  for (const accumulator of map.values()) {
+    const docsSorted = [...accumulator.docs].sort((a, b) => parseUpdatedAt(b.updatedAt) - parseUpdatedAt(a.updatedAt))
+    const primary = docsSorted[0]
+    if (!primary) {
+      continue
+    }
+
+    const tagSet = new Set<string>()
+    for (const doc of docsSorted) {
+      if (!doc.tags) continue
+      for (const tag of doc.tags) {
+        if (tag) tagSet.add(tag)
+      }
+    }
+
+    const versions: DocVersionOption[] = docsSorted.map((doc) => {
+      const labelParts: string[] = []
+      if (doc.version) {
+        labelParts.push(doc.version)
+      }
+      if (!doc.version && doc.variant) {
+        labelParts.push(doc.variant)
+      }
+      if (doc.language && !labelParts.includes(doc.language)) {
+        labelParts.push(doc.language)
+      }
+      const label = labelParts.length > 0 ? labelParts.join(' • ') : doc.title
+      return {
+        id: doc.slug,
+        label,
+        resource: doc,
+        pathSegment: doc.pathSegments?.[1],
+      }
+    })
+
+    const collection: DocCollection = {
+      slug: accumulator.slug,
+      title: primary.title,
+      description: primary.description,
+      category: primary.category ?? accumulator.label,
+      updatedAt: primary.updatedAt,
+      estimatedMinutes: primary.estimatedMinutes,
+      tags: Array.from(tagSet).sort((a, b) => a.localeCompare(b)),
+      latestVersionLabel: versions[0]?.label,
+      latestVariant: primary.variant,
+      versions,
+      defaultVersionId: versions[0]?.id,
+      directory: accumulator.directory,
+    }
+
+    collections.push(collection)
+  }
+
+  return collections.sort((a, b) => parseUpdatedAt(b.updatedAt) - parseUpdatedAt(a.updatedAt))
+}
+
+export const DOC_COLLECTIONS = buildCollections(DOCS_DATASET)
 
 function normalizeResource(item: RawDocResource): DocResource | null {
   if (!item || typeof item !== 'object') {
@@ -84,6 +250,15 @@ function normalizeResource(item: RawDocResource): DocResource | null {
   }
   if (typeof item.variant === 'string' && item.variant.trim()) {
     resource.variant = item.variant
+  }
+  if (typeof item.collection === 'string' && item.collection.trim()) {
+    resource.collection = item.collection
+  }
+  if (typeof item.collectionSlug === 'string' && item.collectionSlug.trim()) {
+    resource.collectionSlug = item.collectionSlug
+  }
+  if (typeof item.collectionLabel === 'string' && item.collectionLabel.trim()) {
+    resource.collectionLabel = item.collectionLabel
   }
   if (typeof item.estimatedMinutes === 'number' && !Number.isNaN(item.estimatedMinutes)) {
     resource.estimatedMinutes = item.estimatedMinutes
@@ -129,18 +304,18 @@ function normalizeResource(item: RawDocResource): DocResource | null {
 
 const isDocsModuleEnabled = () => isFeatureEnabled('appModules', '/docs')
 
-export async function getDocResources(): Promise<DocResource[]> {
+export async function getDocResources(): Promise<DocCollection[]> {
   if (!isDocsModuleEnabled()) {
     return []
   }
 
-  return DOCS_DATASET
+  return DOC_COLLECTIONS
 }
 
-export async function getDocResource(slug: string): Promise<DocResource | undefined> {
+export async function getDocResource(slug: string): Promise<DocCollection | undefined> {
   if (!isDocsModuleEnabled()) {
     return undefined
   }
 
-  return DOCS_DATASET.find((doc) => doc.slug === slug)
+  return DOC_COLLECTIONS.find((doc) => doc.slug === slug)
 }

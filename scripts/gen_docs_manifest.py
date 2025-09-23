@@ -43,6 +43,9 @@ class DocEntry:
     category: Optional[str]
     version: Optional[str]
     version_dir: Optional[str]
+    collection_dir: Optional[str]
+    collection_slug: Optional[str]
+    collection_label: Optional[str]
     language: Optional[str]
     description: str
     pdf_url: Optional[str]
@@ -74,6 +77,12 @@ class DocEntry:
             payload["version"] = self.version
         if updated_at:
             payload["updatedAt"] = updated_at
+        if self.collection_dir:
+            payload["collection"] = self.collection_dir
+        if self.collection_slug:
+            payload["collectionSlug"] = self.collection_slug
+        if self.collection_label:
+            payload["collectionLabel"] = self.collection_label
         if self.pdf_url:
             payload["pdfUrl"] = self.pdf_url
         if self.html_url:
@@ -182,6 +191,9 @@ def build_url(root: Path, file_path: Path, base_prefix: str) -> str:
 def create_entry(parts: Tuple[str, ...]) -> DocEntry:
     category = humanize_segment(parts[0]) if parts else None
     version_dir = parts[1] if len(parts) > 1 else None
+    collection_dir = parts[0] if parts else None
+    collection_slug = slugify(parts[:1]) if parts else None
+    collection_label = humanize_segment(collection_dir or "") if collection_dir else None
     version_label = format_version_label(version_dir)
     title = humanize_segment(parts[-1]) if parts else ""
     language = detect_language(version_dir)
@@ -200,6 +212,9 @@ def create_entry(parts: Tuple[str, ...]) -> DocEntry:
         category=category,
         version=version_label,
         version_dir=version_dir,
+        collection_dir=collection_dir,
+        collection_slug=collection_slug,
+        collection_label=collection_label,
         language=language,
         description="",
         pdf_url=None,

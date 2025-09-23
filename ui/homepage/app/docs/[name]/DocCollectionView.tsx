@@ -1,0 +1,130 @@
+'use client'
+
+import { useMemo, useState } from 'react'
+
+import ClientTime from '../../components/ClientTime'
+import DocViewSection, { type DocViewOption } from './DocViewSection'
+import type { DocCollection, DocResource } from '../resources'
+
+interface DocCollectionViewProps {
+  collection: DocCollection
+}
+
+function buildViewOptions(resource?: DocResource): DocViewOption[] {
+  if (!resource) {
+    return []
+  }
+  const options: DocViewOption[] = []
+  if (resource.pdfUrl) {
+    options.push({
+      id: 'pdf',
+      label: 'PDF',
+      description: 'Best for printing and full fidelity diagrams.',
+      url: resource.pdfUrl,
+      icon: 'pdf',
+    })
+  }
+  if (resource.htmlUrl) {
+    options.push({
+      id: 'html',
+      label: 'HTML',
+      description: 'Responsive reader mode optimised for browsers.',
+      url: resource.htmlUrl,
+      icon: 'html',
+    })
+  }
+  return options
+}
+
+export default function DocCollectionView({ collection }: DocCollectionViewProps) {
+  const { versions } = collection
+  const initialVersionId = collection.defaultVersionId ?? versions[0]?.id ?? ''
+  const [activeVersionId, setActiveVersionId] = useState(initialVersionId)
+
+  const activeVersion = useMemo(() => {
+    if (!versions.length) return undefined
+    return versions.find((version) => version.id === activeVersionId) ?? versions[0]
+  }, [versions, activeVersionId])
+
+  const activeResource = activeVersion?.resource
+  const description = activeResource?.description || collection.description
+  const tags = activeResource?.tags?.length ? activeResource.tags : collection.tags
+  const viewOptions = useMemo(() => buildViewOptions(activeResource), [activeResource])
+
+  if (!activeResource) {
+    return (
+      <section className="rounded-3xl border border-dashed border-gray-300 bg-white/70 p-10 text-center text-sm text-gray-500">
+        Documentation details are not available for this resource yet.
+      </section>
+    )
+  }
+
+  return (
+    <>
+      <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div className="space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">
+              {collection.category || 'Documentation'}
+              {activeResource.version
+                ? ` • ${activeResource.version}`
+                : activeResource.variant
+                  ? ` • ${activeResource.variant}`
+                  : ''}
+            </p>
+            <h1 className="text-3xl font-bold text-gray-900 md:text-4xl">{collection.title}</h1>
+            <p className="max-w-3xl text-sm text-gray-600 md:text-base">{description}</p>
+            {(activeResource.variant || activeResource.language) && (
+              <div className="flex flex-wrap gap-3 text-xs text-gray-500">
+                {activeResource.variant && (
+                  <span className="rounded-full bg-gray-100 px-3 py-1">Release {activeResource.variant}</span>
+                )}
+                {activeResource.language && (
+                  <span className="rounded-full bg-gray-100 px-3 py-1">Language {activeResource.language}</span>
+                )}
+              </div>
+            )}
+            {tags && tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 pt-2">
+                {tags.map((tag) => (
+                  <span key={tag} className="rounded-full bg-purple-50 px-3 py-1 text-xs font-medium text-purple-700">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col items-start gap-3 text-sm text-gray-500 md:items-end">
+            {versions.length > 1 && (
+              <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500 md:items-end">
+                <span>Version</span>
+                <select
+                  value={activeVersion?.id}
+                  onChange={(event) => setActiveVersionId(event.target.value)}
+                  className="w-full rounded-full border border-gray-300 px-3 py-1 text-sm font-medium text-gray-700 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 md:w-auto"
+                >
+                  {versions.map((version) => (
+                    <option key={version.id} value={version.id}>
+                      {version.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+            {activeResource.updatedAt && (
+              <span suppressHydrationWarning>
+                Updated <ClientTime isoString={activeResource.updatedAt} />
+              </span>
+            )}
+            {activeResource.estimatedMinutes && <span>Approx. {activeResource.estimatedMinutes} minute read</span>}
+            {activeVersion?.pathSegment && (
+              <span className="text-xs text-gray-400">{activeVersion.pathSegment}</span>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <DocViewSection docTitle={collection.title} options={viewOptions} />
+    </>
+  )
+}

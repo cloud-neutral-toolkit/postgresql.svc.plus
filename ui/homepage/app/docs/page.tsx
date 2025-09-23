@@ -4,23 +4,23 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowUpRight } from 'lucide-react'
 
-import { getDocResources } from './resources'
+import { getDocResources, type DocCollection } from './resources'
 import { isFeatureEnabled } from '@lib/featureToggles'
 import ClientTime from '../components/ClientTime'
 
-function formatMeta({
-  category,
-  version,
-  variant,
-}: {
-  category?: string
-  version?: string
-  variant?: string
-}) {
-  const parts = [] as string[]
-  if (category) parts.push(category)
-  if (version) parts.push(version)
-  else if (variant) parts.push(variant)
+function formatMeta(resource: DocCollection) {
+  const parts: string[] = []
+  if (resource.category) {
+    parts.push(resource.category)
+  }
+  if (resource.latestVersionLabel) {
+    parts.push(resource.latestVersionLabel)
+  } else if (resource.latestVariant) {
+    parts.push(resource.latestVariant)
+  }
+  if (resource.versions.length > 1) {
+    parts.push(`${resource.versions.length} versions`)
+  }
   return parts.join(' • ')
 }
 
