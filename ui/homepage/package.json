@@ -2,6 +2,9 @@
   "name": "cloudnative-homepage",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": ">=18.17 <23"
+  },
   "scripts": {
     "dev": "node ./node_modules/next/dist/bin/next dev",
     "prebuild": "tsx ../../scripts/export-slugs.ts && tsx ../../scripts/scan-md.ts && tsx ../../scripts/fetch-dl-index.ts",
