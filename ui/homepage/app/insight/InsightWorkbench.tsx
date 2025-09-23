@@ -214,8 +214,29 @@ export default function InsightWorkbench() {
         </button>
       )}
       <header className="flex-shrink-0 border-b border-slate-800 bg-slate-950/70">
-        <div className="mx-auto w-full max-w-7xl px-4 py-4 lg:px-8">
+        <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-4 lg:flex-row lg:items-center lg:justify-between lg:px-8">
           <BreadcrumbBar state={state} updateState={updateState} shareableLink={shareableLink} />
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <button
+              type="button"
+              onClick={handleSaveLayout}
+              disabled={!layoutDirty}
+              className={`rounded-xl px-3 py-2 font-medium transition ${
+                layoutDirty
+                  ? 'border border-emerald-500/60 bg-emerald-500/10 text-emerald-200 hover:border-emerald-400/80'
+                  : 'border border-slate-800 bg-slate-900/70 text-slate-500'
+              }`}
+            >
+              Save layout
+            </button>
+            <button
+              type="button"
+              onClick={handleResetLayout}
+              className="rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2 font-medium text-slate-300 transition hover:border-slate-700 hover:text-slate-100"
+            >
+              Reset to default
+            </button>
+          </div>
         </div>
       </header>
       <div className="flex flex-1 overflow-hidden">
@@ -242,9 +263,6 @@ export default function InsightWorkbench() {
                   state={state}
                   updateState={updateState}
                   shareableLink={shareableLink}
-                  onSaveLayout={handleSaveLayout}
-                  onResetLayout={handleResetLayout}
-                  layoutDirty={layoutDirty}
                   statusMessage={layoutStatus}
                   showBreadcrumb={false}
                 />
