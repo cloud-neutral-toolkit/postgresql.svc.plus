@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-FROM_TAG=${1:-""}
-TO_TAG=${2:-"HEAD"}
+RAW_FROM_TAG=${1:-""}
+RAW_TO_TAG=${2:-"HEAD"}
+OUTPUT_NAME=${3:-"$RAW_TO_TAG"}
+
+FROM_TAG="$RAW_FROM_TAG"
+TO_TAG="$RAW_TO_TAG"
 
 # 检查 FROM_TAG
 if [[ -n "$FROM_TAG" ]]; then
@@ -50,9 +54,11 @@ EOF
 echo "$CONTENT"
 
 # 如果在 CI 中，写入 docs/changelog_<ref>.md
-if [[ -n "${GITHUB_REF_NAME:-}" ]]; then
+if [[ -n "${GITHUB_REF_NAME:-}" || -n "$OUTPUT_NAME" ]]; then
   mkdir -p docs
-  OUTFILE="docs/changelog_${GITHUB_REF_NAME}.md"
+  SAFE_OUTPUT_NAME=${OUTPUT_NAME:-${GITHUB_REF_NAME:-}}
+  SAFE_OUTPUT_NAME=${SAFE_OUTPUT_NAME//[^A-Za-z0-9._-]/_}
+  OUTFILE="docs/changelog_${SAFE_OUTPUT_NAME}.md"
   echo "$CONTENT" > "$OUTFILE"
   echo "✅ changelog written to $OUTFILE"
 fi
