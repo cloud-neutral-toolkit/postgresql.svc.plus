@@ -49,11 +49,11 @@ init:
 
 dev:
 	@echo "🚀 Starting Next.js dev server (homepage)..."
-	yarn next dev -p 3001
+	yarn dev -p 3001
 
 start:
 	@echo "🚀 Starting Next.js dev server (homepage) in background..."
-	@nohup yarn next dev -p 3001 >/tmp/homepage.log 2>&1 & echo $$! > homepage.pid
+	@nohup yarn dev -p 3001 >/tmp/homepage.log 2>&1 & echo $$! > homepage.pid
 
 stop:
 	@echo "🛑 Stopping Next.js dev server (homepage)..."
