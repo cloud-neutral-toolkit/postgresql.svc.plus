@@ -4,6 +4,33 @@ import { isFeatureEnabled } from '@lib/featureToggles'
 import docsManifest from '../../public/dl-index/docs-manifest.json'
 import fallbackDocsIndex from '../../public/_build/docs_index.json'
 
+const DEFAULT_DOCS_BASE_URL = 'https://dl.svc.plus/docs'
+
+const normalizeBaseUrl = (value?: string) => {
+  if (!value) return ''
+  const trimmed = value.trim()
+  if (!trimmed) return ''
+  return trimmed.replace(/\/$/, '')
+}
+
+const docsBaseUrl = normalizeBaseUrl(process.env.NEXT_PUBLIC_DOCS_BASE_URL) || DEFAULT_DOCS_BASE_URL
+
+const buildAbsoluteDocUrl = (value?: string) => {
+  if (!value || typeof value !== 'string') {
+    return undefined
+  }
+  const trimmed = value.trim()
+  if (!trimmed) {
+    return undefined
+  }
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed
+  }
+
+  const ensureLeadingSlash = trimmed.startsWith('/') ? trimmed : `/${trimmed}`
+  return `${docsBaseUrl}${ensureLeadingSlash}`
+}
+
 export interface DocResource {
   slug: string
   title: string
@@ -268,10 +295,10 @@ function normalizeResource(item: RawDocResource): DocResource | null {
     resource.updatedAt = item.updatedAt
   }
   if (typeof item.pdfUrl === 'string' && item.pdfUrl.trim()) {
-    resource.pdfUrl = item.pdfUrl
+    resource.pdfUrl = buildAbsoluteDocUrl(item.pdfUrl) ?? item.pdfUrl
   }
   if (typeof item.htmlUrl === 'string' && item.htmlUrl.trim()) {
-    resource.htmlUrl = item.htmlUrl
+    resource.htmlUrl = buildAbsoluteDocUrl(item.htmlUrl) ?? item.htmlUrl
   }
   if (typeof item.language === 'string' && item.language.trim()) {
     resource.language = item.language
