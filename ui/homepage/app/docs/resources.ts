@@ -27,8 +27,29 @@ const buildAbsoluteDocUrl = (value?: string) => {
     return trimmed
   }
 
-  const ensureLeadingSlash = trimmed.startsWith('/') ? trimmed : `/${trimmed}`
-  return `${docsBaseUrl}${ensureLeadingSlash}`
+  if (!docsBaseUrl) {
+    return trimmed.startsWith('/') ? trimmed : `/${trimmed}`
+  }
+
+  try {
+    const base = new URL(docsBaseUrl.endsWith('/') ? docsBaseUrl : `${docsBaseUrl}/`)
+    const basePath = base.pathname.replace(/\/+$/, '')
+    const basePathWithoutLeadingSlash = basePath.replace(/^\/+/, '')
+
+    let relative = trimmed.replace(/^\/+/, '')
+
+    if (
+      basePathWithoutLeadingSlash &&
+      relative.toLowerCase().startsWith(`${basePathWithoutLeadingSlash.toLowerCase()}/`)
+    ) {
+      relative = relative.slice(basePathWithoutLeadingSlash.length + 1)
+    }
+
+    return new URL(relative || '.', base).toString()
+  } catch {
+    const ensureLeadingSlash = trimmed.startsWith('/') ? trimmed : `/${trimmed}`
+    return `${docsBaseUrl.replace(/\/+$/, '')}${ensureLeadingSlash}`
+  }
 }
 
 export interface DocResource {
