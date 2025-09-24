@@ -8,13 +8,18 @@ import { DOC_COLLECTIONS, getDocResource } from '../../resources'
 import { isFeatureEnabled } from '@lib/featureToggles'
 import DocCollectionView from './DocCollectionView'
 
-function buildBreadcrumbs(slug: string, docTitle: string, versionLabel?: string): Crumb[] {
+function buildBreadcrumbs(
+  slug: string,
+  docTitle: string,
+  version?: { label: string; slug?: string; id: string },
+): Crumb[] {
   const crumbs: Crumb[] = [
     { label: 'Docs', href: '/docs' },
     { label: docTitle, href: `/docs/${slug}` },
   ]
-  if (versionLabel) {
-    crumbs.push({ label: versionLabel })
+  if (version) {
+    const versionSlug = version.slug ?? version.id
+    crumbs.push({ label: version.label, href: `/docs/${slug}/${versionSlug}` })
   }
   return crumbs
 }
@@ -58,7 +63,7 @@ export default async function DocVersionPage({
     notFound()
   }
 
-  const breadcrumbs = buildBreadcrumbs(doc.slug, doc.title, activeVersion.label)
+  const breadcrumbs = buildBreadcrumbs(doc.slug, doc.title, activeVersion)
 
   return (
     <main className="px-4 py-8 md:px-8">
