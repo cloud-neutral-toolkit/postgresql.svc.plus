@@ -18,6 +18,7 @@ export interface DocResource {
   coverImage?: string
   language?: string
   variant?: string
+  versionSlug?: string
   pathSegments?: string[]
   collection?: string
   collectionSlug?: string
@@ -38,6 +39,7 @@ interface RawDocResource {
   coverImage?: unknown
   language?: unknown
   variant?: unknown
+  versionSlug?: unknown
   pathSegments?: unknown
   collection?: unknown
   collectionSlug?: unknown
@@ -57,6 +59,7 @@ export interface DocVersionOption {
   id: string
   label: string
   resource: DocResource
+  slug: string
   pathSegment?: string
 }
 
@@ -72,6 +75,7 @@ export interface DocCollection {
   latestVariant?: string
   versions: DocVersionOption[]
   defaultVersionId?: string
+  defaultVersionSlug?: string
   directory?: string
 }
 
@@ -170,6 +174,22 @@ function buildCollections(docs: DocResource[]): DocCollection[] {
       }
     }
 
+    const versionSlugSet = new Set<string>()
+    const ensureUniqueVersionSlug = (slug: string) => {
+      let candidate = slug || 'version'
+      if (!versionSlugSet.has(candidate)) {
+        versionSlugSet.add(candidate)
+        return candidate
+      }
+      let counter = 2
+      while (versionSlugSet.has(`${candidate}-${counter}`)) {
+        counter += 1
+      }
+      const unique = `${candidate}-${counter}`
+      versionSlugSet.add(unique)
+      return unique
+    }
+
     const versions: DocVersionOption[] = docsSorted.map((doc) => {
       const labelParts: string[] = []
       if (doc.version) {
@@ -182,10 +202,17 @@ function buildCollections(docs: DocResource[]): DocCollection[] {
         labelParts.push(doc.language)
       }
       const label = labelParts.length > 0 ? labelParts.join(' • ') : doc.title
+      let versionSlug = doc.versionSlug
+      if (!versionSlug || !versionSlug.trim()) {
+        const candidate = doc.variant ?? doc.version ?? doc.slug
+        versionSlug = slugifySegment(candidate)
+      }
+      versionSlug = ensureUniqueVersionSlug(versionSlug)
       return {
         id: doc.slug,
         label,
         resource: doc,
+        slug: versionSlug,
         pathSegment: doc.pathSegments?.[1],
       }
     })
@@ -202,6 +229,7 @@ function buildCollections(docs: DocResource[]): DocCollection[] {
       latestVariant: primary.variant,
       versions,
       defaultVersionId: versions[0]?.id,
+      defaultVersionSlug: versions[0]?.slug,
       directory: accumulator.directory,
     }
 
@@ -250,6 +278,9 @@ function normalizeResource(item: RawDocResource): DocResource | null {
   }
   if (typeof item.variant === 'string' && item.variant.trim()) {
     resource.variant = item.variant
+  }
+  if (typeof item.versionSlug === 'string' && item.versionSlug.trim()) {
+    resource.versionSlug = item.versionSlug
   }
   if (typeof item.collection === 'string' && item.collection.trim()) {
     resource.collection = item.collection

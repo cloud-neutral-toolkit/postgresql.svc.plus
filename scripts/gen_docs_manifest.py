@@ -43,6 +43,7 @@ class DocEntry:
     category: Optional[str]
     version: Optional[str]
     version_dir: Optional[str]
+    version_slug: Optional[str]
     collection_dir: Optional[str]
     collection_slug: Optional[str]
     collection_label: Optional[str]
@@ -91,6 +92,8 @@ class DocEntry:
             payload["language"] = self.language
         if self.version_dir and (not self.version or self.version_dir != self.version.replace(" ", "-")):
             payload["variant"] = self.version_dir
+        if self.version_slug:
+            payload["versionSlug"] = self.version_slug
         if tags:
             payload["tags"] = tags
         if self.path_segments:
@@ -132,6 +135,15 @@ def format_version_label(version_dir: Optional[str]) -> Optional[str]:
     if len(tokens) >= 2:
         return " ".join(tokens[:2])
     return humanize_segment(version_dir)
+
+
+def build_version_slug(version_dir: Optional[str], version_label: Optional[str]) -> Optional[str]:
+    """Generate a stable slug for the version route segment."""
+
+    candidate = version_dir or version_label
+    if not candidate:
+        return None
+    return slugify([candidate])
 
 
 def detect_language(version_dir: Optional[str]) -> Optional[str]:
@@ -195,6 +207,7 @@ def create_entry(parts: Tuple[str, ...]) -> DocEntry:
     collection_slug = slugify(parts[:1]) if parts else None
     collection_label = humanize_segment(collection_dir or "") if collection_dir else None
     version_label = format_version_label(version_dir)
+    version_slug = build_version_slug(version_dir, version_label)
     title = humanize_segment(parts[-1]) if parts else ""
     language = detect_language(version_dir)
 
@@ -212,6 +225,7 @@ def create_entry(parts: Tuple[str, ...]) -> DocEntry:
         category=category,
         version=version_label,
         version_dir=version_dir,
+        version_slug=version_slug,
         collection_dir=collection_dir,
         collection_slug=collection_slug,
         collection_label=collection_label,

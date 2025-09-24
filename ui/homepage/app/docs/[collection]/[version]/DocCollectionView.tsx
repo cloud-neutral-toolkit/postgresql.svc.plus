@@ -1,13 +1,15 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
-import ClientTime from '../../components/ClientTime'
+import ClientTime from '../../../components/ClientTime'
 import DocViewSection, { type DocViewOption } from './DocViewSection'
-import type { DocCollection, DocResource } from '../resources'
+import type { DocCollection, DocResource } from '../../resources'
 
 interface DocCollectionViewProps {
   collection: DocCollection
+  initialVersionId?: string
 }
 
 function buildViewOptions(resource?: DocResource): DocViewOption[] {
@@ -36,10 +38,36 @@ function buildViewOptions(resource?: DocResource): DocViewOption[] {
   return options
 }
 
-export default function DocCollectionView({ collection }: DocCollectionViewProps) {
+export default function DocCollectionView({ collection, initialVersionId }: DocCollectionViewProps) {
   const { versions } = collection
-  const initialVersionId = collection.defaultVersionId ?? versions[0]?.id ?? ''
-  const [activeVersionId, setActiveVersionId] = useState(initialVersionId)
+  const router = useRouter()
+  const defaultVersionId = collection.defaultVersionId ?? versions[0]?.id ?? ''
+  const [activeVersionId, setActiveVersionId] = useState(initialVersionId ?? defaultVersionId)
+
+  useEffect(() => {
+    const nextId = initialVersionId ?? defaultVersionId
+    setActiveVersionId((current) => {
+      if (!nextId) {
+        return ''
+      }
+      if (current === nextId) {
+        return current
+      }
+      return nextId
+    })
+  }, [initialVersionId, defaultVersionId])
+
+  useEffect(() => {
+    if (!versions.length) {
+      return
+    }
+    if (!versions.some((version) => version.id === activeVersionId)) {
+      const fallback = versions.find((version) => version.id === defaultVersionId) ?? versions[0]
+      if (fallback) {
+        setActiveVersionId(fallback.id)
+      }
+    }
+  }, [versions, activeVersionId, defaultVersionId])
 
   const activeVersion = useMemo(() => {
     if (!versions.length) return undefined
@@ -99,8 +127,19 @@ export default function DocCollectionView({ collection }: DocCollectionViewProps
               <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500 md:items-end">
                 <span>Version</span>
                 <select
-                  value={activeVersion?.id}
-                  onChange={(event) => setActiveVersionId(event.target.value)}
+                  value={activeVersionId}
+                  onChange={(event) => {
+                    const nextId = event.target.value
+                    setActiveVersionId(nextId)
+                    const target = versions.find((version) => version.id === nextId)
+                    if (target) {
+                      const targetSlug = target.slug || target.id
+                      const currentSlug = activeVersion?.slug || activeVersion?.id
+                      if (!currentSlug || currentSlug !== targetSlug) {
+                        router.replace(`/docs/${collection.slug}/${targetSlug}`)
+                      }
+                    }
+                  }}
                   className="w-full rounded-full border border-gray-300 px-3 py-1 text-sm font-medium text-gray-700 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 md:w-auto"
                 >
                   {versions.map((version) => (
