@@ -1,6 +1,8 @@
 'use client'
 
 import {
+  ComponentProps,
+  ReactElement,
   forwardRef,
   useCallback,
   useEffect,
@@ -12,7 +14,6 @@ import {
 import DOMPurify from 'dompurify'
 
 import type { DocViewOption } from './DocViewSection'
-import type { PDFDocumentProxy } from 'pdfjs-dist/types/src/display/api'
 
 export interface DocTocItem {
   id: string
@@ -41,6 +42,10 @@ interface PdfModule {
   Document: typeof import('react-pdf').Document
   Page: typeof import('react-pdf').Page
 }
+
+type DocumentComponent = PdfModule['Document']
+type OnLoadSuccess = NonNullable<ComponentProps<DocumentComponent>['onLoadSuccess']>
+type PdfDocument = Parameters<OnLoadSuccess>[0]
 
 const HTML_ENCODINGS = ['utf-8', 'utf-16le', 'utf-16be', 'gb18030']
 
@@ -88,7 +93,17 @@ type PdfOutline = {
   items?: PdfOutline[]
 }
 
-const buildPdfToc = async (pdf: PDFDocumentProxy): Promise<DocTocItem[]> => {
+type PdfRef = { num: number; gen: number }
+
+const isPdfRef = (value: unknown): value is PdfRef =>
+  typeof value === 'object' &&
+  value !== null &&
+  'num' in value &&
+  'gen' in value &&
+  typeof (value as { num: unknown }).num === 'number' &&
+  typeof (value as { gen: unknown }).gen === 'number'
+
+const buildPdfToc = async (pdf: PdfDocument): Promise<DocTocItem[]> => {
   const outline = ((await pdf.getOutline()) as PdfOutline[]) ?? []
 
   const flattenOutline = async (items: PdfOutline[] | undefined, level = 1): Promise<DocTocItem[]> => {
@@ -101,9 +116,17 @@ const buildPdfToc = async (pdf: PDFDocumentProxy): Promise<DocTocItem[]> => {
       let pageNumber: number | undefined
       if (item.dest) {
         try {
-          const destination = await pdf.getDestination(item.dest)
-          const ref = Array.isArray(destination) ? destination[0] : destination
-          if (typeof ref === 'object' && ref !== null && 'num' in ref) {
+          let ref: unknown
+          if (typeof item.dest === 'string') {
+            const destination = await pdf.getDestination(item.dest)
+            ref = Array.isArray(destination) ? destination[0] : destination
+          } else if (Array.isArray(item.dest)) {
+            const [first] = item.dest
+            ref = first
+          } else {
+            ref = item.dest
+          }
+          if (isPdfRef(ref)) {
             pageNumber = (await pdf.getPageIndex(ref)) + 1
           } else if (typeof ref === 'number') {
             pageNumber = ref + 1
@@ -157,7 +180,7 @@ const DocReader = forwardRef<DocReaderHandle, DocReaderProps>(
     const [pdfModule, setPdfModule] = useState<PdfModule | null>(null)
     const [numPages, setNumPages] = useState<number>(0)
     const [containerWidth, setContainerWidth] = useState<number | null>(null)
-    const pdfDocumentRef = useRef<PDFDocumentProxy | null>(null)
+    const pdfDocumentRef = useRef<PdfDocument | null>(null)
     const pageRefs = useRef<Map<number, HTMLDivElement>>(new Map())
     const tocItemsRef = useRef<DocTocItem[]>([])
 
@@ -256,35 +279,37 @@ const DocReader = forwardRef<DocReaderHandle, DocReaderProps>(
       }
     }, [view])
 
-    const handlePdfLoadSuccess = useCallback(
-      async (pdf: PDFDocumentProxy) => {
+    const handlePdfLoadSuccess = useCallback<OnLoadSuccess>(
+      (pdf) => {
         pdfDocumentRef.current = pdf
         setNumPages(pdf.numPages)
         setLoadingState('idle')
-        try {
-          const tocItems = await buildPdfToc(pdf)
-          tocItemsRef.current = tocItems
-          onTocChange(tocItems)
-          if (tocItems.length) {
-            onActiveAnchorChange(tocItems[0].id)
+        void (async () => {
+          try {
+            const tocItems = await buildPdfToc(pdf)
+            tocItemsRef.current = tocItems
+            onTocChange(tocItems)
+            if (tocItems.length) {
+              onActiveAnchorChange(tocItems[0].id)
+            }
+          } catch {
+            const fallback: DocTocItem[] = []
+            for (let page = 1; page <= pdf.numPages; page += 1) {
+              fallback.push({
+                id: `pdf-page-${page}`,
+                title: `Page ${page}`,
+                level: 2,
+                type: 'pdf',
+                pageNumber: page,
+              })
+            }
+            tocItemsRef.current = fallback
+            onTocChange(fallback)
+            if (fallback.length) {
+              onActiveAnchorChange(fallback[0].id)
+            }
           }
-        } catch {
-          const fallback: DocTocItem[] = []
-          for (let page = 1; page <= pdf.numPages; page += 1) {
-            fallback.push({
-              id: `pdf-page-${page}`,
-              title: `Page ${page}`,
-              level: 2,
-              type: 'pdf',
-              pageNumber: page,
-            })
-          }
-          tocItemsRef.current = fallback
-          onTocChange(fallback)
-          if (fallback.length) {
-            onActiveAnchorChange(fallback[0].id)
-          }
-        }
+        })()
       },
       [onTocChange, onActiveAnchorChange],
     )
@@ -478,7 +503,7 @@ const DocReader = forwardRef<DocReaderHandle, DocReaderProps>(
       )
     }
 
-    let content: JSX.Element | null = null
+    let content: ReactElement | null = null
     if (!view) {
       content = (
         <div className="py-10 text-center text-sm text-gray-500">
