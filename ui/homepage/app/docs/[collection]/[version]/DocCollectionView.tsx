@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 import ClientTime from '../../../components/ClientTime'
@@ -78,6 +79,7 @@ export default function DocCollectionView({ collection, initialVersionId }: DocC
   const description = activeResource?.description || collection.description
   const tags = activeResource?.tags?.length ? activeResource.tags : collection.tags
   const viewOptions = useMemo(() => buildViewOptions(activeResource), [activeResource])
+  const [isIntroCollapsed, setIsIntroCollapsed] = useState(false)
 
   if (!activeResource) {
     return (
@@ -91,34 +93,58 @@ export default function DocCollectionView({ collection, initialVersionId }: DocC
     <>
       <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-          <div className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">
-              {collection.category || 'Documentation'}
-              {activeResource.version
-                ? ` • ${activeResource.version}`
-                : activeResource.variant
-                  ? ` • ${activeResource.variant}`
-                  : ''}
-            </p>
-            <h1 className="text-3xl font-bold text-gray-900 md:text-4xl">{collection.title}</h1>
-            <p className="max-w-3xl text-sm text-gray-600 md:text-base">{description}</p>
-            {(activeResource.variant || activeResource.language) && (
-              <div className="flex flex-wrap gap-3 text-xs text-gray-500">
-                {activeResource.variant && (
-                  <span className="rounded-full bg-gray-100 px-3 py-1">Release {activeResource.variant}</span>
-                )}
-                {activeResource.language && (
-                  <span className="rounded-full bg-gray-100 px-3 py-1">Language {activeResource.language}</span>
-                )}
+          <div className="flex-1 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">
+                  {collection.category || 'Documentation'}
+                  {activeResource.version
+                    ? ` • ${activeResource.version}`
+                    : activeResource.variant
+                      ? ` • ${activeResource.variant}`
+                      : ''}
+                </p>
+                <h1 className="text-3xl font-bold text-gray-900 md:text-4xl">{collection.title}</h1>
               </div>
-            )}
-            {tags && tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 pt-2">
-                {tags.map((tag) => (
-                  <span key={tag} className="rounded-full bg-purple-50 px-3 py-1 text-xs font-medium text-purple-700">
-                    {tag}
-                  </span>
-                ))}
+              <button
+                type="button"
+                onClick={() => setIsIntroCollapsed((value) => !value)}
+                className="inline-flex items-center gap-2 rounded-full border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 transition hover:border-purple-400 hover:text-purple-600"
+              >
+                {isIntroCollapsed ? (
+                  <>
+                    展开简介 <ChevronDown className="h-3.5 w-3.5" />
+                  </>
+                ) : (
+                  <>
+                    收起简介 <ChevronUp className="h-3.5 w-3.5" />
+                  </>
+                )}
+              </button>
+            </div>
+
+            {!isIntroCollapsed && (
+              <div className="space-y-4 text-sm text-gray-600 md:text-base">
+                <p className="max-w-3xl leading-relaxed">{description}</p>
+                {(activeResource.variant || activeResource.language) && (
+                  <div className="flex flex-wrap gap-3 text-xs text-gray-500">
+                    {activeResource.variant && (
+                      <span className="rounded-full bg-gray-100 px-3 py-1">Release {activeResource.variant}</span>
+                    )}
+                    {activeResource.language && (
+                      <span className="rounded-full bg-gray-100 px-3 py-1">Language {activeResource.language}</span>
+                    )}
+                  </div>
+                )}
+                {tags && tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {tags.map((tag) => (
+                      <span key={tag} className="rounded-full bg-purple-50 px-3 py-1 text-xs font-medium text-purple-700">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>

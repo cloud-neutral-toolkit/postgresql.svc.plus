@@ -19,9 +19,11 @@
     "lucide-react": "^0.319.0",
     "marked": "^16.1.2",
     "next": "14.2.32",
+    "pdfjs-dist": "^3.11.174",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-grid-layout": "^1.4.4",
+    "react-pdf": "^9.1.0",
     "react-resizable": "^3.0.4"
   },
   "devDependencies": {
