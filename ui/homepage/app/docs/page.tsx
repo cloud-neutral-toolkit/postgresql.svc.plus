@@ -2,7 +2,8 @@ export const dynamic = 'error'
 
 import { notFound } from 'next/navigation'
 
-import { getDocResources, type DocCollection } from './resources'
+import type { DocCollection } from './types'
+import { getDocResources } from './resources.server'
 import { isFeatureEnabled } from '@lib/featureToggles'
 import DocCollectionCard from './DocCollectionCard'
 

@@ -6,14 +6,18 @@ import { useRouter } from 'next/navigation'
 
 import ClientTime from '../../../components/ClientTime'
 import DocViewSection, { type DocViewOption, type ViewMode } from './DocViewSection'
-import { buildAbsoluteDocUrl, type DocCollection, type DocResource } from '../../resources'
+import { buildAbsoluteDocUrl } from '../../utils'
+import type { DocCollection, DocResource } from '../../types'
 
 interface DocCollectionViewProps {
   collection: DocCollection
   initialVersionId?: string
 }
 
-const buildViewerUrl = (rawUrl: string | undefined, mode: ViewMode): { sourceUrl: string; viewerUrl: string } | null => {
+const buildViewerUrl = (
+  rawUrl: string | undefined,
+  _mode: ViewMode,
+): { sourceUrl: string; viewerUrl: string } | null => {
   if (!rawUrl) {
     return null
   }
@@ -21,8 +25,7 @@ const buildViewerUrl = (rawUrl: string | undefined, mode: ViewMode): { sourceUrl
   if (!absoluteUrl) {
     return null
   }
-  const viewerUrl = `/api/docs/proxy?mode=${mode}&url=${encodeURIComponent(absoluteUrl)}`
-  return { sourceUrl: absoluteUrl, viewerUrl }
+  return { sourceUrl: absoluteUrl, viewerUrl: absoluteUrl }
 }
 
 function buildViewOptions(resource?: DocResource): DocViewOption[] {

@@ -2,7 +2,7 @@ export const dynamic = 'error'
 
 import { notFound, redirect } from 'next/navigation'
 
-import { DOC_COLLECTIONS, getDocResource } from '../resources'
+import { DOC_COLLECTIONS, getDocResource } from '../resources.server'
 import { isFeatureEnabled } from '@lib/featureToggles'
 
 export const dynamicParams = false
