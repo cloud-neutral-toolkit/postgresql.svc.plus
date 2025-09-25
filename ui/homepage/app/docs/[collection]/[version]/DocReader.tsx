@@ -185,6 +185,7 @@ const DocReader = forwardRef<DocReaderHandle, DocReaderProps>(
     const tocItemsRef = useRef<DocTocItem[]>([])
 
     const currentViewId = view?.id
+    const resolvedViewUrl = view?.viewerUrl ?? view?.url ?? null
 
     useEffect(() => {
       onTocChange([])
@@ -197,21 +198,33 @@ const DocReader = forwardRef<DocReaderHandle, DocReaderProps>(
       pdfDocumentRef.current = null
       tocItemsRef.current = []
       if (view) {
+        if (!resolvedViewUrl) {
+          setErrorMessage('Document source is unavailable for this format.')
+          setLoadingState('error')
+          return
+        }
         setLoadingState('loading')
       } else {
         setLoadingState('idle')
       }
-    }, [view, onTocChange, onActiveAnchorChange, onProgressChange])
+    }, [view, resolvedViewUrl, onTocChange, onActiveAnchorChange, onProgressChange])
 
     useEffect(() => {
       if (!view || view.id !== 'html') {
+        return
+      }
+      const targetUrl = view.viewerUrl ?? view.url
+      if (!targetUrl) {
         return
       }
       let cancelled = false
       const controller = new AbortController()
       const load = async () => {
         try {
-          const response = await fetch(view.url, { signal: controller.signal })
+          const response = await fetch(targetUrl, { signal: controller.signal })
+          if (!response.ok) {
+            throw new Error(`Request failed with status ${response.status}`)
+          }
           const buffer = await response.arrayBuffer()
           const contentType = response.headers.get('content-type') || ''
           const charsetMatch = /charset=([^;]+)/i.exec(contentType)
@@ -252,7 +265,7 @@ const DocReader = forwardRef<DocReaderHandle, DocReaderProps>(
         cancelled = true
         controller.abort()
       }
-    }, [view, onTocChange, onActiveAnchorChange])
+    }, [view, resolvedViewUrl, onTocChange, onActiveAnchorChange])
 
     useEffect(() => {
       if (!view || view.id !== 'pdf') {
@@ -474,11 +487,19 @@ const DocReader = forwardRef<DocReaderHandle, DocReaderProps>(
       if (!pdfModule || !view || view.id !== 'pdf') {
         return null
       }
+      const targetUrl = view.viewerUrl ?? view.url
+      if (!targetUrl) {
+        return (
+          <div className="py-10 text-center text-sm text-gray-500">
+            We could not locate the PDF source for this document.
+          </div>
+        )
+      }
       const { Document, Page } = pdfModule
       const width = containerWidth ? Math.min(containerWidth - 32, 960) : undefined
       return (
         <Document
-          file={{ url: view.url }}
+          file={{ url: targetUrl }}
           onLoadSuccess={handlePdfLoadSuccess}
           onLoadError={() => {
             setErrorMessage('Unable to load the PDF document.')

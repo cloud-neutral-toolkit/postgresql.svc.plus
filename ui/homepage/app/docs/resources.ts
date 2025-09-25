@@ -15,7 +15,9 @@ const normalizeBaseUrl = (value?: string) => {
 
 const docsBaseUrl = normalizeBaseUrl(process.env.NEXT_PUBLIC_DOCS_BASE_URL) || DEFAULT_DOCS_BASE_URL
 
-const buildAbsoluteDocUrl = (value?: string) => {
+export const DOCS_BASE_URL = docsBaseUrl
+
+export const buildAbsoluteDocUrl = (value?: string) => {
   if (!value || typeof value !== 'string') {
     return undefined
   }

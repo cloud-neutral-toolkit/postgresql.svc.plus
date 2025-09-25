@@ -20,6 +20,7 @@ export interface DocViewOption {
   label: string
   description: string
   url: string
+  viewerUrl?: string
   icon: ViewMode
 }
 

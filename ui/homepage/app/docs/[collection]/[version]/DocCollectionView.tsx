@@ -5,12 +5,24 @@ import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 import ClientTime from '../../../components/ClientTime'
-import DocViewSection, { type DocViewOption } from './DocViewSection'
-import type { DocCollection, DocResource } from '../../resources'
+import DocViewSection, { type DocViewOption, type ViewMode } from './DocViewSection'
+import { buildAbsoluteDocUrl, type DocCollection, type DocResource } from '../../resources'
 
 interface DocCollectionViewProps {
   collection: DocCollection
   initialVersionId?: string
+}
+
+const buildViewerUrl = (rawUrl: string | undefined, mode: ViewMode): { sourceUrl: string; viewerUrl: string } | null => {
+  if (!rawUrl) {
+    return null
+  }
+  const absoluteUrl = buildAbsoluteDocUrl(rawUrl) ?? rawUrl
+  if (!absoluteUrl) {
+    return null
+  }
+  const viewerUrl = `/api/docs/proxy?mode=${mode}&url=${encodeURIComponent(absoluteUrl)}`
+  return { sourceUrl: absoluteUrl, viewerUrl }
 }
 
 function buildViewOptions(resource?: DocResource): DocViewOption[] {
@@ -19,22 +31,30 @@ function buildViewOptions(resource?: DocResource): DocViewOption[] {
   }
   const options: DocViewOption[] = []
   if (resource.pdfUrl) {
-    options.push({
-      id: 'pdf',
-      label: 'PDF',
-      description: 'Best for printing and full fidelity diagrams.',
-      url: resource.pdfUrl,
-      icon: 'pdf',
-    })
+    const resolved = buildViewerUrl(resource.pdfUrl, 'pdf')
+    if (resolved) {
+      options.push({
+        id: 'pdf',
+        label: 'PDF',
+        description: 'Best for printing and full fidelity diagrams.',
+        url: resolved.sourceUrl,
+        viewerUrl: resolved.viewerUrl,
+        icon: 'pdf',
+      })
+    }
   }
   if (resource.htmlUrl) {
-    options.push({
-      id: 'html',
-      label: 'HTML',
-      description: 'Responsive reader mode optimised for browsers.',
-      url: resource.htmlUrl,
-      icon: 'html',
-    })
+    const resolved = buildViewerUrl(resource.htmlUrl, 'html')
+    if (resolved) {
+      options.push({
+        id: 'html',
+        label: 'HTML',
+        description: 'Responsive reader mode optimised for browsers.',
+        url: resolved.sourceUrl,
+        viewerUrl: resolved.viewerUrl,
+        icon: 'html',
+      })
+    }
   }
   return options
 }
