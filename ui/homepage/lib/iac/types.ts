@@ -1,4 +1,5 @@
 export type CategoryKey =
+  | 'landing_zone'
   | 'compute'
   | 'network'
   | 'load_balancer'

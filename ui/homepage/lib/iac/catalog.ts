@@ -2,6 +2,54 @@ import type { CatalogItem, ProviderDefinition } from './types'
 
 export const CATALOG: CatalogItem[] = [
   {
+    key: 'landing_zone',
+    title: '多云 Landing Zone 基线',
+    subtitle: 'Multi-Cloud Landing Zone',
+    description:
+      '统一构建账号与权限边界、日志审计、安全基线、网络隔离及成本告警的多云 Landing Zone 模块，支撑 IaC 自动化与合规运营。',
+    highlights: [
+      '主账号安全、MFA、RAM / IAM 用户组模板与最小权限策略',
+      'ActionTrail / CloudTrail 日志、Cloud Config / Config 规则与安全中心告警',
+      'Pulumi / Terraform 编排，GitHub CI / GitLab CI 触发多环境部署',
+    ],
+    products: {
+      aws: 'AWS Control Tower Landing Zone',
+      gcp: 'Google Cloud Foundation Toolkit',
+      azure: 'Azure Enterprise-Scale Landing Zone',
+      aliyun: '阿里云 Landing Zone 基线（MVP）',
+    },
+    iac: {
+      aws: {
+        detailSlug: 'control-tower-landing-zone',
+        githubWorkflow: 'landing-zone.yml',
+        githubInputs: { provider: 'aws', stack: 'landing-zone' },
+        gitlabPipeline: 'landing-zone',
+        gitlabVariables: { PROVIDER: 'AWS', STACK: 'LANDING_ZONE' },
+      },
+      gcp: {
+        detailSlug: 'gcp-landing-zone',
+        githubWorkflow: 'landing-zone.yml',
+        githubInputs: { provider: 'gcp', stack: 'landing-zone' },
+        gitlabPipeline: 'landing-zone',
+        gitlabVariables: { PROVIDER: 'GCP', STACK: 'LANDING_ZONE' },
+      },
+      azure: {
+        detailSlug: 'azure-landing-zone',
+        githubWorkflow: 'landing-zone.yml',
+        githubInputs: { provider: 'azure', stack: 'landing-zone' },
+        gitlabPipeline: 'landing-zone',
+        gitlabVariables: { PROVIDER: 'AZURE', STACK: 'LANDING_ZONE' },
+      },
+      aliyun: {
+        detailSlug: 'aliyun-landing-zone',
+        githubWorkflow: 'landing-zone.yml',
+        githubInputs: { provider: 'aliyun', stack: 'landing-zone-mvp' },
+        gitlabPipeline: 'landing-zone',
+        gitlabVariables: { PROVIDER: 'ALIYUN', STACK: 'LANDING_ZONE_MVP' },
+      },
+    },
+  },
+  {
     key: 'compute',
     title: '计算',
     subtitle: 'Compute',
