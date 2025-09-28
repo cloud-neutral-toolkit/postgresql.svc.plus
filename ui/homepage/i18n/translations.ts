@@ -81,6 +81,76 @@ type DownloadTranslation = {
   breadcrumbRoot: string
 }
 
+type AuthHighlight = {
+  title: string
+  description: string
+}
+
+type AuthRegisterTranslation = {
+  badge: string
+  title: string
+  subtitle: string
+  highlights: AuthHighlight[]
+  bottomNote: string
+  form: {
+    title: string
+    subtitle: string
+    fullName: string
+    fullNamePlaceholder: string
+    email: string
+    emailPlaceholder: string
+    password: string
+    passwordPlaceholder: string
+    confirmPassword: string
+    confirmPasswordPlaceholder: string
+    agreement: string
+    terms: string
+    submit: string
+  }
+  social: {
+    title: string
+    github: string
+    wechat: string
+  }
+  loginPrompt: {
+    text: string
+    link: string
+  }
+}
+
+type AuthLoginTranslation = {
+  badge: string
+  title: string
+  subtitle: string
+  highlights: AuthHighlight[]
+  bottomNote: string
+  form: {
+    title: string
+    subtitle: string
+    email: string
+    emailPlaceholder: string
+    password: string
+    passwordPlaceholder: string
+    remember: string
+    submit: string
+  }
+  forgotPassword: string
+  social: {
+    title: string
+    github: string
+    wechat: string
+  }
+  registerPrompt: {
+    text: string
+    link: string
+  }
+}
+
+type AuthTranslation = {
+  register: AuthRegisterTranslation
+  login: AuthLoginTranslation
+}
+
 export type Translation = {
   hero: {
     title: string
@@ -133,6 +203,7 @@ export type Translation = {
   termsPoints: string[]
   contactTitle: string
   download: DownloadTranslation
+  auth: AuthTranslation
 }
 
 export const translations: Record<'en' | 'zh', Translation> = {
@@ -277,6 +348,92 @@ export const translations: Record<'en' | 'zh', Translation> = {
       },
       breadcrumbRoot: 'Download',
     },
+    auth: {
+      register: {
+        badge: 'Create account',
+        title: 'Join CloudNative Suite',
+        subtitle: 'Secure, unified workspace for your cloud native journey.',
+        highlights: [
+          {
+            title: 'Unified identity',
+            description: 'Manage workspace members with centralized access policies.',
+          },
+          {
+            title: 'Trusted integrations',
+            description: 'Single sign-on with GitHub and WeChat streamlines onboarding.',
+          },
+          {
+            title: 'Transparent control',
+            description: 'Granular audit logs and notifications keep your team aligned.',
+          },
+        ],
+        bottomNote: 'No credit card required. Premium capabilities are available with a 14-day trial.',
+        form: {
+          title: 'Create your account',
+          subtitle: 'Share a few details or continue with a social login.',
+          fullName: 'Full name',
+          fullNamePlaceholder: 'Ada Lovelace',
+          email: 'Work email',
+          emailPlaceholder: 'name@example.com',
+          password: 'Password',
+          passwordPlaceholder: 'At least 8 characters',
+          confirmPassword: 'Confirm password',
+          confirmPasswordPlaceholder: 'Re-enter your password',
+          agreement: 'I agree to the',
+          terms: 'terms & privacy policy',
+          submit: 'Create account',
+        },
+        social: {
+          title: 'Or continue with',
+          github: 'Continue with GitHub',
+          wechat: 'Continue with WeChat',
+        },
+        loginPrompt: {
+          text: 'Already have an account?',
+          link: 'Sign in',
+        },
+      },
+      login: {
+        badge: 'Secure login',
+        title: 'Welcome back',
+        subtitle: 'Access your projects and account settings from a single console.',
+        highlights: [
+          {
+            title: 'Personalized dashboard',
+            description: 'Resume your work with saved queries and deployment history.',
+          },
+          {
+            title: 'Team spaces',
+            description: 'Switch between organizations and environments with one click.',
+          },
+          {
+            title: 'Adaptive security',
+            description: 'Multi-factor prompts and IP policies keep threats away.',
+          },
+        ],
+        bottomNote: 'Need help signing in? Email support@svc.plus for enterprise onboarding assistance.',
+        form: {
+          title: 'Sign in to your account',
+          subtitle: 'Use the email and password you registered with.',
+          email: 'Email',
+          emailPlaceholder: 'you@example.com',
+          password: 'Password',
+          passwordPlaceholder: 'Enter your password',
+          remember: 'Remember this device',
+          submit: 'Sign in',
+        },
+        forgotPassword: 'Forgot password?',
+        social: {
+          title: 'Or continue with',
+          github: 'Continue with GitHub',
+          wechat: 'Continue with WeChat',
+        },
+        registerPrompt: {
+          text: 'New to CloudNative Suite?',
+          link: 'Create an account',
+        },
+      },
+    },
   },
   zh: {
     hero: {
@@ -418,6 +575,92 @@ export const translations: Record<'en' | 'zh', Translation> = {
         tooltip: '复制链接',
       },
       breadcrumbRoot: '下载',
+    },
+    auth: {
+      register: {
+        badge: '立即注册',
+        title: '加入 CloudNative Suite',
+        subtitle: '打造安全统一的云原生工作空间。',
+        highlights: [
+          {
+            title: '统一身份',
+            description: '通过集中式访问策略管理团队成员权限。',
+          },
+          {
+            title: '可信集成',
+            description: '使用 GitHub 与微信单点登录，快速完成接入。',
+          },
+          {
+            title: '透明管控',
+            description: '精细化审计日志与通知，帮助团队保持同步。',
+          },
+        ],
+        bottomNote: '无需信用卡，免费体验版可试用高级功能 14 天。',
+        form: {
+          title: '创建账号',
+          subtitle: '填写基础信息，或选择社交账号直接注册。',
+          fullName: '姓名',
+          fullNamePlaceholder: '王小云',
+          email: '邮箱',
+          emailPlaceholder: 'name@example.com',
+          password: '密码',
+          passwordPlaceholder: '至少 8 位字符',
+          confirmPassword: '确认密码',
+          confirmPasswordPlaceholder: '请再次输入密码',
+          agreement: '我已阅读并同意',
+          terms: '服务条款与隐私政策',
+          submit: '立即注册',
+        },
+        social: {
+          title: '或选择以下方式',
+          github: '使用 GitHub 注册',
+          wechat: '使用微信注册',
+        },
+        loginPrompt: {
+          text: '已经拥有账号？',
+          link: '立即登录',
+        },
+      },
+      login: {
+        badge: '安全登录',
+        title: '欢迎回来',
+        subtitle: '在一个控制台中管理项目和账号设置。',
+        highlights: [
+          {
+            title: '个性化看板',
+            description: '快速回到保存的查询、部署记录和常用操作。',
+          },
+          {
+            title: '多团队空间',
+            description: '一键切换不同组织与环境，协作更高效。',
+          },
+          {
+            title: '自适应安全',
+            description: '多因素验证与 IP 策略让访问更放心。',
+          },
+        ],
+        bottomNote: '如需企业级接入支持，请联系 support@svc.plus。',
+        form: {
+          title: '登录账号',
+          subtitle: '使用注册时的邮箱和密码即可访问。',
+          email: '邮箱',
+          emailPlaceholder: 'you@example.com',
+          password: '密码',
+          passwordPlaceholder: '请输入密码',
+          remember: '记住这台设备',
+          submit: '登录',
+        },
+        forgotPassword: '忘记密码？',
+        social: {
+          title: '或继续使用',
+          github: '使用 GitHub 登录',
+          wechat: '使用微信登录',
+        },
+        registerPrompt: {
+          text: '还没有账号？',
+          link: '立即创建',
+        },
+      },
     },
   },
 }

@@ -1,13 +1,15 @@
 export const dynamic = 'error'
 
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 
 import { isFeatureEnabled } from '@lib/featureToggles'
+
+import RegisterContent from './RegisterContent'
 
 export default function RegisterPage() {
   if (!isFeatureEnabled('globalNavigation', '/register')) {
     notFound()
   }
 
-  redirect('/panel/ldp/users')
+  return <RegisterContent />
 }
