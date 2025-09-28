@@ -113,8 +113,21 @@ export type Translation = {
       register: string
       login: string
       demo: string
+      welcome: string
+      logout: string
     }
     releaseChannels: ReleaseChannelLabels
+  }
+  login: {
+    title: string
+    description: string
+    usernameLabel: string
+    passwordLabel: string
+    submit: string
+    success: string
+    goHome: string
+    missingUsername: string
+    disclaimer: string
   }
   termsTitle: string
   termsPoints: string[]
@@ -155,6 +168,8 @@ export const translations: Record<'en' | 'zh', Translation> = {
         register: 'Register',
         login: 'Login',
         demo: 'Demo',
+        welcome: 'Welcome, {username}',
+        logout: 'Sign out',
       },
       releaseChannels: {
         label: 'Preview',
@@ -177,6 +192,17 @@ export const translations: Record<'en' | 'zh', Translation> = {
           develop: 'Dev',
         },
       },
+    },
+    login: {
+      title: 'Account Login',
+      description: 'Sign in to personalize your CloudNative Suite experience.',
+      usernameLabel: 'Username',
+      passwordLabel: 'Password',
+      submit: 'Sign in',
+      success: 'Welcome back, {username}! 🎉',
+      goHome: 'Return to homepage',
+      missingUsername: 'Please enter a username to continue.',
+      disclaimer: 'This demo login keeps your username in memory only to personalize navigation while you browse.',
     },
     termsTitle: 'Terms of Service',
     termsPoints: [
@@ -284,6 +310,8 @@ export const translations: Record<'en' | 'zh', Translation> = {
         register: '注册',
         login: '登录',
         demo: '演示',
+        welcome: '欢迎，{username}',
+        logout: '退出登录',
       },
       releaseChannels: {
         label: '体验版本',
@@ -306,6 +334,17 @@ export const translations: Record<'en' | 'zh', Translation> = {
           develop: '开发',
         },
       },
+    },
+    login: {
+      title: '账户登录',
+      description: '登录以获得个性化的 CloudNative Suite 体验。',
+      usernameLabel: '用户名',
+      passwordLabel: '密码',
+      submit: '立即登录',
+      success: '{username}，欢迎回来！🎉',
+      goHome: '返回首页',
+      missingUsername: '请输入用户名后再尝试登录。',
+      disclaimer: '此演示登录仅会在浏览期间保留用户名，以便展示个性化的导航体验。',
     },
     termsTitle: '服务条款',
     termsPoints: [

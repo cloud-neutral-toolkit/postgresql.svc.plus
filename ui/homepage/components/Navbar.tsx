@@ -6,6 +6,7 @@ import { translations } from '../i18n/translations'
 import LanguageToggle from './LanguageToggle'
 import ReleaseChannelSelector, { ReleaseChannel } from './ReleaseChannelSelector'
 import { getFeatureToggleInfo } from '@lib/featureToggles'
+import { useUser } from '@lib/userStore'
 
 const CHANNEL_ORDER: ReleaseChannel[] = ['stable', 'beta', 'develop']
 const DEFAULT_CHANNELS: ReleaseChannel[] = ['stable']
@@ -33,8 +34,13 @@ export default function Navbar() {
   const [activeItem, setActiveItem] = useState<string | null>(null)
   const [selectedChannels, setSelectedChannels] = useState<ReleaseChannel[]>(['stable'])
   const { language } = useLanguage()
+  const { user, logout } = useUser()
   const nav = translations[language].nav
   const channelLabels = nav.releaseChannels
+  const accountCopy = nav.account
+  const accountWelcomeMessage = user
+    ? accountCopy.welcome.replace('{username}', user.username)
+    : ''
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -148,7 +154,22 @@ export default function Navbar() {
     },
   ]
 
-  const visibleNavItems: NavItem[] = navItems
+  const navItemsWithAuth: NavItem[] = user
+    ? navItems.map((item) => {
+        if (item.key !== 'account') {
+          return item
+        }
+
+        return {
+          ...item,
+          children: item.children.filter(
+            (child) => child.key !== 'login' && child.key !== 'register',
+          ),
+        }
+      })
+    : navItems
+
+  const visibleNavItems: NavItem[] = navItemsWithAuth
     .map((item) => ({
       ...item,
       children: item.children
@@ -268,6 +289,18 @@ export default function Navbar() {
               </div>
             )
           })}
+          {user ? (
+            <div className="flex items-center gap-3 rounded-full bg-purple-50 px-4 py-1.5 text-purple-700">
+              <span className="text-sm font-semibold">{accountWelcomeMessage}</span>
+              <button
+                type="button"
+                onClick={logout}
+                className="text-xs font-medium text-purple-600 transition hover:text-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200 focus:ring-offset-2"
+              >
+                {accountCopy.logout}
+              </button>
+            </div>
+          ) : null}
           <div className="flex items-center gap-3">
             <LanguageToggle />
             <ReleaseChannelSelector
@@ -332,28 +365,43 @@ export default function Navbar() {
                       <a
                         key={child.key}
                         href={child.href}
-                      onClick={() => {
-                        setMenuOpen(false)
-                        setActiveMenu(item.key)
-                        setActiveItem(child.key)
-                      }}
-                      className={`block py-1 text-gray-900 hover:text-purple-600 ${
-                        activeItem === child.key ? 'text-purple-600' : ''
-                      }`}
-                      target={isExternal ? '_blank' : undefined}
-                      rel={isExternal ? 'noopener noreferrer' : undefined}
-                    >
-                      <span className="flex items-center gap-2">
-                        <span>{child.label}</span>
-                        {getPreviewBadge(child.channels)}
-                      </span>
-                    </a>
-                  )
-                })}
+                        onClick={() => {
+                          setMenuOpen(false)
+                          setActiveMenu(item.key)
+                          setActiveItem(child.key)
+                        }}
+                        className={`block py-1 text-gray-900 hover:text-purple-600 ${
+                          activeItem === child.key ? 'text-purple-600' : ''
+                        }`}
+                        target={isExternal ? '_blank' : undefined}
+                        rel={isExternal ? 'noopener noreferrer' : undefined}
+                      >
+                        <span className="flex items-center gap-2">
+                          <span>{child.label}</span>
+                          {getPreviewBadge(child.channels)}
+                        </span>
+                      </a>
+                    )
+                  })}
               </div>
             )}
           </div>
         ))}
+          {user ? (
+            <div className="mt-4 rounded-xl bg-purple-50 p-4 text-purple-700">
+              <p className="text-sm font-semibold">{accountWelcomeMessage}</p>
+              <button
+                type="button"
+                onClick={() => {
+                  logout()
+                  setMenuOpen(false)
+                }}
+                className="mt-3 inline-flex items-center justify-center rounded-lg border border-purple-200 px-3 py-1.5 text-xs font-semibold text-purple-600 transition hover:border-purple-300 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-200 focus:ring-offset-2"
+              >
+                {accountCopy.logout}
+              </button>
+            </div>
+          ) : null}
           <div className="pt-2 flex flex-col gap-2">
             <ReleaseChannelSelector selected={selectedChannels} onToggle={toggleChannel} />
             <LanguageToggle />
