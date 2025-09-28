@@ -1,5 +1,6 @@
 'use client'
 
+import { ReactNode } from 'react'
 import Link from 'next/link'
 import { Github } from 'lucide-react'
 
@@ -11,7 +12,12 @@ import { translations } from '@i18n/translations'
 
 import { WeChatIcon } from '../components/icons/WeChatIcon'
 
-export default function LoginContent() {
+type LoginContentProps = {
+  children?: ReactNode
+}
+
+export default function LoginContent({ children }: LoginContentProps) {
+  void children
   const { language } = useLanguage()
   const t = translations[language].auth.login
 
