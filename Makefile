@@ -1,15 +1,15 @@
 OS := $(shell uname -s)
 SHELL := /bin/bash
 O_BIN ?= /usr/local/go/bin
-PG_DSN ?= postgres://user:password@127.0.0.1:5432/postgres
+PG_DSN ?= postgres://shenlan:password@127.0.0.1:5432/xserver?sslmode=disable
 NODE_MAJOR ?= 22
 
 export PATH := $(GO_BIN):$(PATH)
 
 .PHONY: install install-openresty install-redis install-postgresql install-pgvector install-zhparser init-db \
-        build update-homepage-manifests build-server build-homepage build-panel build-dl build-docs \
-	start start-openresty start-server start-homepage start-panel start-dl start-docs \
-	stop stop-server stop-homepage stop-panel stop-dl stop-docs stop-openresty restart
+        build update-homepage-manifests build-server build-homepage \
+	start start-openresty start-server start-homepage \
+	stop stop-server stop-homepage stop-openresty restart
 
 # -----------------------------------------------------------------------------
 # Dependency installation
@@ -94,7 +94,7 @@ init-db:
 # Build targets
 # -----------------------------------------------------------------------------
 
-build: update-homepage-manifests build-cli build-server build-homepage build-panel build-dl build-docs
+build: update-homepage-manifests build-cli build-server build-homepage
 
 build-cli:
 	$(MAKE) -C client build
@@ -103,25 +103,16 @@ build-server:
 	$(MAKE) -C server build
 
 build-homepage:
-        $(MAKE) -C ui/homepage build SKIP_SYNC=1
+	$(MAKE) -C ui/homepage build SKIP_SYNC=1
 
 update-homepage-manifests:
-        $(MAKE) -C ui/homepage sync-dl-index
-
-build-panel:
-	$(MAKE) -C ui/panel build
-
-build-dl:
-	$(MAKE) -C ui/dl build
-build-docs:
-	$(MAKE) -C ui/docs build
-
+	$(MAKE) -C ui/homepage sync-dl-index
 
 # -----------------------------------------------------------------------------
 # Run targets
 # -----------------------------------------------------------------------------
 
-start: start-openresty start-server start-homepage start-panel start-dl start-docs
+start: start-openresty start-server start-homepage start-dl start-docs
 
 start-server:
 	$(MAKE) -C server start
@@ -129,31 +120,14 @@ start-server:
 start-homepage:
 	$(MAKE) -C ui/homepage start
 
-start-panel:
-	$(MAKE) -C ui/panel start
 
-start-dl:
-	$(MAKE) -C ui/dl start
-start-docs:
-	$(MAKE) -C ui/docs start
-
-
-stop: stop-server stop-homepage stop-panel stop-dl stop-docs stop-openresty
+stop: stop-server stop-homepage stop-openresty
 
 stop-server:
 	$(MAKE) -C server stop
 
 stop-homepage:
 	$(MAKE) -C ui/homepage stop
-
-stop-panel:
-	$(MAKE) -C ui/panel stop
-
-stop-dl:
-	$(MAKE) -C ui/dl stop
-stop-docs:
-	$(MAKE) -C ui/docs stop
-
 
 start-openresty:
 ifeq ($(OS),Darwin)
