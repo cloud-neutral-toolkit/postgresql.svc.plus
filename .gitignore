@@ -25,4 +25,8 @@ ui/docs/yarn.lock
 
 # Yarn lock in dl (如果你只保留根目录的 lock)
 ui/dl/yarn.lock
-
+account/xcontrol-account
+account/xcontrol-account.log
+server/xcontrol-server
+server/xcontrol-server.log
+ui/homepage/.yarn/
