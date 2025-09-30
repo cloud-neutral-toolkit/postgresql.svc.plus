@@ -3,11 +3,12 @@
 import { useState } from 'react'
 import { Bot } from 'lucide-react'
 import { AskAIDialog } from './AskAIDialog'
+import { getServerServiceBaseUrl } from '@lib/serviceConfig'
 
 export function AskAIButton() {
   const [open, setOpen] = useState(false)
   const [minimized, setMinimized] = useState(false)
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || ''
+  const apiBase = getServerServiceBaseUrl()
 
   return (
     <>

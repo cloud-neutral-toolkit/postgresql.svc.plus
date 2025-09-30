@@ -1,7 +1,9 @@
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 
-const ACCOUNT_SERVICE_URL = process.env.ACCOUNT_SERVICE_URL || 'http://localhost:8080'
+import { getAccountServiceBaseUrl } from '@lib/serviceConfig'
+
+const ACCOUNT_SERVICE_URL = getAccountServiceBaseUrl()
 const SESSION_COOKIE_NAME = 'account_session'
 
 type AccountUser = {

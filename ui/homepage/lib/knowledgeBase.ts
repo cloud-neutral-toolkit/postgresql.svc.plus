@@ -1,5 +1,7 @@
+import { getServerServiceBaseUrl } from './serviceConfig'
+
 export async function fetchRelatedDocs(query: string): Promise<string[]> {
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'
+  const apiBase = getServerServiceBaseUrl()
   try {
     const res = await fetch(`${apiBase}/api/rag/query`, {
       method: 'POST',

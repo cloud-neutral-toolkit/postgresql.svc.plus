@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const ACCOUNT_SERVICE_URL = process.env.ACCOUNT_SERVICE_URL || 'http://localhost:8080'
+import { getAccountServiceBaseUrl } from '@lib/serviceConfig'
+
+const ACCOUNT_SERVICE_URL = getAccountServiceBaseUrl()
 
 async function registerWithAccountService(body: Record<string, string>) {
   try {

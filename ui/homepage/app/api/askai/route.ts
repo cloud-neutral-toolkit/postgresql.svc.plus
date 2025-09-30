@@ -1,6 +1,8 @@
+import { getServerServiceBaseUrl } from '@lib/serviceConfig'
+
 export async function POST(req: Request) {
   const { question, history } = await req.json()
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'
+  const apiBase = getServerServiceBaseUrl()
   const res = await fetch(`${apiBase}/api/askai`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
