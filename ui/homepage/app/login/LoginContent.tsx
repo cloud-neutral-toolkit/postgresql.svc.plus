@@ -2,6 +2,7 @@
 
 import { ReactNode } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { Github } from 'lucide-react'
 
 import Navbar from '@components/Navbar'
@@ -20,6 +21,32 @@ export default function LoginContent({ children }: LoginContentProps) {
   void children
   const { language } = useLanguage()
   const t = translations[language].auth.login
+  const alerts = t.alerts
+  const searchParams = useSearchParams()
+
+  const errorParam = searchParams.get('error')
+  const registeredParam = searchParams.get('registered')
+
+  const normalize = (value: string) =>
+    value
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '')
+
+  let alert: { type: 'error' | 'success'; message: string } | null = null
+  if (registeredParam === '1') {
+    alert = { type: 'success', message: alerts.registered }
+  } else if (errorParam) {
+    const normalizedError = normalize(errorParam)
+    const errorMap: Record<string, string> = {
+      missing_credentials: alerts.missingCredentials,
+      email_and_password_are_required: alerts.missingCredentials,
+      invalid_credentials: alerts.invalidCredentials,
+    }
+    const message = errorMap[normalizedError] ?? alerts.genericError
+    alert = { type: 'error', message }
+  }
 
   const githubAuthUrl = process.env.NEXT_PUBLIC_GITHUB_AUTH_URL || '/api/auth/github'
   const wechatAuthUrl = process.env.NEXT_PUBLIC_WECHAT_AUTH_URL || '/api/auth/wechat'
@@ -35,6 +62,17 @@ export default function LoginContent({ children }: LoginContentProps) {
                 <h1 className="text-3xl font-semibold text-gray-900 sm:text-4xl">{t.form.title}</h1>
                 <p className="text-sm text-gray-600">{t.form.subtitle}</p>
               </div>
+              {alert ? (
+                <div
+                  className={`rounded-xl border px-4 py-3 text-sm font-medium ${
+                    alert.type === 'error'
+                      ? 'border-red-200 bg-red-50 text-red-700'
+                      : 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                  }`}
+                >
+                  {alert.message}
+                </div>
+              ) : null}
               <form className="space-y-6" method="post" action={process.env.NEXT_PUBLIC_LOGIN_URL || '/api/auth/login'}>
                 <div className="space-y-2">
                   <label htmlFor="login-email" className="text-sm font-medium text-gray-700">

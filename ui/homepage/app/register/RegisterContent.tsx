@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { Github } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
 
 import Navbar from '@components/Navbar'
 import Footer from '@components/Footer'
@@ -14,6 +15,35 @@ import { WeChatIcon } from '../components/icons/WeChatIcon'
 export default function RegisterContent() {
   const { language } = useLanguage()
   const t = translations[language].auth.register
+  const alerts = t.alerts
+  const searchParams = useSearchParams()
+
+  const errorParam = searchParams.get('error')
+  const successParam = searchParams.get('success')
+
+  const normalize = (value: string) =>
+    value
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '')
+
+  let alert: { type: 'error' | 'success'; message: string } | null = null
+  if (successParam === '1') {
+    alert = { type: 'success', message: alerts.success }
+  } else if (errorParam) {
+    const normalizedError = normalize(errorParam)
+    const errorMap: Record<string, string> = {
+      missing_fields: alerts.missingFields,
+      email_and_password_are_required: alerts.missingFields,
+      password_mismatch: alerts.passwordMismatch,
+      user_already_exists: alerts.userExists,
+      email_must_be_a_valid_address: alerts.invalidEmail,
+      password_must_be_at_least_8_characters: alerts.weakPassword,
+    }
+    const message = errorMap[normalizedError] ?? alerts.genericError
+    alert = { type: 'error', message }
+  }
 
   const githubAuthUrl = process.env.NEXT_PUBLIC_GITHUB_AUTH_URL || '/api/auth/github'
   const wechatAuthUrl = process.env.NEXT_PUBLIC_WECHAT_AUTH_URL || '/api/auth/wechat'
@@ -54,6 +84,17 @@ export default function RegisterContent() {
                 <h2 className="text-2xl font-semibold text-gray-900 sm:text-3xl">{t.form.title}</h2>
                 <p className="text-sm text-gray-600">{t.form.subtitle}</p>
               </div>
+              {alert ? (
+                <div
+                  className={`rounded-xl border px-4 py-3 text-sm font-medium ${
+                    alert.type === 'error'
+                      ? 'border-red-200 bg-red-50 text-red-700'
+                      : 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                  }`}
+                >
+                  {alert.message}
+                </div>
+              ) : null}
               <form className="space-y-6" method="post" action={process.env.NEXT_PUBLIC_REGISTER_URL || '/api/auth/register'}>
                 <div className="space-y-2">
                   <label htmlFor="full-name" className="text-sm font-medium text-gray-700">

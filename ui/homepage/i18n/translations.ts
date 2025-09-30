@@ -86,6 +86,23 @@ type AuthHighlight = {
   description: string
 }
 
+type AuthRegisterAlerts = {
+  success: string
+  passwordMismatch: string
+  missingFields: string
+  userExists: string
+  invalidEmail: string
+  weakPassword: string
+  genericError: string
+}
+
+type AuthLoginAlerts = {
+  registered: string
+  missingCredentials: string
+  invalidCredentials: string
+  genericError: string
+}
+
 type AuthRegisterTranslation = {
   badge: string
   title: string
@@ -116,6 +133,7 @@ type AuthRegisterTranslation = {
     text: string
     link: string
   }
+  alerts: AuthRegisterAlerts
 }
 
 type AuthLoginTranslation = {
@@ -144,6 +162,7 @@ type AuthLoginTranslation = {
     text: string
     link: string
   }
+  alerts: AuthLoginAlerts
 }
 
 type AuthTranslation = {
@@ -392,6 +411,15 @@ export const translations: Record<'en' | 'zh', Translation> = {
           text: 'Already have an account?',
           link: 'Sign in',
         },
+        alerts: {
+          success: 'Account created successfully. Please sign in.',
+          passwordMismatch: 'Passwords do not match.',
+          missingFields: 'Please complete all required fields.',
+          userExists: 'An account with this email already exists.',
+          invalidEmail: 'Enter a valid email address.',
+          weakPassword: 'Your password must be at least 8 characters long.',
+          genericError: 'We could not complete your registration. Please try again.',
+        },
       },
       login: {
         badge: 'Secure login',
@@ -431,6 +459,12 @@ export const translations: Record<'en' | 'zh', Translation> = {
         registerPrompt: {
           text: 'New to CloudNative Suite?',
           link: 'Create an account',
+        },
+        alerts: {
+          registered: 'Registration complete. Sign in to continue.',
+          missingCredentials: 'Please provide both your email and password.',
+          invalidCredentials: 'Incorrect email or password. Please try again.',
+          genericError: 'We could not sign you in. Please try again later.',
         },
       },
     },
@@ -620,6 +654,15 @@ export const translations: Record<'en' | 'zh', Translation> = {
           text: '已经拥有账号？',
           link: '立即登录',
         },
+        alerts: {
+          success: '注册成功，请使用账号登录。',
+          passwordMismatch: '两次输入的密码不一致。',
+          missingFields: '请填写所有必填信息。',
+          userExists: '该邮箱已注册，请直接登录。',
+          invalidEmail: '请输入有效的邮箱地址。',
+          weakPassword: '密码长度至少需要 8 个字符。',
+          genericError: '注册失败，请稍后重试。',
+        },
       },
       login: {
         badge: '安全登录',
@@ -659,6 +702,12 @@ export const translations: Record<'en' | 'zh', Translation> = {
         registerPrompt: {
           text: '还没有账号？',
           link: '立即创建',
+        },
+        alerts: {
+          registered: '注册成功，请登录后继续。',
+          missingCredentials: '请输入邮箱和密码。',
+          invalidCredentials: '邮箱或密码错误，请重试。',
+          genericError: '暂时无法登录，请稍后再试。',
         },
       },
     },
