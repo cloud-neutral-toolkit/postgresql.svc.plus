@@ -1,7 +1,7 @@
 APP_NAME := xcontrol-server
 MAIN_FILE := ../cmd/xcontrol-server/main.go
 MODULE := xcontrol
-PORT := 8080
+PORT := 8090
 OS := $(shell uname -s)
 export PATH := /usr/local/go/bin:$(PATH)
 
