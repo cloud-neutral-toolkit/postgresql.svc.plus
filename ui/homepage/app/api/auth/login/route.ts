@@ -43,9 +43,9 @@ export async function POST(request: NextRequest) {
   }
 
   const redirectURL = new URL('/', request.url)
-  const response = NextResponse.redirect(redirectURL, { status: 303 })
+  const redirectResponse = NextResponse.redirect(redirectURL, { status: 303 })
   const maxAge = remember ? 60 * 60 * 24 * 30 : 60 * 60 * 24
-  response.cookies.set({
+  redirectResponse.cookies.set({
     name: SESSION_COOKIE_NAME,
     value: data.token,
     httpOnly: true,
@@ -55,5 +55,5 @@ export async function POST(request: NextRequest) {
     path: '/',
   })
 
-  return response
+  return redirectResponse
 }
