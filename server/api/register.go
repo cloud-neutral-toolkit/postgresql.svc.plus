@@ -11,7 +11,6 @@ import (
 func RegisterRoutes(conn *pgx.Conn, repoProxy string) server.Registrar {
 	return func(r *gin.Engine) {
 		api := r.Group("/api")
-		registerAuthRoutes(api)
 		registerUserRoutes(api)
 		registerNodeRoutes(api)
 		registerKnowledgeRoutes(api, conn, repoProxy)
