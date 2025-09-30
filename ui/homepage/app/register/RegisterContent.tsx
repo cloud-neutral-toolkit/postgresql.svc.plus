@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import { Github } from 'lucide-react'
-import { useSearchParams } from 'next/navigation'
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 import Navbar from '@components/Navbar'
 import Footer from '@components/Footer'
@@ -12,26 +13,41 @@ import { translations } from '@i18n/translations'
 
 import { WeChatIcon } from '../components/icons/WeChatIcon'
 
+type AlertState = { type: 'error' | 'success'; message: string }
+
 export default function RegisterContent() {
   const { language } = useLanguage()
   const t = translations[language].auth.register
   const alerts = t.alerts
   const searchParams = useSearchParams()
+  const router = useRouter()
 
-  const errorParam = searchParams.get('error')
-  const successParam = searchParams.get('success')
+  const githubAuthUrl = process.env.NEXT_PUBLIC_GITHUB_AUTH_URL || '/api/auth/github'
+  const wechatAuthUrl = process.env.NEXT_PUBLIC_WECHAT_AUTH_URL || '/api/auth/wechat'
+  const registerUrl = process.env.NEXT_PUBLIC_REGISTER_URL || '/api/auth/register'
 
-  const normalize = (value: string) =>
-    value
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '_')
-      .replace(/^_+|_+$/g, '')
+  const normalize = useCallback(
+    (value: string) =>
+      value
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, ''),
+    [],
+  )
 
-  let alert: { type: 'error' | 'success'; message: string } | null = null
-  if (successParam === '1') {
-    alert = { type: 'success', message: alerts.success }
-  } else if (errorParam) {
+  const initialAlert = useMemo<AlertState | null>(() => {
+    const errorParam = searchParams.get('error')
+    const successParam = searchParams.get('success')
+
+    if (successParam === '1') {
+      return { type: 'success', message: alerts.success }
+    }
+
+    if (!errorParam) {
+      return null
+    }
+
     const normalizedError = normalize(errorParam)
     const errorMap: Record<string, string> = {
       missing_fields: alerts.missingFields,
@@ -40,13 +56,114 @@ export default function RegisterContent() {
       user_already_exists: alerts.userExists,
       email_must_be_a_valid_address: alerts.invalidEmail,
       password_must_be_at_least_8_characters: alerts.weakPassword,
+      email_already_exists: alerts.userExists,
+      name_already_exists: alerts.usernameExists ?? alerts.userExists,
+      invalid_email: alerts.invalidEmail,
+      password_too_short: alerts.weakPassword,
+      invalid_name: alerts.invalidName ?? alerts.genericError,
+      name_required: alerts.invalidName ?? alerts.genericError,
     }
     const message = errorMap[normalizedError] ?? alerts.genericError
-    alert = { type: 'error', message }
-  }
+    return { type: 'error', message }
+  }, [alerts, normalize, searchParams])
 
-  const githubAuthUrl = process.env.NEXT_PUBLIC_GITHUB_AUTH_URL || '/api/auth/github'
-  const wechatAuthUrl = process.env.NEXT_PUBLIC_WECHAT_AUTH_URL || '/api/auth/wechat'
+  const [alert, setAlert] = useState<AlertState | null>(initialAlert)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  useEffect(() => {
+    setAlert(initialAlert)
+  }, [initialAlert])
+
+  const handleSubmit = useCallback(
+    async (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault()
+      if (isSubmitting) {
+        return
+      }
+
+      const formData = new FormData(event.currentTarget)
+      const name = String(formData.get('name') ?? '').trim()
+      const email = String(formData.get('email') ?? '').trim()
+      const password = String(formData.get('password') ?? '')
+      const confirmPassword = String(formData.get('confirmPassword') ?? '')
+      const agreementAccepted = formData.get('agreement') === 'on'
+
+      if (!name || !email || !password || !confirmPassword) {
+        setAlert({ type: 'error', message: alerts.missingFields })
+        return
+      }
+
+      if (!agreementAccepted) {
+        setAlert({ type: 'error', message: alerts.agreementRequired ?? alerts.missingFields })
+        return
+      }
+
+      if (password !== confirmPassword) {
+        setAlert({ type: 'error', message: alerts.passwordMismatch })
+        return
+      }
+
+      if (password.length < 8) {
+        setAlert({ type: 'error', message: alerts.weakPassword })
+        return
+      }
+
+      setIsSubmitting(true)
+      setAlert(null)
+
+      try {
+        const response = await fetch(registerUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name,
+            email,
+            password,
+          }),
+        })
+
+        if (!response.ok) {
+          let errorCode = 'generic_error'
+          try {
+            const data = await response.json()
+            if (typeof data?.error === 'string') {
+              errorCode = data.error
+            }
+          } catch (error) {
+            console.error('Failed to parse register response', error)
+          }
+
+          const errorMap: Record<string, string> = {
+            invalid_request: alerts.genericError,
+            missing_credentials: alerts.missingFields,
+            invalid_email: alerts.invalidEmail,
+            password_too_short: alerts.weakPassword,
+            email_already_exists: alerts.userExists,
+            name_already_exists: alerts.usernameExists ?? alerts.userExists,
+            invalid_name: alerts.invalidName ?? alerts.genericError,
+            name_required: alerts.invalidName ?? alerts.genericError,
+            hash_failure: alerts.genericError,
+            user_creation_failed: alerts.genericError,
+          }
+
+          setAlert({ type: 'error', message: errorMap[normalize(errorCode)] ?? alerts.genericError })
+          setIsSubmitting(false)
+          return
+        }
+
+        setAlert({ type: 'success', message: alerts.success })
+        setIsSubmitting(false)
+        router.push('/login?registered=1')
+      } catch (error) {
+        console.error('Failed to register user', error)
+        setAlert({ type: 'error', message: alerts.genericError })
+        setIsSubmitting(false)
+      }
+    },
+    [alerts, isSubmitting, normalize, registerUrl, router],
+  )
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
@@ -95,7 +212,7 @@ export default function RegisterContent() {
                   {alert.message}
                 </div>
               ) : null}
-              <form className="space-y-6" method="post" action={process.env.NEXT_PUBLIC_REGISTER_URL || '/api/auth/register'}>
+              <form className="space-y-6" onSubmit={handleSubmit} noValidate>
                 <div className="space-y-2">
                   <label htmlFor="full-name" className="text-sm font-medium text-gray-700">
                     {t.form.fullName}
@@ -170,9 +287,10 @@ export default function RegisterContent() {
                 </label>
                 <button
                   type="submit"
-                  className="w-full rounded-xl bg-purple-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-purple-600/20 transition hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
+                  disabled={isSubmitting}
+                  className="w-full rounded-xl bg-purple-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-purple-600/20 transition hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500 disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  {t.form.submit}
+                  {isSubmitting ? t.form.submitting ?? t.form.submit : t.form.submit}
                 </button>
               </form>
               <div className="space-y-4">

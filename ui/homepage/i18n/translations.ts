@@ -91,6 +91,9 @@ type AuthRegisterAlerts = {
   passwordMismatch: string
   missingFields: string
   userExists: string
+  usernameExists?: string
+  invalidName?: string
+  agreementRequired?: string
   invalidEmail: string
   weakPassword: string
   genericError: string
@@ -123,6 +126,7 @@ type AuthRegisterTranslation = {
     agreement: string
     terms: string
     submit: string
+    submitting?: string
   }
   social: {
     title: string
@@ -401,6 +405,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
           agreement: 'I agree to the',
           terms: 'terms & privacy policy',
           submit: 'Create account',
+          submitting: 'Creating account…',
         },
         social: {
           title: 'Or continue with',
@@ -416,6 +421,9 @@ export const translations: Record<'en' | 'zh', Translation> = {
           passwordMismatch: 'Passwords do not match.',
           missingFields: 'Please complete all required fields.',
           userExists: 'An account with this email already exists.',
+          usernameExists: 'This username is already taken. Please choose another.',
+          invalidName: 'Enter a valid name.',
+          agreementRequired: 'You must accept the terms to continue.',
           invalidEmail: 'Enter a valid email address.',
           weakPassword: 'Your password must be at least 8 characters long.',
           genericError: 'We could not complete your registration. Please try again.',
@@ -644,6 +652,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
           agreement: '我已阅读并同意',
           terms: '服务条款与隐私政策',
           submit: '立即注册',
+          submitting: '注册中…',
         },
         social: {
           title: '或选择以下方式',
@@ -659,6 +668,9 @@ export const translations: Record<'en' | 'zh', Translation> = {
           passwordMismatch: '两次输入的密码不一致。',
           missingFields: '请填写所有必填信息。',
           userExists: '该邮箱已注册，请直接登录。',
+          usernameExists: '该用户名已被占用，请更换后重试。',
+          invalidName: '请输入有效的姓名。',
+          agreementRequired: '请先同意服务条款后再继续。',
           invalidEmail: '请输入有效的邮箱地址。',
           weakPassword: '密码长度至少需要 8 个字符。',
           genericError: '注册失败，请稍后重试。',
