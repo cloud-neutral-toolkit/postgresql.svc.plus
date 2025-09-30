@@ -1,15 +1,24 @@
 export const dynamic = 'error'
 
+import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 
 import { isFeatureEnabled } from '@lib/featureToggles'
 
 import RegisterContent from './RegisterContent'
 
+function RegisterPageFallback() {
+  return <div className="flex min-h-screen flex-col bg-gray-50" />
+}
+
 export default function RegisterPage() {
   if (!isFeatureEnabled('globalNavigation', '/register')) {
     notFound()
   }
 
-  return <RegisterContent />
+  return (
+    <Suspense fallback={<RegisterPageFallback />}>
+      <RegisterContent />
+    </Suspense>
+  )
 }
