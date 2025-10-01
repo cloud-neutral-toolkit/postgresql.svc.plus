@@ -387,19 +387,17 @@ export const translations: Record<'en' | 'zh', Translation> = {
       register: {
         badge: 'Create account',
         title: 'Join CloudNative Suite',
-        subtitle: 'Embrace open source solutions and build a unified cloud native workspace.',
+
+        subtitle: 'Bring open source tools and AI services together to craft your cloud native workspace.',
+
         highlights: [
           {
-            title: 'Unified identity',
-            description: 'Manage workspace members with centralized access policies.',
+            title: 'Explore open source solutions',
+            description: 'Deploy databases, monitoring, CI/CD, and observability stacks in one click—no more juggling installs.',
           },
           {
-            title: 'Trusted integrations',
-            description: 'Single sign-on with GitHub and WeChat streamlines onboarding.',
-          },
-          {
-            title: 'Transparent control',
-            description: 'Granular audit logs and notifications keep your team aligned.',
+            title: 'Experience AI copilots online',
+            description: 'Let AI troubleshoot issues, automate ops, generate scripts, and surface optimizations—like gaining a reliable teammate.',
           },
         ],
         bottomNote: 'Select only the capabilities you need—pay as you go.',
@@ -642,19 +640,16 @@ export const translations: Record<'en' | 'zh', Translation> = {
       register: {
         badge: '立即注册',
         title: '加入 CloudNative Suite',
-        subtitle: '拥抱开源与解决方案，打造统一的云原生工作空间。',
+        subtitle: '把开源工具和 AI 服务放到一起，打造属于你的云原生工作台。',
+
         highlights: [
           {
-            title: '统一身份',
-            description: '通过集中式访问策略管理团队成员权限。',
+            title: '试试各种开源解决方案',
+            description: '数据库、监控、CI/CD、可观测性……一键部署与体验，告别繁琐安装，不用再东找西找。',
           },
           {
-            title: '可信集成',
-            description: '使用 GitHub 与微信单点登录，快速完成接入。',
-          },
-          {
-            title: '透明管控',
-            description: '精细化审计日志与通知，帮助团队保持同步。',
+            title: '在线体验 AI 帮手',
+            description: '未来的 AI 不只是聊天机器人，它能帮你查问题、做运维、生成脚本，甚至提出优化建议。随时随地，像多了一个可靠的伙伴。',
           },
         ],
         bottomNote: '注册用户按需选择需要的功能，Pay AS GO。',
