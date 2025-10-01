@@ -19,7 +19,7 @@
     "lucide-react": "^0.319.0",
     "marked": "^16.1.2",
     "next": "14.2.32",
-    "pdfjs-dist": "^3.11.174",
+    "pdfjs-dist": "^4.2.67",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-grid-layout": "^1.4.4",
