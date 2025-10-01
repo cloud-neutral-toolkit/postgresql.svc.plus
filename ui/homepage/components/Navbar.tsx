@@ -133,9 +133,7 @@ export default function Navbar() {
         },
       ]
 
-  const accountLabel = user
-    ? accountCopy.welcome.replace('{username}', user.username)
-    : nav.account.title
+  const accountLabel = nav.account.title
 
   const navItems: NavItem[] = [
     {
@@ -189,11 +187,15 @@ export default function Navbar() {
         },
       ],
     },
-    {
-      key: 'account',
-      label: accountLabel,
-      children: accountChildren,
-    },
+    ...(!user
+      ? [
+          {
+            key: 'account',
+            label: accountLabel,
+            children: accountChildren,
+          },
+        ]
+      : []),
   ]
 
   const visibleNavItems: NavItem[] = navItems
