@@ -31,7 +31,7 @@ export default function Header({ onMenu }: HeaderProps) {
     : 'bg-gray-200 text-gray-600'
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between border-b border-gray-200 bg-white/80 px-4 py-3 shadow-sm backdrop-blur md:px-8">
+    <header className="sticky top-0 z-30 flex items-center justify-between border-b border-gray-200 bg-white/80 px-4 py-3 shadow-sm backdrop-blur md:px-6">
       <button
         type="button"
         className="inline-flex items-center gap-2 rounded-full border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:border-purple-400 hover:text-purple-600 md:hidden"

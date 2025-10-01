@@ -24,10 +24,10 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
         />
       )}
 
-      <div className="flex min-h-screen flex-1 flex-col md:pl-72">
+      <div className="flex min-h-screen flex-1 flex-col md:pl-64">
         <Header onMenu={() => setOpen((prev) => !prev)} />
-        <main className="flex-1 space-y-6 bg-transparent px-4 py-6 md:px-10">
-          <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">{children}</div>
+        <main className="flex-1 space-y-6 bg-transparent px-3 py-6 md:px-6">
+          <div className="flex w-full flex-col gap-6">{children}</div>
         </main>
       </div>
     </div>
