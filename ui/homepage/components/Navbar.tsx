@@ -1,6 +1,6 @@
 'use client'
 import Image from 'next/image'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLanguage } from '../i18n/LanguageProvider'
 import { translations } from '../i18n/translations'
 import LanguageToggle from './LanguageToggle'
@@ -38,9 +38,10 @@ export default function Navbar() {
   const nav = translations[language].nav
   const channelLabels = nav.releaseChannels
   const accountCopy = nav.account
-  const accountWelcomeMessage = user
-    ? accountCopy.welcome.replace('{username}', user.username)
-    : ''
+  const accountInitial =
+    user?.username?.charAt(0)?.toUpperCase() ?? user?.email?.charAt(0)?.toUpperCase() ?? '?'
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false)
+  const accountMenuRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -73,6 +74,27 @@ export default function Navbar() {
     if (typeof window === 'undefined') return
     window.localStorage.setItem(RELEASE_CHANNEL_STORAGE_KEY, JSON.stringify(selectedChannels))
   }, [selectedChannels])
+
+  useEffect(() => {
+    if (!accountMenuOpen) {
+      return
+    }
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (accountMenuRef.current && !accountMenuRef.current.contains(event.target as Node)) {
+        setAccountMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [accountMenuOpen])
+
+  useEffect(() => {
+    setAccountMenuOpen(false)
+  }, [user])
 
   const selectedChannelSet = useMemo(() => new Set(selectedChannels), [selectedChannels])
 
@@ -290,15 +312,43 @@ export default function Navbar() {
             )
           })}
           {user ? (
-            <div className="flex items-center gap-3 rounded-full bg-purple-50 px-4 py-1.5 text-purple-700">
-              <span className="text-sm font-semibold">{accountWelcomeMessage}</span>
+            <div className="relative" ref={accountMenuRef}>
               <button
                 type="button"
-                onClick={logout}
-                className="text-xs font-medium text-purple-600 transition hover:text-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200 focus:ring-offset-2"
+                onClick={() => setAccountMenuOpen((prev) => !prev)}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-600 text-sm font-semibold text-white shadow-sm transition hover:bg-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200 focus:ring-offset-2"
+                aria-haspopup="menu"
+                aria-expanded={accountMenuOpen}
               >
-                {accountCopy.logout}
+                {accountInitial}
               </button>
+              {accountMenuOpen ? (
+                <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
+                  <div className="border-b border-gray-100 bg-purple-50/60 px-4 py-3">
+                    <p className="text-sm font-semibold text-gray-900">{user.username}</p>
+                    <p className="text-xs text-gray-500">{user.email}</p>
+                  </div>
+                  <div className="py-1 text-sm text-gray-700">
+                    <a
+                      href="/panel/"
+                      className="block px-4 py-2 hover:bg-gray-100"
+                      onClick={() => setAccountMenuOpen(false)}
+                    >
+                      {accountCopy.userCenter}
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAccountMenuOpen(false)
+                        void logout()
+                      }}
+                      className="flex w-full items-center px-4 py-2 text-left text-red-600 hover:bg-red-50"
+                    >
+                      {accountCopy.logout}
+                    </button>
+                  </div>
+                </div>
+              ) : null}
             </div>
           ) : null}
           <div className="flex items-center gap-3">
@@ -389,11 +439,25 @@ export default function Navbar() {
         ))}
           {user ? (
             <div className="mt-4 rounded-xl bg-purple-50 p-4 text-purple-700">
-              <p className="text-sm font-semibold">{accountWelcomeMessage}</p>
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-600 text-sm font-semibold text-white">
+                  {accountInitial}
+                </span>
+                <div>
+                  <p className="text-sm font-semibold">{user.username}</p>
+                  <p className="text-xs text-purple-300">{user.email}</p>
+                </div>
+              </div>
+              <a
+                href="/panel/"
+                className="mt-3 inline-flex items-center justify-center rounded-lg bg-white/80 px-3 py-1.5 text-xs font-semibold text-purple-600 transition hover:bg-white"
+              >
+                {accountCopy.userCenter}
+              </a>
               <button
                 type="button"
                 onClick={() => {
-                  logout()
+                  void logout()
                   setMenuOpen(false)
                 }}
                 className="mt-3 inline-flex items-center justify-center rounded-lg border border-purple-200 px-3 py-1.5 text-xs font-semibold text-purple-600 transition hover:border-purple-300 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-200 focus:ring-offset-2"

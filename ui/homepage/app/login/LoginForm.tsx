@@ -1,6 +1,6 @@
 'use client'
 
-import { FormEvent, useState } from 'react'
+import { FormEvent, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 import { useLanguage } from '@i18n/LanguageProvider'
@@ -11,20 +11,79 @@ export function LoginForm() {
   const router = useRouter()
   const { language } = useLanguage()
   const copy = translations[language].login
+  const authCopy = translations[language].auth.login
   const { user, login, logout } = useUser()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const redirectTimer = useRef<NodeJS.Timeout | null>(null)
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    return () => {
+      if (redirectTimer.current) {
+        clearTimeout(redirectTimer.current)
+      }
+    }
+  }, [])
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (!username.trim()) {
       setError(copy.missingUsername)
       return
     }
+    if (!password) {
+      setError(copy.missingPassword)
+      return
+    }
 
-    login(username.trim())
     setError(null)
+    setSuccess(null)
+    setIsSubmitting(true)
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({ username: username.trim(), password }),
+        credentials: 'include',
+      })
+
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => ({}))) as { error?: string }
+        const messageKey = payload.error ?? 'generic_error'
+        switch (messageKey) {
+          case 'missing_credentials':
+            setError(authCopy.alerts.missingCredentials)
+            break
+          case 'invalid_credentials':
+            setError(copy.invalidCredentials)
+            break
+          case 'user_not_found':
+            setError(copy.userNotFound)
+            break
+          default:
+            setError(copy.genericError)
+            break
+        }
+        return
+      }
+
+      setSuccess(copy.success.replace('{username}', username.trim()))
+      await login(username.trim())
+      redirectTimer.current = setTimeout(() => {
+        router.push('/')
+      }, 800)
+    } catch (submitError) {
+      console.warn('Login failed', submitError)
+      setError(copy.genericError)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleGoHome = () => {
@@ -103,13 +162,15 @@ export function LoginForm() {
 
             <button
               type="submit"
+              disabled={isSubmitting}
               className="mt-6 w-full rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2"
             >
-              {copy.submit}
+              {isSubmitting ? `${copy.submit}…` : copy.submit}
             </button>
 
             <p className="mt-4 text-xs text-gray-500">* {copy.disclaimer}</p>
           </form>
+          {success ? <p className="mt-4 text-sm text-emerald-600">{success}</p> : null}
         </div>
       </div>
     </div>

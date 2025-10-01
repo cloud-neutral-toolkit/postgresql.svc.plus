@@ -9,12 +9,13 @@ const SESSION_COOKIE_NAME = 'account_session'
 type AccountUser = {
   id: string
   name?: string
+  username?: string
   email: string
 }
 
 async function fetchSession(token: string) {
   try {
-    const response = await fetch(`${ACCOUNT_SERVICE_URL}/v1/session`, {
+    const response = await fetch(`${ACCOUNT_SERVICE_URL}/api/auth/session`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -51,7 +52,7 @@ export async function DELETE(request: NextRequest) {
   const cookieStore = cookies()
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value
   if (token) {
-    await fetch(`${ACCOUNT_SERVICE_URL}/v1/session`, {
+    await fetch(`${ACCOUNT_SERVICE_URL}/api/auth/session`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${token}`,

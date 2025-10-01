@@ -13,7 +13,7 @@ type RegistrationBody = {
 
 async function registerWithAccountService(body: Record<string, string>) {
   try {
-    const response = await fetch(`${ACCOUNT_SERVICE_URL}/v1/register`, {
+    const response = await fetch(`${ACCOUNT_SERVICE_URL}/api/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -5,14 +5,14 @@ import { getAccountServiceBaseUrl } from '@lib/serviceConfig'
 const ACCOUNT_SERVICE_URL = getAccountServiceBaseUrl()
 const SESSION_COOKIE_NAME = 'account_session'
 
-async function authenticateWithAccountService(email: string, password: string) {
+async function authenticateWithAccountService(username: string, password: string) {
   try {
-    const response = await fetch(`${ACCOUNT_SERVICE_URL}/v1/login`, {
+    const response = await fetch(`${ACCOUNT_SERVICE_URL}/api/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ username, password }),
       cache: 'no-store',
     })
 
@@ -25,37 +25,93 @@ async function authenticateWithAccountService(email: string, password: string) {
 }
 
 export async function POST(request: NextRequest) {
-  const formData = await request.formData()
-  const email = String(formData.get('email') ?? '').trim()
-  const password = String(formData.get('password') ?? '')
-  const remember = formData.get('remember') === 'on'
+  const { credentials, remember } = await extractCredentials(request)
 
-  if (!email || !password) {
-    const redirectURL = new URL('/login', request.url)
-    redirectURL.searchParams.set('error', 'missing_credentials')
-    return NextResponse.redirect(redirectURL, { status: 303 })
+  if (!credentials.username || !credentials.password) {
+    return handleErrorResponse(request, 'missing_credentials')
   }
 
-  const { response, data } = await authenticateWithAccountService(email, password)
+  const { response, data } = await authenticateWithAccountService(
+    credentials.username,
+    credentials.password,
+  )
   if (!response || !response.ok || !data?.token) {
     const message = typeof data?.error === 'string' ? data.error : 'invalid_credentials'
-    const redirectURL = new URL('/login', request.url)
-    redirectURL.searchParams.set('error', message)
-    return NextResponse.redirect(redirectURL, { status: 303 })
+    return handleErrorResponse(request, message)
   }
 
-  const redirectURL = new URL('/', request.url)
-  const redirectResponse = NextResponse.redirect(redirectURL, { status: 303 })
-  const maxAge = remember ? 60 * 60 * 24 * 30 : 60 * 60 * 24
-  redirectResponse.cookies.set({
+  const cookieMaxAge = remember ? 60 * 60 * 24 * 30 : 60 * 60 * 24
+  const wantsJSON = prefersJson(request)
+  const successResponse = wantsJSON
+    ? NextResponse.json({ success: true, message: data?.message ?? 'login_success' })
+    : NextResponse.redirect(new URL('/', request.url), { status: 303 })
+
+  successResponse.cookies.set({
     name: SESSION_COOKIE_NAME,
-    value: data.token,
+    value: String(data.token),
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    maxAge,
+    maxAge: cookieMaxAge,
     path: '/',
   })
 
-  return redirectResponse
+  return successResponse
+}
+
+type CredentialPayload = {
+  username: string
+  password: string
+}
+
+function prefersJson(request: NextRequest) {
+  const accept = request.headers.get('accept')?.toLowerCase() ?? ''
+  const contentType = request.headers.get('content-type')?.toLowerCase() ?? ''
+  return accept.includes('application/json') || contentType.includes('application/json')
+}
+
+async function extractCredentials(request: NextRequest) {
+  const contentType = request.headers.get('content-type')?.toLowerCase() ?? ''
+
+  if (contentType.includes('application/json')) {
+    const body = (await request.json().catch(() => ({}))) as Partial<CredentialPayload> & {
+      remember?: boolean
+    }
+    return {
+      credentials: {
+        username: String(body?.username ?? '').trim(),
+        password: String(body?.password ?? ''),
+      },
+      remember: Boolean(body?.remember),
+    }
+  }
+
+  const formData = await request.formData()
+  const username = String(formData.get('username') ?? '').trim()
+  const password = String(formData.get('password') ?? '')
+  const remember = formData.get('remember') === 'on'
+  return {
+    credentials: { username, password },
+    remember,
+  }
+}
+
+function handleErrorResponse(request: NextRequest, errorCode: string) {
+  if (prefersJson(request)) {
+    const statusMap: Record<string, number> = {
+      user_not_found: 404,
+      invalid_credentials: 401,
+      missing_credentials: 400,
+    }
+    return NextResponse.json(
+      {
+        error: errorCode,
+      },
+      { status: statusMap[errorCode] ?? 400 },
+    )
+  }
+
+  const redirectURL = new URL('/login', request.url)
+  redirectURL.searchParams.set('error', errorCode)
+  return NextResponse.redirect(redirectURL, { status: 303 })
 }

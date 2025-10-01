@@ -28,18 +28,22 @@ async function getSessionUser(): Promise<User | null> {
       return null
     }
 
-    const payload = (await response.json()) as { user?: { id: string; email: string; name?: string } | null }
+    const payload = (await response.json()) as {
+      user?: { id: string; email: string; name?: string; username?: string } | null
+    }
     if (!payload?.user) {
       return null
     }
 
-    const { id, email, name } = payload.user
+    const { id, email, name, username } = payload.user
     const normalizedName = typeof name === 'string' && name.trim().length > 0 ? name.trim() : undefined
+    const normalizedUsername =
+      typeof username === 'string' && username.trim().length > 0 ? username.trim() : normalizedName
     return {
       id,
       email,
       name: normalizedName,
-      username: normalizedName ?? email,
+      username: normalizedUsername ?? email,
     }
   } catch (error) {
     console.warn('Failed to resolve user session', error)

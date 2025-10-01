@@ -43,6 +43,7 @@ export default function LoginContent({ children }: LoginContentProps) {
       missing_credentials: alerts.missingCredentials,
       email_and_password_are_required: alerts.missingCredentials,
       invalid_credentials: alerts.invalidCredentials,
+      user_not_found: alerts.userNotFound,
     }
     const message = errorMap[normalizedError] ?? alerts.genericError
     alert = { type: 'error', message }
@@ -75,14 +76,14 @@ export default function LoginContent({ children }: LoginContentProps) {
               ) : null}
               <form className="space-y-6" method="post" action={process.env.NEXT_PUBLIC_LOGIN_URL || '/api/auth/login'}>
                 <div className="space-y-2">
-                  <label htmlFor="login-email" className="text-sm font-medium text-gray-700">
+                  <label htmlFor="login-username" className="text-sm font-medium text-gray-700">
                     {t.form.email}
                   </label>
                   <input
-                    id="login-email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
+                    id="login-username"
+                    name="username"
+                    type="text"
+                    autoComplete="username"
                     placeholder={t.form.emailPlaceholder}
                     className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-gray-900 shadow-sm transition focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
                     required

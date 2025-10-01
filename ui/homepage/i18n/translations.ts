@@ -103,6 +103,7 @@ type AuthLoginAlerts = {
   registered: string
   missingCredentials: string
   invalidCredentials: string
+  userNotFound?: string
   genericError: string
 }
 
@@ -208,6 +209,7 @@ export type Translation = {
       demo: string
       welcome: string
       logout: string
+      userCenter: string
     }
     releaseChannels: ReleaseChannelLabels
   }
@@ -220,6 +222,10 @@ export type Translation = {
     success: string
     goHome: string
     missingUsername: string
+    missingPassword: string
+    invalidCredentials: string
+    userNotFound: string
+    genericError: string
     disclaimer: string
   }
   termsTitle: string
@@ -264,6 +270,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
         demo: 'Demo',
         welcome: 'Welcome, {username}',
         logout: 'Sign out',
+        userCenter: 'User Center',
       },
       releaseChannels: {
         label: 'Preview',
@@ -296,6 +303,10 @@ export const translations: Record<'en' | 'zh', Translation> = {
       success: 'Welcome back, {username}! 🎉',
       goHome: 'Return to homepage',
       missingUsername: 'Please enter a username to continue.',
+      missingPassword: 'Please enter your password to continue.',
+      invalidCredentials: 'Incorrect username or password. Please try again.',
+      userNotFound: 'We could not find an account with that username.',
+      genericError: 'We could not sign you in. Please try again later.',
       disclaimer: 'This demo login keeps your username in memory only to personalize navigation while you browse.',
     },
     termsTitle: 'Terms of Service',
@@ -450,9 +461,9 @@ export const translations: Record<'en' | 'zh', Translation> = {
         bottomNote: 'Need help signing in? Email support@svc.plus for enterprise onboarding assistance.',
         form: {
           title: 'Sign in to your account',
-          subtitle: 'Use the email and password you registered with.',
-          email: 'Email',
-          emailPlaceholder: 'you@example.com',
+          subtitle: 'Use the username and password you registered with.',
+          email: 'Username',
+          emailPlaceholder: 'your-username',
           password: 'Password',
           passwordPlaceholder: 'Enter your password',
           remember: 'Remember this device',
@@ -470,8 +481,9 @@ export const translations: Record<'en' | 'zh', Translation> = {
         },
         alerts: {
           registered: 'Registration complete. Sign in to continue.',
-          missingCredentials: 'Please provide both your email and password.',
-          invalidCredentials: 'Incorrect email or password. Please try again.',
+          missingCredentials: 'Please provide both your username and password.',
+          invalidCredentials: 'Incorrect username or password. Please try again.',
+          userNotFound: 'We could not find an account with that username.',
           genericError: 'We could not sign you in. Please try again later.',
         },
       },
@@ -511,6 +523,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
         demo: '演示',
         welcome: '欢迎，{username}',
         logout: '退出登录',
+        userCenter: '用户中心',
       },
       releaseChannels: {
         label: '体验版本',
@@ -543,6 +556,10 @@ export const translations: Record<'en' | 'zh', Translation> = {
       success: '{username}，欢迎回来！🎉',
       goHome: '返回首页',
       missingUsername: '请输入用户名后再尝试登录。',
+      missingPassword: '请输入密码后继续。',
+      invalidCredentials: '用户名或密码不正确，请重试。',
+      userNotFound: '未找到该用户名对应的账户。',
+      genericError: '登录失败，请稍后再试。',
       disclaimer: '此演示登录仅会在浏览期间保留用户名，以便展示个性化的导航体验。',
     },
     termsTitle: '服务条款',
@@ -697,9 +714,9 @@ export const translations: Record<'en' | 'zh', Translation> = {
         bottomNote: '如需企业级接入支持，请联系 support@svc.plus。',
         form: {
           title: '登录账号',
-          subtitle: '使用注册时的邮箱和密码即可访问。',
-          email: '邮箱',
-          emailPlaceholder: 'you@example.com',
+          subtitle: '使用注册时的用户名和密码即可访问。',
+          email: '用户名',
+          emailPlaceholder: 'your-username',
           password: '密码',
           passwordPlaceholder: '请输入密码',
           remember: '记住这台设备',
@@ -717,8 +734,9 @@ export const translations: Record<'en' | 'zh', Translation> = {
         },
         alerts: {
           registered: '注册成功，请登录后继续。',
-          missingCredentials: '请输入邮箱和密码。',
-          invalidCredentials: '邮箱或密码错误，请重试。',
+          missingCredentials: '请输入用户名和密码。',
+          invalidCredentials: '用户名或密码错误，请重试。',
+          userNotFound: '未找到该用户名对应的账户。',
           genericError: '暂时无法登录，请稍后再试。',
         },
       },
