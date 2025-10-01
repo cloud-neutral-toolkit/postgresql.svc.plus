@@ -39,9 +39,13 @@ const isFeatureEnabled = (section, pathname) => {
   return resolveToggle(tree, segments)
 }
 
+// Static exports are incompatible with dynamic route handlers used for auth.
+// Allow opting-in explicitly to avoid breaking the default production build.
+const shouldUseStaticExport = process.env.NEXT_SHOULD_EXPORT === 'true'
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export', // 直接生成静态文件，便于部署到 S3 / Nginx
+  ...(shouldUseStaticExport ? { output: 'export' } : {}),
   trailingSlash: true,
   reactStrictMode: true,
   compress: false, // 压缩交给 Nginx，省 Node CPU

@@ -1471,9 +1471,11 @@ __metadata:
     react-grid-layout: "npm:^1.4.4"
     react-pdf: "npm:^9.1.0"
     react-resizable: "npm:^3.0.4"
+    swr: "npm:^2.3.0"
     tailwindcss: "npm:^3.4.3"
     tsx: "npm:^4.7.1"
     typescript: "npm:^5.4.2"
+    zustand: "npm:^4.5.4"
   languageName: unknown
   linkType: soft
 
@@ -5097,6 +5099,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"swr@npm:^2.3.0":
+  version: 2.3.6
+  resolution: "swr@npm:2.3.6"
+  dependencies:
+    dequal: "npm:^2.0.3"
+    use-sync-external-store: "npm:^1.4.0"
+  peerDependencies:
+    react: ^16.11.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 10c0/9534f350982e36a3ae0a13da8c0f7da7011fc979e77f306e60c4e5db0f9b84f17172c44f973441ba56bb684b69b0d9838ab40011a6b6b3e32d0cd7f3d5405f99
+  languageName: node
+  linkType: hard
+
 "tailwindcss@npm:^3.4.3":
   version: 3.4.17
   resolution: "tailwindcss@npm:3.4.17"
@@ -5516,6 +5530,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"use-sync-external-store@npm:^1.2.2, use-sync-external-store@npm:^1.4.0":
+  version: 1.5.0
+  resolution: "use-sync-external-store@npm:1.5.0"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 10c0/1b8663515c0be34fa653feb724fdcce3984037c78dd4a18f68b2c8be55cc1a1084c578d5b75f158d41b5ddffc2bf5600766d1af3c19c8e329bb20af2ec6f52f4
+  languageName: node
+  linkType: hard
+
 "util-deprecate@npm:^1.0.1, util-deprecate@npm:^1.0.2":
   version: 1.0.2
   resolution: "util-deprecate@npm:1.0.2"
@@ -5704,5 +5727,25 @@ __metadata:
   version: 0.1.0
   resolution: "yocto-queue@npm:0.1.0"
   checksum: 10c0/dceb44c28578b31641e13695d200d34ec4ab3966a5729814d5445b194933c096b7ced71494ce53a0e8820685d1d010df8b2422e5bf2cdea7e469d97ffbea306f
+  languageName: node
+  linkType: hard
+
+"zustand@npm:^4.5.4":
+  version: 4.5.7
+  resolution: "zustand@npm:4.5.7"
+  dependencies:
+    use-sync-external-store: "npm:^1.2.2"
+  peerDependencies:
+    "@types/react": ">=16.8"
+    immer: ">=9.0.6"
+    react: ">=16.8"
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    immer:
+      optional: true
+    react:
+      optional: true
+  checksum: 10c0/55559e37a82f0c06cadc61cb08f08314c0fe05d6a93815e41e3376130c13db22a5017cbb0cd1f018c82f2dad0051afe3592561d40f980bd4082e32005e8a950c
   languageName: node
   linkType: hard

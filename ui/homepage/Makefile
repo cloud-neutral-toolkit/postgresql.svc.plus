@@ -90,7 +90,7 @@ sync-dl-index:
 
 export:
 	@echo "📦 Exporting homepage static site to ./out ..."
-	yarn next export
+	@NEXT_SHOULD_EXPORT=true yarn next export
 
 clean:
 	@echo "🧹 Cleaning .next and out directories..."
