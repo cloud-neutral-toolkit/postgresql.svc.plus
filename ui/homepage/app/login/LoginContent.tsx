@@ -43,7 +43,7 @@ export default function LoginContent({ children }: LoginContentProps) {
       missing_credentials: alerts.missingCredentials,
       email_and_password_are_required: alerts.missingCredentials,
       invalid_credentials: alerts.invalidCredentials,
-      user_not_found: alerts.userNotFound,
+      user_not_found: alerts.userNotFound ?? alerts.genericError,
     }
     const message = errorMap[normalizedError] ?? alerts.genericError
     alert = { type: 'error', message }
