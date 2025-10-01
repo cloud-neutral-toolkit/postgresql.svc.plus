@@ -51,6 +51,14 @@ export default function LoginContent({ children }: LoginContentProps) {
   const githubAuthUrl = process.env.NEXT_PUBLIC_GITHUB_AUTH_URL || '/api/auth/github'
   const wechatAuthUrl = process.env.NEXT_PUBLIC_WECHAT_AUTH_URL || '/api/auth/wechat'
 
+  const socialButtonsDisabled = true
+
+  const socialButtonClass = `flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-800 ${
+    socialButtonsDisabled
+      ? 'cursor-not-allowed opacity-50'
+      : 'transition hover:border-gray-300 hover:bg-gray-50'
+  }`
+
   const formContent = useMemo(() => {
     if (children) {
       return children
@@ -141,14 +149,34 @@ export default function LoginContent({ children }: LoginContentProps) {
                 <div className="grid gap-3 sm:grid-cols-2">
                   <a
                     href={githubAuthUrl}
-                    className="flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-800 transition hover:border-gray-300 hover:bg-gray-50"
+                    className={socialButtonClass}
+                    aria-disabled={socialButtonsDisabled}
+                    tabIndex={socialButtonsDisabled ? -1 : undefined}
+                    onClick={
+                      socialButtonsDisabled
+                        ? (event) => {
+                            event.preventDefault()
+                            event.stopPropagation()
+                          }
+                        : undefined
+                    }
                   >
                     <Github className="h-5 w-5" aria-hidden />
                     {t.social.github}
                   </a>
                   <a
                     href={wechatAuthUrl}
-                    className="flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-800 transition hover:border-gray-300 hover:bg-gray-50"
+                    className={socialButtonClass}
+                    aria-disabled={socialButtonsDisabled}
+                    tabIndex={socialButtonsDisabled ? -1 : undefined}
+                    onClick={
+                      socialButtonsDisabled
+                        ? (event) => {
+                            event.preventDefault()
+                            event.stopPropagation()
+                          }
+                        : undefined
+                    }
                   >
                     <WeChatIcon className="h-5 w-5" aria-hidden />
                     {t.social.wechat}

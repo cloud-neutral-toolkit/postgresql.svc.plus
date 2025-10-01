@@ -696,21 +696,8 @@ export const translations: Record<'en' | 'zh', Translation> = {
         badge: '安全登录',
         title: '欢迎回来',
         subtitle: '在一个控制台中管理项目和账号设置。',
-        highlights: [
-          {
-            title: '个性化看板',
-            description: '快速回到保存的查询、部署记录和常用操作。',
-          },
-          {
-            title: '多团队空间',
-            description: '一键切换不同组织与环境，协作更高效。',
-          },
-          {
-            title: '自适应安全',
-            description: '多因素验证与 IP 策略让访问更放心。',
-          },
-        ],
-        bottomNote: '如需企业级接入支持，请联系 support@svc.plus。',
+        highlights: [],
+        bottomNote: '如需支持，请联系 manbuzhe2008@gmail.com。',
         form: {
           title: '登录账号',
           subtitle: '使用注册时的用户名和密码即可访问。',
