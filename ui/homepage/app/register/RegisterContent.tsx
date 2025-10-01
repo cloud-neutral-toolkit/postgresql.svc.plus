@@ -201,6 +201,11 @@ export default function RegisterContent() {
                 <h2 className="text-2xl font-semibold text-gray-900 sm:text-3xl">{t.form.title}</h2>
                 <p className="text-sm text-gray-600">{t.form.subtitle}</p>
               </div>
+              {t.uuidNote ? (
+                <div className="rounded-2xl border border-dashed border-purple-200 bg-purple-50/80 p-4 text-sm text-purple-700">
+                  {t.uuidNote}
+                </div>
+              ) : null}
               {alert ? (
                 <div
                   className={`rounded-xl border px-4 py-3 text-sm font-medium ${

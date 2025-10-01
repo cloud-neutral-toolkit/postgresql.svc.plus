@@ -7,7 +7,8 @@ const ACCOUNT_SERVICE_URL = getAccountServiceBaseUrl()
 const SESSION_COOKIE_NAME = 'account_session'
 
 type AccountUser = {
-  id: string
+  id?: string
+  uuid?: string
   name?: string
   username?: string
   email: string
@@ -44,7 +45,19 @@ export async function GET(request: NextRequest) {
     return res
   }
 
-  return NextResponse.json({ user: data.user as AccountUser })
+  const rawUser = data.user as AccountUser
+  const identifier =
+    typeof rawUser.uuid === 'string' && rawUser.uuid.trim().length > 0
+      ? rawUser.uuid.trim()
+      : typeof rawUser.id === 'string'
+        ? rawUser.id.trim()
+        : undefined
+
+  const normalizedUser = identifier
+    ? { ...rawUser, id: identifier, uuid: identifier }
+    : rawUser
+
+  return NextResponse.json({ user: normalizedUser })
 }
 
 export async function DELETE(request: NextRequest) {

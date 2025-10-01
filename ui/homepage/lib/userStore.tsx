@@ -12,6 +12,7 @@ import { create } from 'zustand'
 
 type User = {
   id: string
+  uuid: string
   email: string
   name?: string
   username: string
@@ -54,7 +55,7 @@ async function fetchSessionUser(): Promise<User | null> {
     }
 
     const payload = (await response.json()) as {
-      user?: { id: string; email: string; name?: string; username?: string } | null
+      user?: { id?: string; uuid?: string; email: string; name?: string; username?: string } | null
     }
 
     const sessionUser = payload?.user
@@ -62,13 +63,24 @@ async function fetchSessionUser(): Promise<User | null> {
       return null
     }
 
-    const { id, email, name, username } = sessionUser
+    const { id, uuid, email, name, username } = sessionUser
+    const identifier =
+      typeof uuid === 'string' && uuid.trim().length > 0
+        ? uuid.trim()
+        : typeof id === 'string'
+          ? id.trim()
+          : ''
+
+    if (!identifier) {
+      return null
+    }
     const normalizedName = typeof name === 'string' && name.trim().length > 0 ? name.trim() : undefined
     const normalizedUsername =
       typeof username === 'string' && username.trim().length > 0 ? username.trim() : normalizedName
 
     return {
-      id,
+      id: identifier,
+      uuid: identifier,
       email,
       name: normalizedName,
       username: normalizedUsername ?? email,

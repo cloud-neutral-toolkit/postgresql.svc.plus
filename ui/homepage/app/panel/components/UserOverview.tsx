@@ -33,21 +33,22 @@ export default function UserOverview() {
   const [copied, setCopied] = useState(false)
 
   const displayName = useMemo(() => resolveDisplayName(user), [user])
-  const uuid = user?.id ?? '—'
+  const uuid = user?.uuid ?? user?.id ?? '—'
   const username = user?.username ?? '—'
   const email = user?.email ?? '—'
 
   const handleCopy = useCallback(async () => {
-    if (!user?.id) {
+    const identifier = user?.uuid ?? user?.id
+    if (!identifier) {
       return
     }
 
     try {
       if (typeof navigator !== 'undefined' && navigator.clipboard && 'writeText' in navigator.clipboard) {
-        await navigator.clipboard.writeText(user.id)
+        await navigator.clipboard.writeText(identifier)
       } else {
         const textarea = document.createElement('textarea')
-        textarea.value = user.id
+        textarea.value = identifier
         textarea.style.position = 'fixed'
         textarea.style.opacity = '0'
         document.body.appendChild(textarea)
@@ -61,7 +62,7 @@ export default function UserOverview() {
     } catch (error) {
       console.warn('Failed to copy UUID', error)
     }
-  }, [user?.id])
+  }, [user?.id, user?.uuid])
 
   return (
     <div className="space-y-6">

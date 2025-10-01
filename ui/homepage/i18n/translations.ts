@@ -113,6 +113,7 @@ type AuthRegisterTranslation = {
   subtitle: string
   highlights: AuthHighlight[]
   bottomNote: string
+  uuidNote: string
   form: {
     title: string
     subtitle: string
@@ -402,6 +403,8 @@ export const translations: Record<'en' | 'zh', Translation> = {
           },
         ],
         bottomNote: 'No credit card required. Premium capabilities are available with a 14-day trial.',
+        uuidNote:
+          'Every account receives a globally unique UUID. After registration, sign in to the user center to view and copy it for future integrations.',
         form: {
           title: 'Create your account',
           subtitle: 'Share a few details or continue with a social login.',
@@ -655,6 +658,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
           },
         ],
         bottomNote: '无需信用卡，免费体验版可试用高级功能 14 天。',
+        uuidNote: '注册完成后，系统会为你分配一个全局唯一的 UUID，可在用户中心查看并复制，用于后续服务对接。',
         form: {
           title: '创建账号',
           subtitle: '填写基础信息，或选择社交账号直接注册。',
