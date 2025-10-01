@@ -88,7 +88,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     isLoading,
     mutate,
   } = useSWR<User | null>(SESSION_CACHE_KEY, fetchSessionUser, {
-    revalidateOnFocus: false,
     shouldRetryOnError: false,
   })
 
