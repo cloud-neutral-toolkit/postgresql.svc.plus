@@ -6,10 +6,10 @@
       "demo": { "enabled": true, "channel": "develop" },
       "download": { "enabled": true, "channel": "stable" },
       "insight": { "enabled": true, "channel": "develop" },
-      "login": { "enabled": true, "channel": "develop" },
-      "register": { "enabled": true, "channel": "develop" },
+      "login": { "enabled": true, "channel": "stable" },
+      "register": { "enabled": true, "channel": "stable" },
       "cloud_iac": { "enabled": true, "channel": "develop" },
-      "panel": { "enabled": false, "channel": "develop" }
+      "panel": { "enabled": true, "channel": "stable" }
     }
   },
   "appModules": {
