@@ -25,6 +25,7 @@ export default function RegisterContent() {
   const githubAuthUrl = process.env.NEXT_PUBLIC_GITHUB_AUTH_URL || '/api/auth/github'
   const wechatAuthUrl = process.env.NEXT_PUBLIC_WECHAT_AUTH_URL || '/api/auth/wechat'
   const registerUrl = process.env.NEXT_PUBLIC_REGISTER_URL || '/api/auth/register'
+  const isSocialAuthVisible = false
 
   const normalize = useCallback(
     (value: string) =>
@@ -299,27 +300,31 @@ export default function RegisterContent() {
                 </button>
               </form>
               <div className="space-y-4">
-                <div className="flex items-center gap-4 text-xs uppercase tracking-[0.2em] text-gray-400">
-                  <span className="h-px flex-1 bg-gray-200" aria-hidden />
-                  {t.social.title}
-                  <span className="h-px flex-1 bg-gray-200" aria-hidden />
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <a
-                    href={githubAuthUrl}
-                    className="flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-800 transition hover:border-gray-300 hover:bg-gray-50"
-                  >
-                    <Github className="h-5 w-5" aria-hidden />
-                    {t.social.github}
-                  </a>
-                  <a
-                    href={wechatAuthUrl}
-                    className="flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-800 transition hover:border-gray-300 hover:bg-gray-50"
-                  >
-                    <WeChatIcon className="h-5 w-5" aria-hidden />
-                    {t.social.wechat}
-                  </a>
-                </div>
+                {isSocialAuthVisible && (
+                  <>
+                    <div className="flex items-center gap-4 text-xs uppercase tracking-[0.2em] text-gray-400">
+                      <span className="h-px flex-1 bg-gray-200" aria-hidden />
+                      {t.social.title}
+                      <span className="h-px flex-1 bg-gray-200" aria-hidden />
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <a
+                        href={githubAuthUrl}
+                        className="flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-800 transition hover:border-gray-300 hover:bg-gray-50"
+                      >
+                        <Github className="h-5 w-5" aria-hidden />
+                        {t.social.github}
+                      </a>
+                      <a
+                        href={wechatAuthUrl}
+                        className="flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-800 transition hover:border-gray-300 hover:bg-gray-50"
+                      >
+                        <WeChatIcon className="h-5 w-5" aria-hidden />
+                        {t.social.wechat}
+                      </a>
+                    </div>
+                  </>
+                )}
                 <p className="text-sm text-gray-600">
                   {t.loginPrompt.text}{' '}
                   <Link href="/login" className="font-semibold text-purple-600 hover:text-purple-500">

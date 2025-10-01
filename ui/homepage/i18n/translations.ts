@@ -387,7 +387,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
       register: {
         badge: 'Create account',
         title: 'Join CloudNative Suite',
-        subtitle: 'Secure, unified workspace for your cloud native journey.',
+        subtitle: 'Embrace open source solutions and build a unified cloud native workspace.',
         highlights: [
           {
             title: 'Unified identity',
@@ -402,7 +402,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
             description: 'Granular audit logs and notifications keep your team aligned.',
           },
         ],
-        bottomNote: 'No credit card required. Premium capabilities are available with a 14-day trial.',
+        bottomNote: 'Select only the capabilities you need—pay as you go.',
         uuidNote:
           'Every account receives a globally unique UUID. After registration, sign in to the user center to view and copy it for future integrations.',
         form: {
@@ -642,7 +642,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
       register: {
         badge: '立即注册',
         title: '加入 CloudNative Suite',
-        subtitle: '打造安全统一的云原生工作空间。',
+        subtitle: '拥抱开源与解决方案，打造统一的云原生工作空间。',
         highlights: [
           {
             title: '统一身份',
@@ -657,7 +657,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
             description: '精细化审计日志与通知，帮助团队保持同步。',
           },
         ],
-        bottomNote: '无需信用卡，免费体验版可试用高级功能 14 天。',
+        bottomNote: '注册用户按需选择需要的功能，Pay AS GO。',
         uuidNote: '注册完成后，系统会为你分配一个全局唯一的 UUID，可在用户中心查看并复制，用于后续服务对接。',
         form: {
           title: '创建账号',
