@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log/slog"
+	"net/http"
 	"os"
 	"strings"
 
@@ -84,7 +86,22 @@ var rootCmd = &cobra.Command{
 			api.RegisterRoutes(conn, cfg.Sync.Repo.Proxy),
 		)
 
-		r.Run() // listen and serve on 0.0.0.0:8080
+		addr := cfg.Server.Addr
+		if addr == "" {
+			addr = ":8080"
+		}
+
+		srv := &http.Server{
+			Addr:         addr,
+			Handler:      r,
+			ReadTimeout:  cfg.Server.ReadTimeout.Duration,
+			WriteTimeout: cfg.Server.WriteTimeout.Duration,
+		}
+
+		logger.Info("starting http server", "addr", addr)
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			logger.Error("http server shutdown", "err", err)
+		}
 	},
 }
 

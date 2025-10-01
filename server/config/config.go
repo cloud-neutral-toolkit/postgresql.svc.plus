@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"gopkg.in/yaml.v3"
 )
@@ -121,6 +122,42 @@ type API struct {
 	} `yaml:"askai"`
 }
 
+// Duration is a thin wrapper around time.Duration to support YAML unmarshalling
+// from strings like "15s".
+type Duration struct {
+	time.Duration
+}
+
+// UnmarshalYAML implements yaml unmarshalling for Duration values.
+func (d *Duration) UnmarshalYAML(value *yaml.Node) error {
+	var raw string
+	if err := value.Decode(&raw); err != nil {
+		return err
+	}
+	if raw == "" {
+		d.Duration = 0
+		return nil
+	}
+	parsed, err := time.ParseDuration(raw)
+	if err != nil {
+		return err
+	}
+	d.Duration = parsed
+	return nil
+}
+
+// String returns the duration formatted using time.Duration's String method.
+func (d Duration) String() string {
+	return d.Duration.String()
+}
+
+// ServerCfg contains HTTP server runtime configuration.
+type ServerCfg struct {
+	Addr         string   `yaml:"addr"`
+	ReadTimeout  Duration `yaml:"readTimeout"`
+	WriteTimeout Duration `yaml:"writeTimeout"`
+}
+
 type Config struct {
 	Log    Log    `yaml:"log"`
 	Global Global `yaml:"global"`
@@ -132,6 +169,7 @@ type Config struct {
 	Embedding EmbeddingCfg `yaml:"embedding"`
 	Chunking  ChunkingCfg  `yaml:"chunking"`
 	API       API          `yaml:"api"`
+	Server    ServerCfg    `yaml:"server"`
 }
 
 // Load reads the configuration file at the provided path. When path is empty,

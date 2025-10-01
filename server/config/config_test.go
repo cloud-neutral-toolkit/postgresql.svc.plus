@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"testing"
+	"time"
 )
 
 // TestLoad ensures the configuration file is loaded correctly.
@@ -26,5 +27,14 @@ func TestLoad(t *testing.T) {
 	}
 	if cfg.API.AskAI.Timeout != 100 {
 		t.Fatalf("unexpected askai timeout %d", cfg.API.AskAI.Timeout)
+	}
+	if cfg.Server.Addr != ":8090" {
+		t.Fatalf("unexpected server addr %q", cfg.Server.Addr)
+	}
+	if cfg.Server.ReadTimeout.Duration != 15*time.Second {
+		t.Fatalf("unexpected server read timeout %s", cfg.Server.ReadTimeout)
+	}
+	if cfg.Server.WriteTimeout.Duration != 15*time.Second {
+		t.Fatalf("unexpected server write timeout %s", cfg.Server.WriteTimeout)
 	}
 }
