@@ -43,7 +43,11 @@ export async function POST(request: NextRequest) {
   const cookieMaxAge = remember ? 60 * 60 * 24 * 30 : 60 * 60 * 24
   const wantsJSON = prefersJson(request)
   const successResponse = wantsJSON
-    ? NextResponse.json({ success: true, message: data?.message ?? 'login_success' })
+    ? NextResponse.json({
+        success: true,
+        message: data?.message ?? 'login_success',
+        redirectTo: '/',
+      })
     : NextResponse.redirect(new URL('/', request.url), { status: 303 })
 
   successResponse.cookies.set({

@@ -34,7 +34,7 @@ export default function Navbar() {
   const [activeItem, setActiveItem] = useState<string | null>(null)
   const [selectedChannels, setSelectedChannels] = useState<ReleaseChannel[]>(['stable'])
   const { language } = useLanguage()
-  const { user, logout } = useUser()
+  const { user } = useUser()
   const nav = translations[language].nav
   const channelLabels = nav.releaseChannels
   const accountCopy = nav.account
@@ -98,6 +98,41 @@ export default function Navbar() {
 
   const selectedChannelSet = useMemo(() => new Set(selectedChannels), [selectedChannels])
 
+  const accountChildren: NavSubItem[] = user
+    ? [
+        {
+          key: 'userCenter',
+          label: accountCopy.userCenter,
+          href: '/panel',
+          togglePath: '/panel',
+        },
+        {
+          key: 'logout',
+          label: accountCopy.logout,
+          href: '/logout',
+        },
+      ]
+    : [
+        {
+          key: 'register',
+          label: nav.account.register,
+          href: '/register',
+          togglePath: '/register',
+        },
+        {
+          key: 'login',
+          label: nav.account.login,
+          href: '/login',
+          togglePath: '/login',
+        },
+        {
+          key: 'demo',
+          label: nav.account.demo,
+          href: '/demo',
+          togglePath: '/demo',
+        },
+      ]
+
   const navItems: NavItem[] = [
     {
       key: 'openSource',
@@ -152,46 +187,12 @@ export default function Navbar() {
     },
     {
       key: 'account',
-      label: nav.account.title,
-      children: [
-        {
-          key: 'register',
-          label: nav.account.register,
-          href: '/register',
-          togglePath: '/register',
-        },
-        {
-          key: 'login',
-          label: nav.account.login,
-          href: '/login',
-          togglePath: '/login',
-        },
-        {
-          key: 'demo',
-          label: nav.account.demo,
-          href: '/demo',
-          togglePath: '/demo',
-        },
-      ],
+      label: user?.username ?? nav.account.title,
+      children: accountChildren,
     },
   ]
 
-  const navItemsWithAuth: NavItem[] = user
-    ? navItems.map((item) => {
-        if (item.key !== 'account') {
-          return item
-        }
-
-        return {
-          ...item,
-          children: item.children.filter(
-            (child) => child.key !== 'login' && child.key !== 'register',
-          ),
-        }
-      })
-    : navItems
-
-  const visibleNavItems: NavItem[] = navItemsWithAuth
+  const visibleNavItems: NavItem[] = navItems
     .map((item) => ({
       ...item,
       children: item.children
@@ -330,22 +331,19 @@ export default function Navbar() {
                   </div>
                   <div className="py-1 text-sm text-gray-700">
                     <a
-                      href="/panel/"
+                      href="/panel"
                       className="block px-4 py-2 hover:bg-gray-100"
                       onClick={() => setAccountMenuOpen(false)}
                     >
                       {accountCopy.userCenter}
                     </a>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAccountMenuOpen(false)
-                        void logout()
-                      }}
+                    <a
+                      href="/logout"
                       className="flex w-full items-center px-4 py-2 text-left text-red-600 hover:bg-red-50"
+                      onClick={() => setAccountMenuOpen(false)}
                     >
                       {accountCopy.logout}
-                    </button>
+                    </a>
                   </div>
                 </div>
               ) : null}
@@ -449,21 +447,19 @@ export default function Navbar() {
                 </div>
               </div>
               <a
-                href="/panel/"
+                href="/panel"
                 className="mt-3 inline-flex items-center justify-center rounded-lg bg-white/80 px-3 py-1.5 text-xs font-semibold text-purple-600 transition hover:bg-white"
+                onClick={() => setMenuOpen(false)}
               >
                 {accountCopy.userCenter}
               </a>
-              <button
-                type="button"
-                onClick={() => {
-                  void logout()
-                  setMenuOpen(false)
-                }}
+              <a
+                href="/logout"
                 className="mt-3 inline-flex items-center justify-center rounded-lg border border-purple-200 px-3 py-1.5 text-xs font-semibold text-purple-600 transition hover:border-purple-300 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-200 focus:ring-offset-2"
+                onClick={() => setMenuOpen(false)}
               >
                 {accountCopy.logout}
-              </button>
+              </a>
             </div>
           ) : null}
           <div className="pt-2 flex flex-col gap-2">

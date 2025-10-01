@@ -1,6 +1,6 @@
 'use client'
 
-import { FormEvent, useEffect, useRef, useState } from 'react'
+import { FormEvent, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 import { useLanguage } from '@i18n/LanguageProvider'
@@ -12,21 +12,11 @@ export function LoginForm() {
   const { language } = useLanguage()
   const copy = translations[language].login
   const authCopy = translations[language].auth.login
-  const { user, login, logout } = useUser()
+  const { user, login } = useUser()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const redirectTimer = useRef<NodeJS.Timeout | null>(null)
-
-  useEffect(() => {
-    return () => {
-      if (redirectTimer.current) {
-        clearTimeout(redirectTimer.current)
-      }
-    }
-  }, [])
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -40,7 +30,6 @@ export function LoginForm() {
     }
 
     setError(null)
-    setSuccess(null)
     setIsSubmitting(true)
     try {
       const response = await fetch('/api/auth/login', {
@@ -73,11 +62,10 @@ export function LoginForm() {
         return
       }
 
-      setSuccess(copy.success.replace('{username}', username.trim()))
       await login(username.trim())
-      redirectTimer.current = setTimeout(() => {
-        router.push('/')
-      }, 800)
+      router.replace('/')
+      router.refresh()
+      return
     } catch (submitError) {
       console.warn('Login failed', submitError)
       setError(copy.genericError)
@@ -91,7 +79,7 @@ export function LoginForm() {
   }
 
   const handleLogout = () => {
-    logout()
+    router.push('/logout')
   }
 
   return (
@@ -170,7 +158,6 @@ export function LoginForm() {
 
             <p className="mt-4 text-xs text-gray-500">* {copy.disclaimer}</p>
           </form>
-          {success ? <p className="mt-4 text-sm text-emerald-600">{success}</p> : null}
         </div>
       </div>
     </div>
