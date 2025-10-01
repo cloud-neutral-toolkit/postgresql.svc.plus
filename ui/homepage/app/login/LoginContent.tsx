@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactNode } from 'react'
+import { ReactNode, useMemo } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Github } from 'lucide-react'
@@ -18,7 +18,6 @@ type LoginContentProps = {
 }
 
 export default function LoginContent({ children }: LoginContentProps) {
-  void children
   const { language } = useLanguage()
   const t = translations[language].auth.login
   const alerts = t.alerts
@@ -52,6 +51,64 @@ export default function LoginContent({ children }: LoginContentProps) {
   const githubAuthUrl = process.env.NEXT_PUBLIC_GITHUB_AUTH_URL || '/api/auth/github'
   const wechatAuthUrl = process.env.NEXT_PUBLIC_WECHAT_AUTH_URL || '/api/auth/wechat'
 
+  const formContent = useMemo(() => {
+    if (children) {
+      return children
+    }
+
+    return (
+      <form className="space-y-6" method="post" action={process.env.NEXT_PUBLIC_LOGIN_URL || '/api/auth/login'}>
+        <div className="space-y-2">
+          <label htmlFor="login-username" className="text-sm font-medium text-gray-700">
+            {t.form.email}
+          </label>
+          <input
+            id="login-username"
+            name="username"
+            type="text"
+            autoComplete="username"
+            placeholder={t.form.emailPlaceholder}
+            className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-gray-900 shadow-sm transition focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <label htmlFor="login-password" className="font-medium text-gray-700">
+              {t.form.password}
+            </label>
+            <Link href="#" className="font-medium text-purple-600 hover:text-purple-500">
+              {t.forgotPassword}
+            </Link>
+          </div>
+          <input
+            id="login-password"
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            placeholder={t.form.passwordPlaceholder}
+            className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-gray-900 shadow-sm transition focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
+            required
+          />
+        </div>
+        <label className="flex items-center gap-3 text-sm text-gray-600">
+          <input
+            type="checkbox"
+            name="remember"
+            className="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+          />
+          {t.form.remember}
+        </label>
+        <button
+          type="submit"
+          className="w-full rounded-xl bg-purple-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-purple-600/20 transition hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
+        >
+          {t.form.submit}
+        </button>
+      </form>
+    )
+  }, [children, t])
+
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
       <Navbar />
@@ -74,55 +131,7 @@ export default function LoginContent({ children }: LoginContentProps) {
                   {alert.message}
                 </div>
               ) : null}
-              <form className="space-y-6" method="post" action={process.env.NEXT_PUBLIC_LOGIN_URL || '/api/auth/login'}>
-                <div className="space-y-2">
-                  <label htmlFor="login-username" className="text-sm font-medium text-gray-700">
-                    {t.form.email}
-                  </label>
-                  <input
-                    id="login-username"
-                    name="username"
-                    type="text"
-                    autoComplete="username"
-                    placeholder={t.form.emailPlaceholder}
-                    className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-gray-900 shadow-sm transition focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <label htmlFor="login-password" className="font-medium text-gray-700">
-                      {t.form.password}
-                    </label>
-                    <Link href="#" className="font-medium text-purple-600 hover:text-purple-500">
-                      {t.forgotPassword}
-                    </Link>
-                  </div>
-                  <input
-                    id="login-password"
-                    name="password"
-                    type="password"
-                    autoComplete="current-password"
-                    placeholder={t.form.passwordPlaceholder}
-                    className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-gray-900 shadow-sm transition focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
-                    required
-                  />
-                </div>
-                <label className="flex items-center gap-3 text-sm text-gray-600">
-                  <input
-                    type="checkbox"
-                    name="remember"
-                    className="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-                  />
-                  {t.form.remember}
-                </label>
-                <button
-                  type="submit"
-                  className="w-full rounded-xl bg-purple-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-purple-600/20 transition hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
-                >
-                  {t.form.submit}
-                </button>
-              </form>
+              {formContent}
               <div className="space-y-4">
                 <div className="flex items-center gap-4 text-xs uppercase tracking-[0.2em] text-gray-400">
                   <span className="h-px flex-1 bg-gray-200" aria-hidden />

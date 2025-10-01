@@ -1,6 +1,14 @@
 'use client'
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+} from 'react'
+import useSWR from 'swr'
+import { create } from 'zustand'
 
 type User = {
   id: string
@@ -11,17 +19,34 @@ type User = {
 
 type UserContextValue = {
   user: User | null
-  login: (username?: string) => Promise<void>
+  isLoading: boolean
+  login: () => Promise<void>
   logout: () => Promise<void>
+  refresh: () => Promise<void>
 }
+
+type UserStore = {
+  user: User | null
+  setUser: (user: User | null) => void
+}
+
+const sessionStore = create<UserStore>((set) => ({
+  user: null,
+  setUser: (user) => set({ user }),
+}))
 
 const UserContext = createContext<UserContextValue | undefined>(undefined)
 
-async function getSessionUser(): Promise<User | null> {
+const SESSION_CACHE_KEY = 'account_session'
+
+async function fetchSessionUser(): Promise<User | null> {
   try {
     const response = await fetch('/api/auth/session', {
       credentials: 'include',
       cache: 'no-store',
+      headers: {
+        Accept: 'application/json',
+      },
     })
 
     if (!response.ok) {
@@ -31,14 +56,17 @@ async function getSessionUser(): Promise<User | null> {
     const payload = (await response.json()) as {
       user?: { id: string; email: string; name?: string; username?: string } | null
     }
-    if (!payload?.user) {
+
+    const sessionUser = payload?.user
+    if (!sessionUser) {
       return null
     }
 
-    const { id, email, name, username } = payload.user
+    const { id, email, name, username } = sessionUser
     const normalizedName = typeof name === 'string' && name.trim().length > 0 ? name.trim() : undefined
     const normalizedUsername =
       typeof username === 'string' && username.trim().length > 0 ? username.trim() : normalizedName
+
     return {
       id,
       email,
@@ -52,16 +80,29 @@ async function getSessionUser(): Promise<User | null> {
 }
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
+  const user = sessionStore((state) => state.user)
+  const setUser = sessionStore((state) => state.setUser)
 
-  const refresh = useCallback(async () => {
-    const currentUser = await getSessionUser()
-    setUser(currentUser)
-  }, [])
+  const {
+    data,
+    isLoading,
+    mutate,
+  } = useSWR<User | null>(SESSION_CACHE_KEY, fetchSessionUser, {
+    revalidateOnFocus: false,
+    shouldRetryOnError: false,
+  })
 
   useEffect(() => {
-    void refresh()
-  }, [refresh])
+    if (data === undefined) {
+      return
+    }
+    setUser(data)
+  }, [data, setUser])
+
+  const refresh = useCallback(async () => {
+    const nextUser = await mutate()
+    setUser(nextUser ?? null)
+  }, [mutate, setUser])
 
   const login = useCallback(async () => {
     await refresh()
@@ -76,16 +117,19 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.warn('Failed to clear user session', error)
     }
+
     await refresh()
   }, [refresh])
 
   const value = useMemo(
     () => ({
       user,
+      isLoading,
       login,
       logout,
+      refresh,
     }),
-    [login, logout, user],
+    [user, isLoading, login, logout, refresh],
   )
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>

@@ -133,6 +133,10 @@ export default function Navbar() {
         },
       ]
 
+  const accountLabel = user
+    ? accountCopy.welcome.replace('{username}', user.username)
+    : nav.account.title
+
   const navItems: NavItem[] = [
     {
       key: 'openSource',
@@ -187,7 +191,7 @@ export default function Navbar() {
     },
     {
       key: 'account',
-      label: user?.username ?? nav.account.title,
+      label: accountLabel,
       children: accountChildren,
     },
   ]
