@@ -32,58 +32,58 @@ interface NavSection {
 
 const navSections: NavSection[] = [
   {
-    title: 'Overview',
+    title: '用户中心',
     items: [
       {
         href: '/panel',
         label: 'Dashboard',
-        description: 'Control center snapshot',
+        description: '专属于你的信息总览',
         icon: Home,
       },
     ],
   },
   {
-    title: 'Admin Toolkit',
+    title: '功能特性',
     items: [
       {
         href: '/panel/agent',
         label: 'Agents',
-        description: 'Manage runtime nodes',
+        description: '管理运行时节点',
         icon: Server,
       },
       {
         href: '/panel/api',
         label: 'APIs',
-        description: 'Observe backend services',
+        description: '洞察后端服务',
         icon: Code,
       },
       {
         href: '/panel/subscription',
         label: 'Subscription',
-        description: 'Billing & plan controls',
+        description: '套餐与计费控制',
         icon: CreditCard,
       },
       {
         href: '/panel/xray',
         label: 'XRay',
-        description: 'Inspect network policies',
+        description: '审视网络策略',
         icon: Search,
       },
     ],
   },
   {
-    title: 'Identity & Access',
+    title: '权限设置',
     items: [
       {
         href: '/panel/account',
         label: 'Accounts',
-        description: 'Directory & MFA settings',
+        description: '目录与多因素设置',
         icon: User,
       },
       {
         href: '/panel/ldp',
         label: 'LDP',
-        description: 'Low-latency identity plane',
+        description: '低时延身份平面',
         icon: Shield,
       },
     ],
@@ -104,8 +104,8 @@ export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
     <aside className={`flex h-full w-72 flex-col gap-6 border-r border-gray-200 bg-white/90 p-6 shadow-lg backdrop-blur ${className}`}>
       <div className="space-y-1">
         <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">XControl</p>
-        <h2 className="text-lg font-bold text-gray-900">Control Center</h2>
-        <p className="text-sm text-gray-500">Switch between admin and self-service spaces.</p>
+        <h2 className="text-lg font-bold text-gray-900">User Center</h2>
+        <p className="text-sm text-gray-500">在同一处掌控权限与功能特性。</p>
       </div>
 
       <nav className="flex flex-1 flex-col gap-6 overflow-y-auto">

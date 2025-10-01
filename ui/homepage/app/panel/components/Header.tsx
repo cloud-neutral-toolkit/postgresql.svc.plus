@@ -44,8 +44,8 @@ export default function Header({ onMenu }: HeaderProps) {
 
       <div className="flex flex-1 items-center justify-end gap-4 md:justify-between">
         <div className="hidden flex-col text-sm text-gray-500 md:flex">
-          <span className="font-semibold text-gray-900">XControl Control Center</span>
-          <span>Unified governance for admins and end users</span>
+          <span className="font-semibold text-gray-900">XControl User Center</span>
+          <span>Personalized access across every service touchpoint</span>
         </div>
         <div className="flex items-center gap-3">
           <span className={`rounded-full px-3 py-1 text-xs font-semibold ${badgeClasses}`}>{statusBadge}</span>
