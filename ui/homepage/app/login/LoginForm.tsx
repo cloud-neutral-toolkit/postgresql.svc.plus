@@ -62,17 +62,27 @@ export function LoginForm() {
           Accept: 'application/json',
         },
         body: JSON.stringify({
-          identifier: trimmedIdentifier,
+          email: trimmedIdentifier,
           password: loginMode === 'password_totp' ? password : undefined,
-          totpCode: sanitizedTotp,
+          totp: sanitizedTotp,
           remember,
-          loginMode,
         }),
         credentials: 'include',
       })
 
-      if (!response.ok) {
-        const payload = (await response.json().catch(() => ({}))) as { error?: string; mfaToken?: string }
+      const payload = (await response.json().catch(() => ({}))) as {
+        success?: boolean
+        error?: string | null
+        needMfa?: boolean
+      }
+
+      if (payload.needMfa) {
+        router.replace('/panel/account?setupMfa=1')
+        router.refresh()
+        return
+      }
+
+      if (!payload.success || !response.ok) {
         const messageKey = payload.error ?? 'generic_error'
         switch (messageKey) {
           case 'missing_credentials':
@@ -93,15 +103,11 @@ export function LoginForm() {
           case 'invalid_mfa_code':
             setError(authCopy.alerts.mfa?.invalid ?? pageCopy.genericError)
             break
-          case 'mfa_setup_required':
-            if (typeof window !== 'undefined' && typeof payload.mfaToken === 'string') {
-              sessionStorage.setItem('account_mfa_token', payload.mfaToken)
-            }
-            router.replace('/panel/account?setupMfa=1')
-            router.refresh()
-            return
           case 'mfa_challenge_failed':
             setError(authCopy.alerts.mfa?.challengeFailed ?? pageCopy.genericError)
+            break
+          case 'account_service_unreachable':
+            setError(pageCopy.serviceUnavailable ?? pageCopy.genericError)
             break
           default:
             setError(pageCopy.genericError)

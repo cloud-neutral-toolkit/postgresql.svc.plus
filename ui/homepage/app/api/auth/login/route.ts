@@ -1,207 +1,123 @@
+import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 
+import { applyMfaCookie, applySessionCookie, clearMfaCookie, clearSessionCookie, deriveMaxAgeFromExpires, MFA_COOKIE_NAME } from '@lib/authGateway'
 import { getAccountServiceBaseUrl } from '@lib/serviceConfig'
 
 const ACCOUNT_SERVICE_URL = getAccountServiceBaseUrl()
-const SESSION_COOKIE_NAME = 'account_session'
-const MFA_COOKIE_NAME = 'account_mfa_token'
+
+type LoginPayload = {
+  email?: string
+  password?: string
+  remember?: boolean
+  totp?: string
+  code?: string
+  token?: string
+}
 
 type AccountLoginResponse = {
   token?: string
+  expiresAt?: string
   error?: string
   mfaToken?: string
-  message?: string
+  needMfa?: boolean
+  mfaEnabled?: boolean
 }
 
-type LoginMode = 'password_totp' | 'email_totp'
+function normalizeEmail(value: unknown) {
+  return typeof value === 'string' ? value.trim().toLowerCase() : ''
+}
 
-async function authenticateWithAccountService(payload: Record<string, unknown>) {
+function normalizeCode(value: unknown) {
+  return typeof value === 'string' ? value.replace(/\D/g, '').slice(0, 6) : ''
+}
+
+export async function POST(request: NextRequest) {
+  let payload: LoginPayload
   try {
-    const response = await fetch(`${ACCOUNT_SERVICE_URL}/api/auth/login`, {
+    payload = (await request.json()) as LoginPayload
+  } catch (error) {
+    console.error('Failed to decode login payload', error)
+    return NextResponse.json({ success: false, error: 'invalid_request', needMfa: false }, { status: 400 })
+  }
+
+  const email = normalizeEmail(payload?.email)
+  const password = typeof payload?.password === 'string' ? payload.password : ''
+  const totpCode = normalizeCode(payload?.totp ?? payload?.code)
+  const remember = Boolean(payload?.remember)
+
+  if (!email || !password) {
+    return NextResponse.json({ success: false, error: 'missing_credentials', needMfa: false }, { status: 400 })
+  }
+
+  try {
+    const loginBody: Record<string, string> = { email, password }
+    if (totpCode) {
+      loginBody.totpCode = totpCode
+    }
+
+    const response = await fetch(`${ACCOUNT_SERVICE_URL}/account/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(loginBody),
       cache: 'no-store',
     })
 
     const data = (await response.json().catch(() => ({}))) as AccountLoginResponse
-    return { response, data }
+
+    if (response.ok && typeof data?.token === 'string' && data.token.length > 0) {
+      const maxAgeFromBackend = deriveMaxAgeFromExpires(data?.expiresAt)
+      const effectiveMaxAge = remember ? Math.max(maxAgeFromBackend, 60 * 60 * 24 * 30) : maxAgeFromBackend
+      const result = NextResponse.json({ success: true, error: null, needMfa: false })
+      applySessionCookie(result, data.token, effectiveMaxAge)
+      clearMfaCookie(result)
+      return result
+    }
+
+    const errorCode = typeof data?.error === 'string' ? data.error : 'authentication_failed'
+    const needsMfa = Boolean(data?.needMfa || errorCode === 'mfa_required' || errorCode === 'mfa_setup_required')
+
+    if ((response.status === 401 || response.status === 403 || needsMfa) && typeof data?.mfaToken === 'string') {
+      const result = NextResponse.json({ success: false, error: errorCode, needMfa: true }, { status: 401 })
+      applyMfaCookie(result, data.mfaToken)
+      clearSessionCookie(result)
+      return result
+    }
+
+    const statusCode = response.status || 401
+    const result = NextResponse.json({ success: false, error: errorCode, needMfa: false }, { status: statusCode })
+    clearSessionCookie(result)
+    clearMfaCookie(result)
+    return result
   } catch (error) {
-    console.error('Login request failed', error)
-    return { response: null, data: { error: 'request_failed' } }
+    console.error('Account service login proxy failed', error)
+    const result = NextResponse.json({ success: false, error: 'account_service_unreachable', needMfa: false }, { status: 502 })
+    clearSessionCookie(result)
+    clearMfaCookie(result)
+    return result
   }
 }
 
-export async function POST(request: NextRequest) {
-  const sensitiveKeys = ['username', 'password', 'token']
-  const url = new URL(request.url)
-  const hasSensitiveQuery = sensitiveKeys.some((key) => url.searchParams.has(key))
-
-  if (hasSensitiveQuery) {
-    sensitiveKeys.forEach((key) => url.searchParams.delete(key))
-
-    if (prefersJson(request)) {
-      return NextResponse.json({ error: 'credentials_in_query' }, { status: 400 })
-    }
-
-    url.pathname = '/login'
-    url.searchParams.set('error', 'credentials_in_query')
-    return NextResponse.redirect(url, { status: 303 })
-  }
-
-  const { credentials, remember } = await extractCredentials(request)
-
-  if (!credentials.identifier) {
-    return handleErrorResponse(request, 'missing_credentials')
-  }
-
-  const { response, data } = await authenticateWithAccountService(credentials)
-  if (!response || !response.ok || !data?.token) {
-    const message = typeof data?.error === 'string' ? data.error : 'invalid_credentials'
-    const errorResponse = handleErrorResponse(request, message, data)
-    if (message === 'mfa_setup_required' && typeof data?.mfaToken === 'string') {
-      errorResponse.cookies.set({
-        name: MFA_COOKIE_NAME,
-        value: data.mfaToken,
-        httpOnly: true,
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
-        path: '/',
-        maxAge: 60 * 10,
-      })
-    } else {
-      errorResponse.cookies.set({ name: MFA_COOKIE_NAME, value: '', maxAge: 0, path: '/' })
-    }
-    return errorResponse
-  }
-
-  const cookieMaxAge = remember ? 60 * 60 * 24 * 30 : 60 * 60 * 24
-  const wantsJSON = prefersJson(request)
-  const successResponse = wantsJSON
-    ? NextResponse.json({
-        success: true,
-        message: data?.message ?? 'login_success',
-        redirectTo: '/',
-      })
-    : NextResponse.redirect(new URL('/', request.url), { status: 303 })
-
-  successResponse.cookies.set({
-    name: SESSION_COOKIE_NAME,
-    value: String(data.token),
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: cookieMaxAge,
-    path: '/',
-  })
-  successResponse.cookies.set({ name: MFA_COOKIE_NAME, value: '', maxAge: 0, path: '/' })
-
-  return successResponse
-}
-
-function prefersJson(request: NextRequest) {
-  const accept = request.headers.get('accept')?.toLowerCase() ?? ''
-  const contentType = request.headers.get('content-type')?.toLowerCase() ?? ''
-  return accept.includes('application/json') || contentType.includes('application/json')
-}
-
-async function extractCredentials(request: NextRequest) {
-  const contentType = request.headers.get('content-type')?.toLowerCase() ?? ''
-
-  if (contentType.includes('application/json')) {
-    const body = (await request.json().catch(() => ({}))) as Partial<CredentialPayload> & {
-      remember?: boolean
-    }
-    const loginMode = normalizeLoginMode(body?.loginMode)
-    const totpCode = String(body?.totpCode ?? '').replace(/\D/g, '').slice(0, 6)
-    const passwordInput = String(body?.password ?? '').trim()
-    const password = loginMode === 'password_totp' ? passwordInput : ''
-    return {
-      credentials: {
-        identifier: normalizeIdentifier(body),
-        password: loginMode === 'password_totp' ? password : undefined,
-        totpCode,
-        loginMode,
+export function GET() {
+  return NextResponse.json(
+    { success: false, error: 'method_not_allowed', needMfa: false },
+    {
+      status: 405,
+      headers: {
+        Allow: 'POST',
       },
-      remember: Boolean(body?.remember),
-    }
-  }
-
-  const formData = await request.formData()
-  const identifier = normalizeIdentifier({
-    identifier: formData.get('identifier'),
-    username: formData.get('username'),
-    email: formData.get('email'),
-  })
-  const loginMode = normalizeLoginMode(formData.get('login-mode'))
-  const passwordValue = String(formData.get('password') ?? '').trim()
-  const password = loginMode === 'password_totp' ? passwordValue : ''
-  const totpCode = String(formData.get('totpCode') ?? '').replace(/\D/g, '').slice(0, 6)
-  const remember = formData.get('remember') === 'on'
-  return {
-    credentials: {
-      identifier,
-      password: loginMode === 'password_totp' ? password : undefined,
-      totpCode,
-      loginMode,
     },
-    remember,
+  )
+}
+
+export function DELETE() {
+  const cookieStore = cookies()
+  const response = NextResponse.json({ success: true, error: null, needMfa: false })
+  if (cookieStore.has(MFA_COOKIE_NAME)) {
+    clearMfaCookie(response)
   }
-}
-
-function handleErrorResponse(
-  request: NextRequest,
-  errorCode: string,
-  data?: AccountLoginResponse,
-) {
-  if (prefersJson(request)) {
-    const statusMap: Record<string, number> = {
-      user_not_found: 404,
-      invalid_credentials: 401,
-      missing_credentials: 400,
-      credentials_in_query: 400,
-      mfa_setup_required: 401,
-      mfa_code_required: 400,
-      password_required: 401,
-      mfa_challenge_failed: 500,
-    }
-    return NextResponse.json(
-      {
-        error: errorCode,
-        mfaToken: data?.mfaToken,
-      },
-      { status: statusMap[errorCode] ?? 400 },
-    )
-  }
-
-  const redirectURL = new URL('/login', request.url)
-  redirectURL.searchParams.set('error', errorCode)
-  return NextResponse.redirect(redirectURL, { status: 303 })
-}
-
-type CredentialPayload = {
-  identifier?: string
-  username?: string
-  email?: string
-  password?: string
-  totpCode?: string
-  remember?: boolean
-  loginMode?: LoginMode | string | null
-}
-
-function normalizeIdentifier(payload: Partial<CredentialPayload>) {
-  const candidate =
-    String(payload?.identifier ?? '').trim() ||
-    String(payload?.username ?? '').trim() ||
-    String(payload?.email ?? '').trim()
-  return candidate
-}
-
-function normalizeLoginMode(value: unknown): LoginMode {
-  if (value === 'email_totp') {
-    return 'email_totp'
-  }
-  return 'password_totp'
+  clearSessionCookie(response)
+  return response
 }

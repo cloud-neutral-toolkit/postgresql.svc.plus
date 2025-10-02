@@ -1,10 +1,10 @@
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 
+import { SESSION_COOKIE_NAME, clearSessionCookie } from '@lib/authGateway'
 import { getAccountServiceBaseUrl } from '@lib/serviceConfig'
 
 const ACCOUNT_SERVICE_URL = getAccountServiceBaseUrl()
-const SESSION_COOKIE_NAME = 'account_session'
 
 type AccountUser = {
   id?: string
@@ -22,19 +22,24 @@ type AccountUser = {
   }
 }
 
+type SessionResponse = {
+  user?: AccountUser | null
+  error?: string
+}
+
 async function fetchSession(token: string) {
   try {
-    const response = await fetch(`${ACCOUNT_SERVICE_URL}/api/auth/session`, {
+    const response = await fetch(`${ACCOUNT_SERVICE_URL}/account/session`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
       cache: 'no-store',
     })
 
-    const data = await response.json().catch(() => ({}))
+    const data = (await response.json().catch(() => ({}))) as SessionResponse
     return { response, data }
   } catch (error) {
-    console.error('Session lookup failed', error)
+    console.error('Session lookup proxy failed', error)
     return { response: null, data: null }
   }
 }
@@ -49,7 +54,7 @@ export async function GET(request: NextRequest) {
   const { response, data } = await fetchSession(token)
   if (!response || !response.ok || !data?.user) {
     const res = NextResponse.json({ user: null })
-    res.cookies.set({ name: SESSION_COOKIE_NAME, value: '', maxAge: 0, path: '/' })
+    clearSessionCookie(res)
     return res
   }
 
@@ -82,9 +87,7 @@ export async function GET(request: NextRequest) {
         totpPending: derivedMfaPending,
       }
 
-  const normalizedUser = identifier
-    ? { ...rawUser, id: identifier, uuid: identifier }
-    : rawUser
+  const normalizedUser = identifier ? { ...rawUser, id: identifier, uuid: identifier } : rawUser
 
   return NextResponse.json({
     user: {
@@ -101,7 +104,7 @@ export async function DELETE(request: NextRequest) {
   const cookieStore = cookies()
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value
   if (token) {
-    await fetch(`${ACCOUNT_SERVICE_URL}/api/auth/session`, {
+    await fetch(`${ACCOUNT_SERVICE_URL}/account/session`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -111,6 +114,6 @@ export async function DELETE(request: NextRequest) {
   }
 
   const response = NextResponse.json({ success: true })
-  response.cookies.set({ name: SESSION_COOKIE_NAME, value: '', maxAge: 0, path: '/' })
+  clearSessionCookie(response)
   return response
 }

@@ -4,16 +4,52 @@ import { getAccountServiceBaseUrl } from '@lib/serviceConfig'
 
 const ACCOUNT_SERVICE_URL = getAccountServiceBaseUrl()
 
-type RegistrationBody = {
-  name: string
-  email: string
-  password: string
-  confirmPassword: string
+type RegistrationPayload = {
+  name?: string
+  email?: string
+  password?: string
+  confirmPassword?: string
 }
 
-async function registerWithAccountService(body: Record<string, string>) {
+function normalizeEmail(value: unknown) {
+  return typeof value === 'string' ? value.trim().toLowerCase() : ''
+}
+
+function normalizeString(value: unknown) {
+  return typeof value === 'string' ? value.trim() : ''
+}
+
+export async function POST(request: NextRequest) {
+  let payload: RegistrationPayload
   try {
-    const response = await fetch(`${ACCOUNT_SERVICE_URL}/api/auth/register`, {
+    payload = (await request.json()) as RegistrationPayload
+  } catch (error) {
+    console.error('Failed to decode registration payload', error)
+    return NextResponse.json({ success: false, error: 'invalid_request', needMfa: false }, { status: 400 })
+  }
+
+  const email = normalizeEmail(payload?.email)
+  const password = typeof payload?.password === 'string' ? payload.password : ''
+  const confirmPassword =
+    typeof payload?.confirmPassword === 'string' ? payload.confirmPassword : payload?.password ?? ''
+  const name = normalizeString(payload?.name)
+
+  if (!email || !password) {
+    return NextResponse.json({ success: false, error: 'missing_credentials', needMfa: false }, { status: 400 })
+  }
+
+  if (password !== confirmPassword) {
+    return NextResponse.json({ success: false, error: 'password_mismatch', needMfa: false }, { status: 400 })
+  }
+
+  const body = {
+    email,
+    password,
+    ...(name ? { name } : {}),
+  }
+
+  try {
+    const response = await fetch(`${ACCOUNT_SERVICE_URL}/account/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -23,109 +59,24 @@ async function registerWithAccountService(body: Record<string, string>) {
     })
 
     const data = await response.json().catch(() => ({}))
-    return { response, data }
-  } catch (error) {
-    console.error('Registration request failed', error)
-    return { response: null, data: { error: 'registration_failed' } }
-  }
-}
-
-export async function POST(request: NextRequest) {
-  const sensitiveKeys = ['password', 'confirmPassword', 'token']
-  const url = new URL(request.url)
-  const hasSensitiveQuery = sensitiveKeys.some((key) => url.searchParams.has(key))
-
-  if (hasSensitiveQuery) {
-    sensitiveKeys.forEach((key) => url.searchParams.delete(key))
-    url.pathname = '/register'
-    url.searchParams.set('error', 'credentials_in_query')
-    return NextResponse.redirect(url, { status: 303 })
-  }
-
-  let fields: RegistrationBody
-  try {
-    fields = await extractRegistrationFields(request)
-  } catch (error) {
-    console.error('Failed to parse registration payload', error)
-    const redirectURL = new URL('/register', request.url)
-    redirectURL.searchParams.set('error', 'invalid_request_payload')
-    return NextResponse.redirect(redirectURL, { status: 303 })
-  }
-
-  const name = fields.name.trim()
-  const email = fields.email.trim().toLowerCase()
-  const password = fields.password
-  const confirmPassword = fields.confirmPassword
-
-  if (!email || !password) {
-    const redirectURL = new URL('/register', request.url)
-    redirectURL.searchParams.set('error', 'missing_fields')
-    return NextResponse.redirect(redirectURL, { status: 303 })
-  }
-
-  if (password !== confirmPassword) {
-    const redirectURL = new URL('/register', request.url)
-    redirectURL.searchParams.set('error', 'password_mismatch')
-    return NextResponse.redirect(redirectURL, { status: 303 })
-  }
-
-  const { response, data } = await registerWithAccountService({ name, email, password })
-  if (!response || !response.ok) {
-    const message = typeof data?.error === 'string' ? data.error : 'registration_failed'
-    const redirectURL = new URL('/register', request.url)
-    redirectURL.searchParams.set('error', message)
-    return NextResponse.redirect(redirectURL, { status: 303 })
-  }
-
-  const redirectURL = new URL('/login', request.url)
-  redirectURL.searchParams.set('registered', '1')
-  return NextResponse.redirect(redirectURL, { status: 303 })
-}
-
-function ensureString(value: unknown): string {
-  return typeof value === 'string' ? value : ''
-}
-
-async function extractRegistrationFields(request: NextRequest): Promise<RegistrationBody> {
-  const contentType = request.headers.get('content-type')?.toLowerCase() ?? ''
-
-  if (contentType.includes('application/json')) {
-    const body = await request.json().catch((error) => {
-      console.error('Failed to decode JSON body', error)
-      throw error
-    })
-    return {
-      name: ensureString(body?.name ?? ''),
-      email: ensureString(body?.email ?? ''),
-      password: ensureString(body?.password ?? ''),
-      confirmPassword: ensureString(body?.confirmPassword ?? body?.password ?? ''),
+    if (!response.ok) {
+      const errorCode = typeof (data as { error?: string })?.error === 'string' ? data.error : 'registration_failed'
+      return NextResponse.json(
+        { success: false, error: errorCode, needMfa: false },
+        { status: response.status || 400 },
+      )
     }
-  }
 
-  if (contentType.includes('application/x-www-form-urlencoded')) {
-    const text = await request.text()
-    const params = new URLSearchParams(text)
-    return {
-      name: ensureString(params.get('name')),
-      email: ensureString(params.get('email')),
-      password: ensureString(params.get('password')),
-      confirmPassword: ensureString(params.get('confirmPassword')),
-    }
-  }
-
-  const formData = await request.formData()
-  const read = (key: string) => ensureString(formData.get(key))
-  return {
-    name: read('name'),
-    email: read('email'),
-    password: read('password'),
-    confirmPassword: read('confirmPassword'),
+    return NextResponse.json({ success: true, error: null, needMfa: false })
+  } catch (error) {
+    console.error('Account service registration proxy failed', error)
+    return NextResponse.json({ success: false, error: 'account_service_unreachable', needMfa: false }, { status: 502 })
   }
 }
 
 export function GET() {
   return NextResponse.json(
-    { error: 'method_not_allowed' },
+    { success: false, error: 'method_not_allowed', needMfa: false },
     {
       status: 405,
       headers: {

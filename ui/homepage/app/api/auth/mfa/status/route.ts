@@ -1,11 +1,10 @@
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 
+import { MFA_COOKIE_NAME, SESSION_COOKIE_NAME } from '@lib/authGateway'
 import { getAccountServiceBaseUrl } from '@lib/serviceConfig'
 
 const ACCOUNT_SERVICE_URL = getAccountServiceBaseUrl()
-const SESSION_COOKIE_NAME = 'account_session'
-const MFA_COOKIE_NAME = 'account_mfa_token'
 
 export async function GET(request: NextRequest) {
   const cookieStore = cookies()
@@ -24,8 +23,8 @@ export async function GET(request: NextRequest) {
   }
 
   const endpoint = token
-    ? `${ACCOUNT_SERVICE_URL}/api/auth/mfa/status?token=${encodeURIComponent(token)}`
-    : `${ACCOUNT_SERVICE_URL}/api/auth/mfa/status`
+    ? `${ACCOUNT_SERVICE_URL}/account/mfa/status?token=${encodeURIComponent(token)}`
+    : `${ACCOUNT_SERVICE_URL}/account/mfa/status`
 
   const response = await fetch(endpoint, {
     method: 'GET',

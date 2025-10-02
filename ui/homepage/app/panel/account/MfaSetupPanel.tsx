@@ -8,8 +8,6 @@ import { useLanguage } from '@i18n/LanguageProvider'
 import { translations } from '@i18n/translations'
 import { useUser } from '@lib/userStore'
 
-const MFA_STORAGE_KEY = 'account_mfa_token'
-
 type TotpStatus = {
   totpEnabled?: boolean
   totpPending?: boolean
@@ -22,16 +20,8 @@ type ProvisionResponse = {
   uri?: string
   issuer?: string
   account?: string
-  mfaToken?: string
   qr?: string
   user?: { mfa?: TotpStatus }
-}
-
-type VerifyResponse = {
-  token?: string
-  expiresAt?: string
-  user?: { mfa?: TotpStatus }
-  error?: string
 }
 
 function formatTimestamp(value?: string) {
@@ -53,7 +43,6 @@ export default function MfaSetupPanel() {
   const { user, refresh, logout } = useUser()
 
   const [status, setStatus] = useState<TotpStatus | null>(null)
-  const [mfaToken, setMfaToken] = useState('')
   const [secret, setSecret] = useState('')
   const [uri, setUri] = useState('')
   const [qrImage, setQrImage] = useState('')
@@ -65,23 +54,6 @@ export default function MfaSetupPanel() {
   const hasPendingMfa = Boolean(status?.totpPending && !status?.totpEnabled)
   const setupRequested = searchParams.get('setupMfa') === '1'
   const requiresSetup = Boolean(user && (!user.mfaEnabled || user.mfaPending))
-
-  const ensureTokenPersisted = useCallback((token: string) => {
-    if (!token) {
-      return
-    }
-    setMfaToken(token)
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem(MFA_STORAGE_KEY, token)
-    }
-  }, [])
-
-  const clearToken = useCallback(() => {
-    setMfaToken('')
-    if (typeof window !== 'undefined') {
-      sessionStorage.removeItem(MFA_STORAGE_KEY)
-    }
-  }, [])
 
   const generateQrImage = useCallback((value: string) => {
     if (!value) {
@@ -99,7 +71,7 @@ export default function MfaSetupPanel() {
 
   const fetchStatus = useCallback(async () => {
     try {
-      const response = await fetch('/api/auth/mfa/status', { cache: 'no-store' })
+      const response = await fetch('/api/auth/mfa/status', { cache: 'no-store', credentials: 'include' })
       const payload = (await response.json().catch(() => ({}))) as {
         mfa?: TotpStatus
         user?: { mfa?: TotpStatus }
@@ -115,12 +87,6 @@ export default function MfaSetupPanel() {
   }, [])
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const stored = sessionStorage.getItem(MFA_STORAGE_KEY)
-      if (stored) {
-        setMfaToken(stored)
-      }
-    }
     void fetchStatus()
   }, [fetchStatus])
 
@@ -128,30 +94,35 @@ export default function MfaSetupPanel() {
     setIsProvisioning(true)
     setError(null)
     try {
-      const response = await fetch('/api/auth/mfa/totp/provision', {
+      const response = await fetch('/api/auth/mfa/setup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(mfaToken ? { token: mfaToken } : {}),
+        credentials: 'include',
+        body: JSON.stringify({}),
       })
-      const payload = (await response.json().catch(() => ({}))) as ProvisionResponse & { error?: string }
-      if (!response.ok || !payload?.secret) {
+      const payload = (await response.json().catch(() => ({}))) as {
+        success?: boolean
+        error?: string | null
+        data?: ProvisionResponse
+      }
+      if (!payload?.success || !payload?.data) {
         setError(payload?.error ?? copy.error)
         return
       }
-      setSecret(payload.secret)
-      const nextUri = payload?.uri ?? ''
+      const data = payload.data
+      setSecret(data?.secret ?? '')
+      const nextUri = data?.uri ?? ''
       setUri(nextUri)
-      const nextQr = payload?.qr ?? (nextUri ? generateQrImage(nextUri) : '')
+      const nextQr = data?.qr ?? (nextUri ? generateQrImage(nextUri) : '')
       setQrImage(nextQr)
-      ensureTokenPersisted(payload?.mfaToken ?? mfaToken)
-      setStatus(payload?.user?.mfa ?? status)
+      setStatus(data?.user?.mfa ?? status)
     } catch (err) {
       console.warn('Provision TOTP failed', err)
       setError(copy.error)
     } finally {
       setIsProvisioning(false)
     }
-  }, [copy.error, ensureTokenPersisted, generateQrImage, mfaToken, status])
+  }, [copy.error, generateQrImage, status])
 
   const handleVerify = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
@@ -163,18 +134,22 @@ export default function MfaSetupPanel() {
       setIsVerifying(true)
       setError(null)
       try {
-        const response = await fetch('/api/auth/mfa/totp/verify', {
+        const response = await fetch('/api/auth/mfa/verify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token: mfaToken, code: code.trim() }),
+          credentials: 'include',
+          body: JSON.stringify({ code: code.trim() }),
         })
-        const payload = (await response.json().catch(() => ({}))) as VerifyResponse
-        if (!response.ok || !payload?.token) {
+        const payload = (await response.json().catch(() => ({}))) as {
+          success?: boolean
+          error?: string | null
+          needMfa?: boolean
+        }
+        if (!payload?.success || !response.ok) {
           setError(payload?.error ?? copy.error)
           return
         }
-        setStatus(payload?.user?.mfa ?? { totpEnabled: true })
-        clearToken()
+        setStatus({ totpEnabled: true })
         setSecret('')
         setUri('')
         setQrImage('')
@@ -189,7 +164,7 @@ export default function MfaSetupPanel() {
         setIsVerifying(false)
       }
     },
-    [clearToken, code, copy.codePlaceholder, copy.error, mfaToken, refresh, router],
+    [code, copy.codePlaceholder, copy.error, refresh, router],
   )
 
   const showProvisionButton = !status?.totpEnabled

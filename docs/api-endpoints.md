@@ -2,82 +2,91 @@
 
 This document describes the HTTP endpoints provided by the XControl platform. Each entry lists the request method and path, required parameters, and a sample curl command for verification.
 
-## Account Service（MFA/TLS 支持）
+## Authentication Gateway (Next.js)
 
-The standalone account service exposes user registration, MFA provisioning, and login endpoints on its configured host (default `http://localhost:8080`).
+The XControl web frontend exposes authentication APIs under `ui/homepage/app/api/auth`. These endpoints act as a secure gateway that proxies requests to the shared Account Service (`/account/register`, `/account/verify`, `/account/login`, `/account/mfa/setup`, `/account/mfa/verify`). Responses always include `{ "success": boolean, "error": string | null, "needMfa": boolean }` so that multiple frontends can share the same Account Service behaviour.
+
+Gateway-managed session cookies (`xc_session`) and MFA challenge cookies (`xc_mfa_challenge`) are issued with `HttpOnly`, `Secure`, and `SameSite=Strict` attributes. Cookies are HTTPS-only and never expose raw secrets to JavaScript.
 
 ### POST /api/auth/register
-- **Description:** Create a new local user with email/password credentials.
+- **Description:** Register a new account through the gateway. The Account Service creates the pending user and sends a verification code via email.
 - **Body Parameters (JSON):**
-  - `name` – Display name.
-  - `email` – Unique email address.
-  - `password` – Password with at least 8 characters.
+  - `name` – Optional display name.
+  - `email` – Required email address; normalized to lowercase.
+  - `password` / `confirmPassword` – Required password fields. Values must match before proxying.
+- **Response:** `{ "success": true, "error": null, "needMfa": false }` on success. On failure `error` contains the Account Service error code.
 - **Test:**
   ```bash
-  curl -X POST http://localhost:8080/api/auth/register \
+  curl -X POST http://localhost:3000/api/auth/register \
     -H "Content-Type: application/json" \
-    -d '{"name":"demo","email":"demo@example.com","password":"Secret123"}'
+    -d '{"name":"demo","email":"demo@example.com","password":"Secret123","confirmPassword":"Secret123"}'
   ```
 
-### POST /api/auth/mfa/totp/provision
-- **Description:** Issue a temporary TOTP secret (and QR code) for Google Authenticator binding. Requires an MFA challenge token returned by the login flow.
+### POST /api/auth/verify-email
+- **Description:** Confirm the 6-digit email verification code issued during registration. Activates the account when the code matches and has not expired.
 - **Body Parameters (JSON):**
-  - `token` – MFA challenge token obtained from a prior `/api/auth/login` attempt.
-  - `issuer` – Optional override for the TOTP issuer label.
-  - `account` – Optional override for the account label in authenticator apps.
-- **Notes:** Challenge tokens expire after 10 minutes. If the token is lost or expired, re-run the login flow to obtain a fresh value.
+  - `email` – Registered email address.
+  - `code` – Verification code from the email message.
+- **Response:** `{ "success": true, "error": null, "needMfa": false }` once the account transitions to `active`.
 - **Test:**
   ```bash
-  curl -X POST http://localhost:8080/api/auth/mfa/totp/provision \
+  curl -X POST http://localhost:3000/api/auth/verify-email \
     -H "Content-Type: application/json" \
-    -d '{"token":"<MFA_TOKEN_FROM_LOGIN>"}'
-  ```
-
-### POST /api/auth/mfa/totp/verify
-- **Description:** Confirm the generated one-time passcode and activate MFA for the user.
-- **Body Parameters (JSON):**
-  - `token` – MFA challenge token used during provisioning.
-  - `code` – 6-digit TOTP from Google Authenticator/oathtool.
-- **Notes:** Codes are calculated in 30-second windows with ±1 window skew. Ensure server and client clocks stay synchronized (e.g., via NTP) to prevent false negatives.
-- **Test:**
-  ```bash
-  curl -X POST http://localhost:8080/api/auth/mfa/totp/verify \
-    -H "Content-Type: application/json" \
-    -d '{"token":"<MFA_TOKEN_FROM_LOGIN>","code":"123456"}'
+    -d '{"email":"demo@example.com","code":"123456"}'
   ```
 
 ### POST /api/auth/login
-- **Description:** Issue a session cookie after validating credentials and MFA. The first request after registration returns `401 mfa_setup_required` with an `mfaToken` used for provisioning. Once MFA is enabled, supports both password+TOTP and email+TOTP-only flows.
+- **Description:** Authenticate email + password credentials. When MFA is enabled the response sets `needMfa: true` and stores the temporary challenge token in an HttpOnly cookie.
 - **Body Parameters (JSON):**
-  - `identifier` – Email or username.
-  - `password` – Optional when performing email+TOTP-only login.
-  - `totpCode` – Required once MFA is enabled.
+  - `email` – Account email.
+  - `password` – Password. Never logged or stored in plaintext.
+  - `totp` *(optional)* – 6-digit TOTP if already known (legacy compatibility when `mfa_enabled=false`).
+  - `remember` *(optional)* – Extends the session cookie lifetime to 30 days.
+- **Response:**
+  - `{ "success": true, "needMfa": false }` and a `xc_session` cookie when MFA succeeds or is disabled.
+  - `{ "success": false, "needMfa": true }` and a `xc_mfa_challenge` cookie when additional MFA verification is required.
 - **Test:**
   ```bash
-  curl -X POST http://localhost:8080/api/auth/login \
+  curl -X POST http://localhost:3000/api/auth/login \
     -H "Content-Type: application/json" \
     -c cookies.txt \
-    -d '{"identifier":"demo@example.com","password":"Secret123","totpCode":"123456"}'
+    -d '{"email":"demo@example.com","password":"Secret123"}'
   ```
 
-### GET /api/auth/mfa/status
-- **Description:** Inspect MFA status for a user using either a session token or the pending `mfaToken`.
-- **Parameters:**
-  - Query `token` or header `X-MFA-Token` when checking a pending MFA challenge.
+### POST /api/auth/mfa/setup
+- **Description:** Generate a TOTP secret and provisioning URI for the authenticated challenge token. The challenge token is read from the `xc_mfa_challenge` cookie or the JSON payload.
+- **Body Parameters (JSON):**
+  - `token` *(optional)* – MFA challenge token override. Defaults to the cookie value.
+  - `issuer` *(optional)* – Overrides the issuer label in authenticator apps.
+  - `account` *(optional)* – Overrides the account label.
+- **Response:** `{ "success": true, "needMfa": true, "data": { ... } }` with the Account Service payload (e.g., `otpauth` URI, recovery codes). Errors keep `needMfa: true` and include `error` codes from the backend.
 - **Test:**
   ```bash
-  curl "http://localhost:8080/api/auth/mfa/status?token=<MFA_TOKEN_FROM_LOGIN>"
+  curl -X POST http://localhost:3000/api/auth/mfa/setup \
+    -H "Content-Type: application/json" \
+    -b cookies.txt \
+    -d '{}'
   ```
 
-### GET /api/auth/session
-- **Description:** Return sanitized user information for the active session, including MFA status.
-- **Headers:** `Cookie` header with `account_session` value.
+### POST /api/auth/mfa/verify
+- **Description:** Validate the 6-digit TOTP code. On success the gateway issues the final session cookie and removes the MFA challenge cookie.
+- **Body Parameters (JSON):**
+  - `token` *(optional)* – MFA challenge token override.
+  - `code` – 6-digit TOTP value.
+- **Response:** `{ "success": true, "needMfa": false }` with `xc_session` cookie on success. Errors reuse the challenge token and return `{ "success": false, "needMfa": true }`.
 - **Test:**
   ```bash
-  curl -b cookies.txt http://localhost:8080/api/auth/session
+  curl -X POST http://localhost:3000/api/auth/mfa/verify \
+    -H "Content-Type: application/json" \
+    -b cookies.txt \
+    -d '{"code":"123456"}'
   ```
 
-> **TLS note:** When `accountsvc` is started with certificates, replace `http://` with `https://` and add `-k` for curl if using self-signed certificates during development.
+### Session Lookup
+- **GET /api/auth/session** – Returns `{ "user": { ... } }` when the `xc_session` cookie is present. Clears the cookie automatically if the Account Service rejects the session.
+- **DELETE /api/auth/session** – Revokes the active session both at the gateway and the Account Service.
+
+> **TLS note:** Deploy the frontend behind HTTPS so that `Secure` cookies are accepted by browsers. When testing with curl, add `-k` only if using a self-signed development certificate.
 
 ## GET /api/users
 - **Description:** Return all users.
