@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { Menu } from 'lucide-react'
 
 import { useUser } from '@lib/userStore'
@@ -48,6 +49,12 @@ export default function Header({ onMenu }: HeaderProps) {
           <span>Personalized access across every service touchpoint</span>
         </div>
         <div className="flex items-center gap-3">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 rounded-full border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:border-purple-400 hover:text-purple-600"
+          >
+            返回主页
+          </Link>
           <span className={`rounded-full px-3 py-1 text-xs font-semibold ${badgeClasses}`}>{statusBadge}</span>
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 text-sm font-semibold text-white">
             {isLoading ? <span className="animate-pulse">…</span> : accountInitial}
