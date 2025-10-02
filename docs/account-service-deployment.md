@@ -76,11 +76,12 @@
 账号服务内置 TLS 支持，只要在配置文件中提供证书即可：
 
 ```yaml
-server:
+ server:
   addr: ":8443"
   tls:
     certFile: "/etc/ssl/certs/account.pem"
     keyFile: "/etc/ssl/private/account.key"
+    clientCAFile: "" # （可选）配置客户端证书验证
     redirectHttp: true
 ```
 
@@ -106,6 +107,9 @@ curl -k https://127.0.0.1:8443/healthz
 ```
 
 当 `redirectHttp` 为 `true` 时，服务会自动监听对应的 HTTP 端口（通常是 80），并将请求 301 重定向到 HTTPS，方便旧链接或未更新的客户端。
+如需启用双向 TLS，可将 `clientCAFile` 指向受信任的 CA 证书，服务会校验客户端证书并拒绝未签发的连接。
+
+> **反向代理提示**：若在 Nginx、Envoy 等反向代理后运行账号服务，可选择在代理层终止 TLS，并将 `server.tls` 字段留空。此时应确保代理转发 `X-Forwarded-Proto`/`X-Forwarded-Host` 等头部，以便后端生成正确回调地址。若代理和服务都启用了 HTTPS，则保持 `redirectHttp=false`，避免出现重复重定向。
 
 ## 4. Docker 部署
 
