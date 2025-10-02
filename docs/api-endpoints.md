@@ -1,6 +1,81 @@
 # API Endpoints
 
-This document describes the HTTP endpoints provided by the XControl server. Each entry lists the request method and path, required parameters, and a sample curl command for verification.
+This document describes the HTTP endpoints provided by the XControl platform. Each entry lists the request method and path, required parameters, and a sample curl command for verification.
+
+## Account Service（MFA/TLS 支持）
+
+The standalone account service exposes user registration, MFA provisioning, and login endpoints on its configured host (default `http://localhost:8080`).
+
+### POST /api/auth/register
+- **Description:** Create a new local user with email/password credentials.
+- **Body Parameters (JSON):**
+  - `name` – Display name.
+  - `email` – Unique email address.
+  - `password` – Password with at least 8 characters.
+- **Test:**
+  ```bash
+  curl -X POST http://localhost:8080/api/auth/register \
+    -H "Content-Type: application/json" \
+    -d '{"name":"demo","email":"demo@example.com","password":"Secret123"}'
+  ```
+
+### POST /api/auth/mfa/totp/provision
+- **Description:** Issue a temporary TOTP secret (and QR code) for Google Authenticator binding. Requires an MFA challenge token returned by the login flow.
+- **Body Parameters (JSON):**
+  - `token` – MFA challenge token obtained from a prior `/api/auth/login` attempt.
+  - `issuer` – Optional override for the TOTP issuer label.
+  - `account` – Optional override for the account label in authenticator apps.
+- **Test:**
+  ```bash
+  curl -X POST http://localhost:8080/api/auth/mfa/totp/provision \
+    -H "Content-Type: application/json" \
+    -d '{"token":"<MFA_TOKEN_FROM_LOGIN>"}'
+  ```
+
+### POST /api/auth/mfa/totp/verify
+- **Description:** Confirm the generated one-time passcode and activate MFA for the user.
+- **Body Parameters (JSON):**
+  - `token` – MFA challenge token used during provisioning.
+  - `code` – 6-digit TOTP from Google Authenticator/oathtool.
+- **Test:**
+  ```bash
+  curl -X POST http://localhost:8080/api/auth/mfa/totp/verify \
+    -H "Content-Type: application/json" \
+    -d '{"token":"<MFA_TOKEN_FROM_LOGIN>","code":"123456"}'
+  ```
+
+### POST /api/auth/login
+- **Description:** Issue a session cookie after validating credentials and MFA. The first request after registration returns `401 mfa_setup_required` with an `mfaToken` used for provisioning. Once MFA is enabled, supports both password+TOTP and email+TOTP-only flows.
+- **Body Parameters (JSON):**
+  - `identifier` – Email or username.
+  - `password` – Optional when performing email+TOTP-only login.
+  - `totpCode` – Required once MFA is enabled.
+- **Test:**
+  ```bash
+  curl -X POST http://localhost:8080/api/auth/login \
+    -H "Content-Type: application/json" \
+    -c cookies.txt \
+    -d '{"identifier":"demo@example.com","password":"Secret123","totpCode":"123456"}'
+  ```
+
+### GET /api/auth/mfa/status
+- **Description:** Inspect MFA status for a user using either a session token or the pending `mfaToken`.
+- **Parameters:**
+  - Query `token` or header `X-MFA-Token` when checking a pending MFA challenge.
+- **Test:**
+  ```bash
+  curl "http://localhost:8080/api/auth/mfa/status?token=<MFA_TOKEN_FROM_LOGIN>"
+  ```
+
+### GET /api/auth/session
+- **Description:** Return sanitized user information for the active session, including MFA status.
+- **Headers:** `Cookie` header with `account_session` value.
+- **Test:**
+  ```bash
+  curl -b cookies.txt http://localhost:8080/api/auth/session
+  ```
+
+> **TLS note:** When `accountsvc` is started with certificates, replace `http://` with `https://` and add `-k` for curl if using self-signed certificates during development.
 
 ## GET /api/users
 - **Description:** Return all users.

@@ -12,6 +12,13 @@ type AccountUser = {
   name?: string
   username?: string
   email: string
+  mfaEnabled?: boolean
+  mfa?: {
+    totpEnabled?: boolean
+    totpPending?: boolean
+    totpSecretIssuedAt?: string
+    totpConfirmedAt?: string
+  }
 }
 
 async function fetchSession(token: string) {

@@ -105,6 +105,11 @@ type AuthLoginAlerts = {
   invalidCredentials: string
   userNotFound?: string
   genericError: string
+  mfa?: {
+    missing: string
+    invalid: string
+    setupRequired?: string
+  }
 }
 
 type AuthRegisterTranslation = {
@@ -157,6 +162,13 @@ type AuthLoginTranslation = {
     passwordPlaceholder: string
     remember: string
     submit: string
+    mfa: {
+      mode: string
+      passwordAndTotp: string
+      emailAndTotp: string
+      codeLabel: string
+      codePlaceholder: string
+    }
   }
   forgotPassword: string
   social: {
@@ -174,6 +186,33 @@ type AuthLoginTranslation = {
 type AuthTranslation = {
   register: AuthRegisterTranslation
   login: AuthLoginTranslation
+}
+
+type UserCenterMfaTranslation = {
+  title: string
+  subtitle: string
+  pendingHint: string
+  enabledHint: string
+  generate: string
+  regenerate: string
+  secretLabel: string
+  uriLabel: string
+  manualHint: string
+  codeLabel: string
+  codePlaceholder: string
+  verify: string
+  verifying: string
+  successTitle: string
+  successBody: string
+  status: {
+    issuedAt: string
+    confirmedAt: string
+  }
+  error: string
+}
+
+type UserCenterTranslation = {
+  mfa: UserCenterMfaTranslation
 }
 
 export type Translation = {
@@ -218,15 +257,16 @@ export type Translation = {
     title: string
     description: string
     usernameLabel: string
-    passwordLabel: string
-    submit: string
-    success: string
-    goHome: string
-    missingUsername: string
-    missingPassword: string
-    invalidCredentials: string
-    userNotFound: string
-    genericError: string
+  passwordLabel: string
+  submit: string
+  success: string
+  goHome: string
+  missingUsername: string
+  missingPassword: string
+  missingTotp?: string
+  invalidCredentials: string
+  userNotFound: string
+  genericError: string
     disclaimer: string
   }
   termsTitle: string
@@ -234,6 +274,7 @@ export type Translation = {
   contactTitle: string
   download: DownloadTranslation
   auth: AuthTranslation
+  userCenter: UserCenterTranslation
 }
 
 export const translations: Record<'en' | 'zh', Translation> = {
@@ -305,6 +346,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
       goHome: 'Return to homepage',
       missingUsername: 'Please enter a username to continue.',
       missingPassword: 'Please enter your password to continue.',
+      missingTotp: 'Enter the verification code from your authenticator app.',
       invalidCredentials: 'Incorrect username or password. Please try again.',
       userNotFound: 'We could not find an account with that username.',
       genericError: 'We could not sign you in. Please try again later.',
@@ -469,6 +511,13 @@ export const translations: Record<'en' | 'zh', Translation> = {
           passwordPlaceholder: 'Enter your password',
           remember: 'Remember this device',
           submit: 'Sign in',
+          mfa: {
+            mode: 'Authentication method',
+            passwordAndTotp: 'Password + authenticator code',
+            emailAndTotp: 'Email + authenticator code',
+            codeLabel: 'Authenticator code',
+            codePlaceholder: '6-digit code from your authenticator',
+          },
         },
         forgotPassword: 'Forgot password?',
         social: {
@@ -486,7 +535,36 @@ export const translations: Record<'en' | 'zh', Translation> = {
           invalidCredentials: 'Incorrect username or password. Please try again.',
           userNotFound: 'We could not find an account with that username.',
           genericError: 'We could not sign you in. Please try again later.',
+          mfa: {
+            missing: 'Enter the verification code from your authenticator app.',
+            invalid: 'The verification code is not valid. Try again.',
+            setupRequired: 'Multi-factor authentication must be completed before accessing the console.',
+          },
         },
+      },
+    },
+    userCenter: {
+      mfa: {
+        title: 'Multi-factor authentication',
+        subtitle: 'Bind Google Authenticator to finish securing your account.',
+        pendingHint: 'Complete this step to unlock the user center and other console features.',
+        enabledHint: 'Authenticator codes are now required for every sign-in.',
+        generate: 'Generate setup key',
+        regenerate: 'Regenerate key',
+        secretLabel: 'Secret key',
+        uriLabel: 'Authenticator link',
+        manualHint: 'Scan the link with Google Authenticator or enter the key manually.',
+        codeLabel: 'Verification code',
+        codePlaceholder: 'Enter the 6-digit code',
+        verify: 'Verify and enable',
+        verifying: 'Verifying…',
+        successTitle: 'Authenticator connected',
+        successBody: 'Your account now requires an authenticator code at sign-in.',
+        status: {
+          issuedAt: 'Key generated at',
+          confirmedAt: 'Enabled at',
+        },
+        error: 'We could not complete the request. Please try again.',
       },
     },
   },
@@ -558,6 +636,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
       goHome: '返回首页',
       missingUsername: '请输入用户名后再尝试登录。',
       missingPassword: '请输入密码后继续。',
+      missingTotp: '请输入动态验证码完成登录。',
       invalidCredentials: '用户名或密码不正确，请重试。',
       userNotFound: '未找到该用户名对应的账户。',
       genericError: '登录失败，请稍后再试。',
@@ -707,6 +786,13 @@ export const translations: Record<'en' | 'zh', Translation> = {
           passwordPlaceholder: '请输入密码',
           remember: '记住这台设备',
           submit: '登录',
+          mfa: {
+            mode: '验证方式',
+            passwordAndTotp: '密码 + 动态口令',
+            emailAndTotp: '邮箱 + 动态口令',
+            codeLabel: '动态验证码',
+            codePlaceholder: '来自认证器的 6 位数字',
+          },
         },
         forgotPassword: '忘记密码？',
         social: {
@@ -724,7 +810,36 @@ export const translations: Record<'en' | 'zh', Translation> = {
           invalidCredentials: '用户名或密码错误，请重试。',
           userNotFound: '未找到该用户名对应的账户。',
           genericError: '暂时无法登录，请稍后再试。',
+          mfa: {
+            missing: '请输入动态验证码。',
+            invalid: '动态验证码不正确，请重试。',
+            setupRequired: '请先完成多因素认证绑定后再访问控制台。',
+          },
         },
+      },
+    },
+    userCenter: {
+      mfa: {
+        title: '多因素认证',
+        subtitle: '绑定 Google Authenticator，完成账号安全校验。',
+        pendingHint: '启用多因素认证后即可访问用户中心和更多控制台功能。',
+        enabledHint: '以后登录都需要输入动态验证码。',
+        generate: '生成绑定密钥',
+        regenerate: '重新生成密钥',
+        secretLabel: '密钥',
+        uriLabel: '认证链接',
+        manualHint: '使用 Google Authenticator 扫描链接或手动输入密钥。',
+        codeLabel: '动态验证码',
+        codePlaceholder: '请输入 6 位数字验证码',
+        verify: '验证并启用',
+        verifying: '验证中…',
+        successTitle: '认证器绑定成功',
+        successBody: '以后登录时将需要动态验证码，账号更安全。',
+        status: {
+          issuedAt: '密钥生成时间',
+          confirmedAt: '启用时间',
+        },
+        error: '操作失败，请稍后再试。',
       },
     },
   },

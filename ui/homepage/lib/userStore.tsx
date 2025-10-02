@@ -16,6 +16,13 @@ type User = {
   email: string
   name?: string
   username: string
+  mfaEnabled: boolean
+  mfa?: {
+    totpEnabled?: boolean
+    totpPending?: boolean
+    totpSecretIssuedAt?: string
+    totpConfirmedAt?: string
+  }
 }
 
 type UserContextValue = {
@@ -55,7 +62,20 @@ async function fetchSessionUser(): Promise<User | null> {
     }
 
     const payload = (await response.json()) as {
-      user?: { id?: string; uuid?: string; email: string; name?: string; username?: string } | null
+      user?: {
+        id?: string
+        uuid?: string
+        email: string
+        name?: string
+        username?: string
+        mfaEnabled?: boolean
+        mfa?: {
+          totpEnabled?: boolean
+          totpPending?: boolean
+          totpSecretIssuedAt?: string
+          totpConfirmedAt?: string
+        }
+      } | null
     }
 
     const sessionUser = payload?.user
@@ -63,7 +83,7 @@ async function fetchSessionUser(): Promise<User | null> {
       return null
     }
 
-    const { id, uuid, email, name, username } = sessionUser
+    const { id, uuid, email, name, username, mfaEnabled, mfa } = sessionUser
     const identifier =
       typeof uuid === 'string' && uuid.trim().length > 0
         ? uuid.trim()
@@ -84,6 +104,8 @@ async function fetchSessionUser(): Promise<User | null> {
       email,
       name: normalizedName,
       username: normalizedUsername ?? email,
+      mfaEnabled: Boolean(mfaEnabled),
+      mfa,
     }
   } catch (error) {
     console.warn('Failed to resolve user session', error)
