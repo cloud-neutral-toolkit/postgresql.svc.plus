@@ -24,7 +24,12 @@ on:
           - false
 
 jobs:
+  security-checks:
+    uses: ./.github/workflows/security-check.yml
+    secrets: inherit
+
   build-go:
+    needs: security-checks
     runs-on: ubuntu-latest
     strategy:
       matrix:
