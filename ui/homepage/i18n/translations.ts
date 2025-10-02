@@ -168,7 +168,6 @@ type AuthLoginTranslation = {
     mfa: {
       mode: string
       passwordAndTotp: string
-      emailAndTotp: string
       codeLabel: string
       codePlaceholder: string
     }
@@ -564,9 +563,9 @@ export const translations: Record<'en' | 'zh', Translation> = {
         bottomNote: 'Need help signing in? Email support@svc.plus for enterprise onboarding assistance.',
         form: {
           title: 'Sign in to your account',
-          subtitle: 'Use the username and password you registered with.',
-          email: 'Username',
-          emailPlaceholder: 'your-username',
+          subtitle: 'Use the email, password, and authenticator code you registered with.',
+          email: 'User email',
+          emailPlaceholder: 'name@example.com',
           password: 'Password',
           passwordPlaceholder: 'Enter your password',
           remember: 'Remember this device',
@@ -574,7 +573,6 @@ export const translations: Record<'en' | 'zh', Translation> = {
           mfa: {
             mode: 'Authentication method',
             passwordAndTotp: 'Password + authenticator code',
-            emailAndTotp: 'Email + authenticator code',
             codeLabel: 'Authenticator code',
             codePlaceholder: '6-digit code from your authenticator',
           },
@@ -897,9 +895,9 @@ export const translations: Record<'en' | 'zh', Translation> = {
         bottomNote: '如需支持，请联系 manbuzhe2008@gmail.com。',
         form: {
           title: '登录账号',
-          subtitle: '使用注册时的用户名和密码即可访问。',
-          email: '用户名',
-          emailPlaceholder: 'your-username',
+          subtitle: '使用注册时的邮箱、密码和动态验证码即可访问。',
+          email: '用户邮箱',
+          emailPlaceholder: 'name@example.com',
           password: '密码',
           passwordPlaceholder: '请输入密码',
           remember: '记住这台设备',
@@ -907,7 +905,6 @@ export const translations: Record<'en' | 'zh', Translation> = {
           mfa: {
             mode: '验证方式',
             passwordAndTotp: '密码 + 动态口令',
-            emailAndTotp: '邮箱 + 动态口令',
             codeLabel: '动态验证码',
             codePlaceholder: '来自认证器的 6 位数字',
           },

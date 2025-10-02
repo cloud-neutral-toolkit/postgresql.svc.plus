@@ -1,6 +1,6 @@
 'use client'
 
-import { FormEvent, useState } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
@@ -15,13 +15,19 @@ export function LoginForm() {
   const authCopy = translations[language].auth.login
   const navCopy = translations[language].nav.account
   const { user, login } = useUser()
-  const [identifier, setIdentifier] = useState('')
+  const userEmail = user?.email ?? ''
+  const [identifier, setIdentifier] = useState(() => userEmail)
   const [password, setPassword] = useState('')
   const [totpCode, setTotpCode] = useState('')
-  const [loginMode, setLoginMode] = useState<'password_totp' | 'email_totp'>('password_totp')
   const [remember, setRemember] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (userEmail && identifier.trim().length === 0) {
+      setIdentifier(userEmail)
+    }
+  }, [identifier, userEmail])
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -31,7 +37,7 @@ export function LoginForm() {
       setError(pageCopy.missingUsername)
       return
     }
-    if (loginMode === 'password_totp' && !password) {
+    if (!password) {
       setError(pageCopy.missingPassword)
       return
     }
@@ -63,7 +69,7 @@ export function LoginForm() {
         },
         body: JSON.stringify({
           email: trimmedIdentifier,
-          password: loginMode === 'password_totp' ? password : undefined,
+          password,
           totp: sanitizedTotp,
           remember,
         }),
@@ -93,9 +99,6 @@ export function LoginForm() {
             break
           case 'user_not_found':
             setError(pageCopy.userNotFound)
-            break
-          case 'password_required':
-            setError(authCopy.alerts.passwordRequired ?? pageCopy.missingPassword)
             break
           case 'mfa_code_required':
             setError(authCopy.alerts.mfa?.missing ?? pageCopy.missingTotp ?? authCopy.alerts.missingCredentials)
@@ -179,53 +182,32 @@ export function LoginForm() {
               className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-gray-900 shadow-sm transition focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
             />
           </div>
-          <fieldset className="space-y-2">
-            <legend className="text-sm font-medium text-gray-700">{authCopy.form.mfa.mode}</legend>
-            <div className="flex flex-col gap-2 text-sm text-gray-600">
-              <label className="inline-flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="login-mode"
-                  value="password_totp"
-                  checked={loginMode === 'password_totp'}
-                  onChange={() => setLoginMode('password_totp')}
-                />
-                {authCopy.form.mfa.passwordAndTotp}
-              </label>
-              <label className="inline-flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="login-mode"
-                  value="email_totp"
-                  checked={loginMode === 'email_totp'}
-                  onChange={() => setLoginMode('email_totp')}
-                />
-                {authCopy.form.mfa.emailAndTotp}
-              </label>
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-gray-700">{authCopy.form.mfa.mode}</p>
+            <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600">
+              {authCopy.form.mfa.passwordAndTotp}
             </div>
-          </fieldset>
-          {loginMode === 'password_totp' ? (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <label htmlFor="login-password" className="font-medium text-gray-700">
-                  {authCopy.form.password}
-                </label>
-                <Link href="#" className="font-medium text-purple-600 hover:text-purple-500">
-                  {authCopy.forgotPassword}
-                </Link>
-              </div>
-              <input
-                id="login-password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder={authCopy.form.passwordPlaceholder}
-                className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-gray-900 shadow-sm transition focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
-              />
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <label htmlFor="login-password" className="font-medium text-gray-700">
+                {authCopy.form.password}
+              </label>
+              <Link href="#" className="font-medium text-purple-600 hover:text-purple-500">
+                {authCopy.forgotPassword}
+              </Link>
             </div>
-          ) : null}
+            <input
+              id="login-password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder={authCopy.form.passwordPlaceholder}
+              className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-gray-900 shadow-sm transition focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
+            />
+          </div>
           <div className="space-y-2">
             <label htmlFor="login-totp" className="text-sm font-medium text-gray-700">
               {authCopy.form.mfa.codeLabel}
