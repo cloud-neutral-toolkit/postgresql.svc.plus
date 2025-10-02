@@ -228,17 +228,19 @@ export default function RegisterContent() {
                   <h1 className="text-3xl font-semibold leading-tight sm:text-4xl">{t.title}</h1>
                   <p className="mt-3 text-lg text-white/80">{t.subtitle}</p>
                 </div>
-                <ul className="space-y-4">
-                  {t.highlights.map((item) => (
-                    <li key={item.title} className="flex items-start gap-3">
-                      <div className="mt-1 h-2.5 w-2.5 flex-shrink-0 rounded-full bg-lime-300" aria-hidden />
-                      <div>
-                        <p className="text-base font-semibold">{item.title}</p>
-                        <p className="mt-1 text-sm text-white/75">{item.description}</p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                {Array.isArray(t.highlights) && t.highlights.length > 0 ? (
+                  <ul className="space-y-4">
+                    {t.highlights.map((item) => (
+                      <li key={item.title} className="flex items-start gap-3">
+                        <div className="mt-1 h-2.5 w-2.5 flex-shrink-0 rounded-full bg-lime-300" aria-hidden />
+                        <div>
+                          <p className="text-base font-semibold">{item.title}</p>
+                          <p className="mt-1 text-sm text-white/75">{item.description}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
               </div>
               <div className="rounded-2xl bg-black/20 p-6">
                 <p className="text-sm text-white/80">{t.bottomNote}</p>
