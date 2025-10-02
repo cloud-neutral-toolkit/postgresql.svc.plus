@@ -54,6 +54,13 @@ The Next.js homepage reads `NEXT_PUBLIC_ACCOUNT_SERVICE_URL` to reach the Accoun
 defaults to `https://localhost:8443`, matching the hostname used by the development TLS certificate. Override the environment
 variable if your local certificates use a different host or when connecting to a remote Account Service instance.
 
+## Account service configuration
+
+`account/config/account.yaml` now accepts a `server.publicUrl` value such as `https://account.svc.plus:8443`. The account service
+uses this URL to derive a default CORS origin and to document the externally reachable host. Set `server.allowedOrigins` when you
+need to expose additional browser clients; omit it to fall back to the public URL or the local development origins
+(`http://localhost:3001` and `http://127.0.0.1:3001`).
+
 ## Features
 - **XCloudFlow** Multi-cloud IaC engine built with Pulumi SDK and Go. GitHub →
 - **KubeGuard** Kubernetes cluster application and node-level backup system. GitHub →

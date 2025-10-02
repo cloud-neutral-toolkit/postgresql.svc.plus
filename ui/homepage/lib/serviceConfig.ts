@@ -1,4 +1,4 @@
-const DEFAULT_ACCOUNT_SERVICE_URL = 'http://localhost:8080'
+const DEFAULT_ACCOUNT_SERVICE_URL = 'https://localhost:8443'
 const DEFAULT_SERVER_SERVICE_URL = 'http://localhost:8090'
 
 function readEnvValue(...keys: string[]): string | undefined {
