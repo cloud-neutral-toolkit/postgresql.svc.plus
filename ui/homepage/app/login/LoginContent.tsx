@@ -53,9 +53,10 @@ export default function LoginContent({ children }: LoginContentProps) {
     [],
   )
 
+  const accountServiceBaseUrl = (process.env.NEXT_PUBLIC_ACCOUNT_SERVICE_URL || 'https://127.0.0.1:8443').replace(/\/$/, '')
   const githubAuthUrl = process.env.NEXT_PUBLIC_GITHUB_AUTH_URL || '/api/auth/github'
   const wechatAuthUrl = process.env.NEXT_PUBLIC_WECHAT_AUTH_URL || '/api/auth/wechat'
-  const loginUrl = process.env.NEXT_PUBLIC_LOGIN_URL || '/api/auth/login'
+  const loginUrl = process.env.NEXT_PUBLIC_LOGIN_URL || `${accountServiceBaseUrl}/api/auth/login`
 
   const socialButtonsDisabled = true
 

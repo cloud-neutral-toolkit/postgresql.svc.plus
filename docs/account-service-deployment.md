@@ -79,6 +79,7 @@
  server:
   addr: ":8443"
   tls:
+    enabled: true
     certFile: "/etc/ssl/certs/account.pem"
     keyFile: "/etc/ssl/private/account.key"
     clientCAFile: "" # （可选）配置客户端证书验证
