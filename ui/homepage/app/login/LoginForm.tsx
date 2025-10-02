@@ -114,7 +114,7 @@ export function LoginForm() {
       ) : null}
 
       {!user ? (
-        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+        <form method="post" onSubmit={handleSubmit} className="space-y-6" noValidate>
           <div className="space-y-2">
             <label htmlFor="login-username" className="text-sm font-medium text-gray-700">
               {authCopy.form.email}
