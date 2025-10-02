@@ -48,6 +48,12 @@ make install
 make init-db   # initialize database (optional)
 ```
 
+## Frontend configuration
+
+The Next.js homepage reads `NEXT_PUBLIC_ACCOUNT_SERVICE_URL` to reach the Account Service. When the variable is not set it
+defaults to `https://localhost:8443`, matching the hostname used by the development TLS certificate. Override the environment
+variable if your local certificates use a different host or when connecting to a remote Account Service instance.
+
 ## Features
 - **XCloudFlow** Multi-cloud IaC engine built with Pulumi SDK and Go. GitHub →
 - **KubeGuard** Kubernetes cluster application and node-level backup system. GitHub →
