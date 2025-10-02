@@ -25,6 +25,22 @@ async function authenticateWithAccountService(username: string, password: string
 }
 
 export async function POST(request: NextRequest) {
+  const sensitiveKeys = ['username', 'password', 'token']
+  const url = new URL(request.url)
+  const hasSensitiveQuery = sensitiveKeys.some((key) => url.searchParams.has(key))
+
+  if (hasSensitiveQuery) {
+    sensitiveKeys.forEach((key) => url.searchParams.delete(key))
+
+    if (prefersJson(request)) {
+      return NextResponse.json({ error: 'credentials_in_query' }, { status: 400 })
+    }
+
+    url.pathname = '/login'
+    url.searchParams.set('error', 'credentials_in_query')
+    return NextResponse.redirect(url, { status: 303 })
+  }
+
   const { credentials, remember } = await extractCredentials(request)
 
   if (!credentials.username || !credentials.password) {
@@ -106,6 +122,7 @@ function handleErrorResponse(request: NextRequest, errorCode: string) {
       user_not_found: 404,
       invalid_credentials: 401,
       missing_credentials: 400,
+      credentials_in_query: 400,
     }
     return NextResponse.json(
       {

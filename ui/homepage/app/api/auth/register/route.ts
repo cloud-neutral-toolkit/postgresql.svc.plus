@@ -31,6 +31,17 @@ async function registerWithAccountService(body: Record<string, string>) {
 }
 
 export async function POST(request: NextRequest) {
+  const sensitiveKeys = ['password', 'confirmPassword', 'token']
+  const url = new URL(request.url)
+  const hasSensitiveQuery = sensitiveKeys.some((key) => url.searchParams.has(key))
+
+  if (hasSensitiveQuery) {
+    sensitiveKeys.forEach((key) => url.searchParams.delete(key))
+    url.pathname = '/register'
+    url.searchParams.set('error', 'credentials_in_query')
+    return NextResponse.redirect(url, { status: 303 })
+  }
+
   let fields: RegistrationBody
   try {
     fields = await extractRegistrationFields(request)

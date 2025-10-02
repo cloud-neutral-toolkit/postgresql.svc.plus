@@ -235,7 +235,7 @@ export default function RegisterContent() {
                   {alert.message}
                 </div>
               ) : null}
-              <form className="space-y-6" onSubmit={handleSubmit} noValidate>
+              <form className="space-y-6" method="post" onSubmit={handleSubmit} noValidate>
                 <div className="space-y-2">
                   <label htmlFor="full-name" className="text-sm font-medium text-gray-700">
                     {t.form.fullName}
