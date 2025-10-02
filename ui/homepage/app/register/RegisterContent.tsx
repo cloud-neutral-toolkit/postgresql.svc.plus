@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { Github } from 'lucide-react'
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 import Navbar from '@components/Navbar'
@@ -27,6 +27,12 @@ export default function RegisterContent() {
   const wechatAuthUrl = process.env.NEXT_PUBLIC_WECHAT_AUTH_URL || '/api/auth/wechat'
   const registerUrl = process.env.NEXT_PUBLIC_REGISTER_URL || `${accountServiceBaseUrl}/api/auth/register`
   const isSocialAuthVisible = false
+
+  const registerUrlRef = useRef(registerUrl)
+
+  useEffect(() => {
+    registerUrlRef.current = registerUrl
+  }, [registerUrl])
 
   useEffect(() => {
     const sensitiveKeys = ['username', 'password', 'confirmPassword', 'email']
@@ -130,7 +136,7 @@ export default function RegisterContent() {
       setAlert(null)
 
       try {
-        const response = await fetch(registerUrl, {
+        const requestPayload = {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -140,7 +146,30 @@ export default function RegisterContent() {
             email,
             password,
           }),
-        })
+        } as const
+
+        let response: Response
+        let usedUrl = registerUrlRef.current
+
+        try {
+          response = await fetch(usedUrl, requestPayload)
+        } catch (primaryError) {
+          const httpsPattern = /^https:/i
+          if (httpsPattern.test(usedUrl)) {
+            const insecureUrl = usedUrl.replace(httpsPattern, 'http:')
+
+            try {
+              response = await fetch(insecureUrl, requestPayload)
+              registerUrlRef.current = insecureUrl
+              usedUrl = insecureUrl
+            } catch (fallbackError) {
+              console.error('Primary register request failed, insecure fallback also failed', fallbackError)
+              throw fallbackError
+            }
+          } else {
+            throw primaryError
+          }
+        }
 
         if (!response.ok) {
           let errorCode = 'generic_error'
@@ -181,7 +210,7 @@ export default function RegisterContent() {
         setIsSubmitting(false)
       }
     },
-    [alerts, isSubmitting, normalize, registerUrl, router],
+    [alerts, isSubmitting, normalize, router],
   )
 
   return (

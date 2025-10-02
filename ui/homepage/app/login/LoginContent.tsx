@@ -1,6 +1,6 @@
 'use client'
 
-import { FormEvent, ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
+import { FormEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Github } from 'lucide-react'
@@ -57,6 +57,12 @@ export default function LoginContent({ children }: LoginContentProps) {
   const githubAuthUrl = process.env.NEXT_PUBLIC_GITHUB_AUTH_URL || '/api/auth/github'
   const wechatAuthUrl = process.env.NEXT_PUBLIC_WECHAT_AUTH_URL || '/api/auth/wechat'
   const loginUrl = process.env.NEXT_PUBLIC_LOGIN_URL || `${accountServiceBaseUrl}/api/auth/login`
+
+  const loginUrlRef = useRef(loginUrl)
+
+  useEffect(() => {
+    loginUrlRef.current = loginUrl
+  }, [loginUrl])
 
   const socialButtonsDisabled = true
 
@@ -119,7 +125,7 @@ export default function LoginContent({ children }: LoginContentProps) {
       setAlert(null)
 
       try {
-        const response = await fetch(loginUrl, {
+        const requestPayload = {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -130,7 +136,30 @@ export default function LoginContent({ children }: LoginContentProps) {
             password,
             remember,
           }),
-        })
+        } as const
+
+        let response: Response
+        let usedUrl = loginUrlRef.current
+
+        try {
+          response = await fetch(usedUrl, requestPayload)
+        } catch (primaryError) {
+          const httpsPattern = /^https:/i
+          if (httpsPattern.test(usedUrl)) {
+            const insecureUrl = usedUrl.replace(httpsPattern, 'http:')
+
+            try {
+              response = await fetch(insecureUrl, requestPayload)
+              loginUrlRef.current = insecureUrl
+              usedUrl = insecureUrl
+            } catch (fallbackError) {
+              console.error('Primary login request failed, insecure fallback also failed', fallbackError)
+              throw fallbackError
+            }
+          } else {
+            throw primaryError
+          }
+        }
 
         if (!response.ok) {
           let errorCode = 'invalid_credentials'
@@ -167,7 +196,7 @@ export default function LoginContent({ children }: LoginContentProps) {
         setIsSubmitting(false)
       }
     },
-    [alerts, isSubmitting, loginUrl, normalize, router],
+    [alerts, isSubmitting, normalize, router],
   )
 
   const socialButtonClass = `flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-800 ${
