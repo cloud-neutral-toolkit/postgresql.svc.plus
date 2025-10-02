@@ -25,6 +25,7 @@ The standalone account service exposes user registration, MFA provisioning, and 
   - `token` – MFA challenge token obtained from a prior `/api/auth/login` attempt.
   - `issuer` – Optional override for the TOTP issuer label.
   - `account` – Optional override for the account label in authenticator apps.
+- **Notes:** Challenge tokens expire after 10 minutes. If the token is lost or expired, re-run the login flow to obtain a fresh value.
 - **Test:**
   ```bash
   curl -X POST http://localhost:8080/api/auth/mfa/totp/provision \
@@ -37,6 +38,7 @@ The standalone account service exposes user registration, MFA provisioning, and 
 - **Body Parameters (JSON):**
   - `token` – MFA challenge token used during provisioning.
   - `code` – 6-digit TOTP from Google Authenticator/oathtool.
+- **Notes:** Codes are calculated in 30-second windows with ±1 window skew. Ensure server and client clocks stay synchronized (e.g., via NTP) to prevent false negatives.
 - **Test:**
   ```bash
   curl -X POST http://localhost:8080/api/auth/mfa/totp/verify \
