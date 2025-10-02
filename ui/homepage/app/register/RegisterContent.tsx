@@ -27,6 +27,21 @@ export default function RegisterContent() {
   const registerUrl = process.env.NEXT_PUBLIC_REGISTER_URL || '/api/auth/register'
   const isSocialAuthVisible = false
 
+  useEffect(() => {
+    const sensitiveKeys = ['username', 'password', 'confirmPassword', 'email']
+    const hasSensitiveParams = sensitiveKeys.some((key) => searchParams.has(key))
+
+    if (!hasSensitiveParams) {
+      return
+    }
+
+    const sanitized = new URLSearchParams(searchParams.toString())
+    sensitiveKeys.forEach((key) => sanitized.delete(key))
+
+    const queryString = sanitized.toString()
+    router.replace(queryString ? `/register?${queryString}` : '/register', { scroll: false })
+  }, [router, searchParams])
+
   const normalize = useCallback(
     (value: string) =>
       value
@@ -63,6 +78,7 @@ export default function RegisterContent() {
       password_too_short: alerts.weakPassword,
       invalid_name: alerts.invalidName ?? alerts.genericError,
       name_required: alerts.invalidName ?? alerts.genericError,
+      credentials_in_query: alerts.genericError,
     }
     const message = errorMap[normalizedError] ?? alerts.genericError
     return { type: 'error', message }
@@ -147,6 +163,7 @@ export default function RegisterContent() {
             name_required: alerts.invalidName ?? alerts.genericError,
             hash_failure: alerts.genericError,
             user_creation_failed: alerts.genericError,
+            credentials_in_query: alerts.genericError,
           }
 
           setAlert({ type: 'error', message: errorMap[normalize(errorCode)] ?? alerts.genericError })

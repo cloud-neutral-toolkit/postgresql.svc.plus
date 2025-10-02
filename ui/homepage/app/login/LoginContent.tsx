@@ -1,8 +1,8 @@
 'use client'
 
-import { ReactNode, useMemo } from 'react'
+import { ReactNode, useEffect, useMemo } from 'react'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Github } from 'lucide-react'
 
 import Navbar from '@components/Navbar'
@@ -22,6 +22,22 @@ export default function LoginContent({ children }: LoginContentProps) {
   const t = translations[language].auth.login
   const alerts = t.alerts
   const searchParams = useSearchParams()
+  const router = useRouter()
+
+  useEffect(() => {
+    const sensitiveKeys = ['username', 'password', 'email']
+    const hasSensitiveParams = sensitiveKeys.some((key) => searchParams.has(key))
+
+    if (!hasSensitiveParams) {
+      return
+    }
+
+    const sanitized = new URLSearchParams(searchParams.toString())
+    sensitiveKeys.forEach((key) => sanitized.delete(key))
+
+    const queryString = sanitized.toString()
+    router.replace(queryString ? `/login?${queryString}` : '/login', { scroll: false })
+  }, [router, searchParams])
 
   const errorParam = searchParams.get('error')
   const registeredParam = searchParams.get('registered')
@@ -43,6 +59,7 @@ export default function LoginContent({ children }: LoginContentProps) {
       email_and_password_are_required: alerts.missingCredentials,
       invalid_credentials: alerts.invalidCredentials,
       user_not_found: alerts.userNotFound ?? alerts.genericError,
+      credentials_in_query: alerts.genericError,
     }
     const message = errorMap[normalizedError] ?? alerts.genericError
     alert = { type: 'error', message }
