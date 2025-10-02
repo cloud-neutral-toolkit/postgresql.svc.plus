@@ -13,6 +13,8 @@ type AccountLoginResponse = {
   message?: string
 }
 
+type LoginMode = 'password_totp' | 'email_totp'
+
 async function authenticateWithAccountService(payload: Record<string, unknown>) {
   try {
     const response = await fetch(`${ACCOUNT_SERVICE_URL}/api/auth/login`, {
@@ -112,11 +114,16 @@ async function extractCredentials(request: NextRequest) {
     const body = (await request.json().catch(() => ({}))) as Partial<CredentialPayload> & {
       remember?: boolean
     }
+    const loginMode = normalizeLoginMode(body?.loginMode)
+    const totpCode = String(body?.totpCode ?? '').replace(/\D/g, '').slice(0, 6)
+    const passwordInput = String(body?.password ?? '').trim()
+    const password = loginMode === 'password_totp' ? passwordInput : ''
     return {
       credentials: {
         identifier: normalizeIdentifier(body),
-        password: String(body?.password ?? ''),
-        totpCode: String(body?.totpCode ?? '').trim(),
+        password: loginMode === 'password_totp' ? password : undefined,
+        totpCode,
+        loginMode,
       },
       remember: Boolean(body?.remember),
     }
@@ -128,11 +135,18 @@ async function extractCredentials(request: NextRequest) {
     username: formData.get('username'),
     email: formData.get('email'),
   })
-  const password = String(formData.get('password') ?? '')
-  const totpCode = String(formData.get('totpCode') ?? '').trim()
+  const loginMode = normalizeLoginMode(formData.get('login-mode'))
+  const passwordValue = String(formData.get('password') ?? '').trim()
+  const password = loginMode === 'password_totp' ? passwordValue : ''
+  const totpCode = String(formData.get('totpCode') ?? '').replace(/\D/g, '').slice(0, 6)
   const remember = formData.get('remember') === 'on'
   return {
-    credentials: { identifier, password, totpCode },
+    credentials: {
+      identifier,
+      password: loginMode === 'password_totp' ? password : undefined,
+      totpCode,
+      loginMode,
+    },
     remember,
   }
 }
@@ -150,6 +164,8 @@ function handleErrorResponse(
       credentials_in_query: 400,
       mfa_setup_required: 401,
       mfa_code_required: 400,
+      password_required: 401,
+      mfa_challenge_failed: 500,
     }
     return NextResponse.json(
       {
@@ -172,6 +188,7 @@ type CredentialPayload = {
   password?: string
   totpCode?: string
   remember?: boolean
+  loginMode?: LoginMode | string | null
 }
 
 function normalizeIdentifier(payload: Partial<CredentialPayload>) {
@@ -180,4 +197,11 @@ function normalizeIdentifier(payload: Partial<CredentialPayload>) {
     String(payload?.username ?? '').trim() ||
     String(payload?.email ?? '').trim()
   return candidate
+}
+
+function normalizeLoginMode(value: unknown): LoginMode {
+  if (value === 'email_totp') {
+    return 'email_totp'
+  }
+  return 'password_totp'
 }

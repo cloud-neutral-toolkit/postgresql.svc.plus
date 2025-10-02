@@ -105,10 +105,13 @@ type AuthLoginAlerts = {
   invalidCredentials: string
   userNotFound?: string
   genericError: string
+  passwordRequired?: string
   mfa?: {
     missing: string
     invalid: string
+    invalidFormat?: string
     setupRequired?: string
+    challengeFailed?: string
   }
 }
 
@@ -402,7 +405,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
       success: 'Welcome back, {username}! 🎉',
       goHome: 'Return to homepage',
       missingUsername: 'Please enter a username to continue.',
-      missingPassword: 'Please enter your password to continue.',
+      missingPassword: 'Please enter your password or switch to email + authenticator mode.',
       missingTotp: 'Enter the verification code from your authenticator app.',
       invalidCredentials: 'Incorrect username or password. Please try again.',
       userNotFound: 'We could not find an account with that username.',
@@ -588,14 +591,17 @@ export const translations: Record<'en' | 'zh', Translation> = {
         },
         alerts: {
           registered: 'Registration complete. Sign in to continue.',
-          missingCredentials: 'Please provide both your username and password.',
+          missingCredentials: 'Enter your username or email and the authenticator code to continue.',
           invalidCredentials: 'Incorrect username or password. Please try again.',
           userNotFound: 'We could not find an account with that username.',
           genericError: 'We could not sign you in. Please try again later.',
+          passwordRequired: 'Enter your password when signing in with a username.',
           mfa: {
             missing: 'Enter the verification code from your authenticator app.',
             invalid: 'The verification code is not valid. Try again.',
+            invalidFormat: 'Enter the 6-digit code from your authenticator app.',
             setupRequired: 'Multi-factor authentication must be completed before accessing the console.',
+            challengeFailed: 'We could not prepare the multi-factor challenge. Try again later.',
           },
         },
       },
@@ -747,7 +753,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
       success: '{username}，欢迎回来！🎉',
       goHome: '返回首页',
       missingUsername: '请输入用户名后再尝试登录。',
-      missingPassword: '请输入密码后继续。',
+      missingPassword: '请输入密码，或切换为“邮箱 + 动态口令”模式。',
       missingTotp: '请输入动态验证码完成登录。',
       invalidCredentials: '用户名或密码不正确，请重试。',
       userNotFound: '未找到该用户名对应的账户。',
@@ -918,14 +924,17 @@ export const translations: Record<'en' | 'zh', Translation> = {
         },
         alerts: {
           registered: '注册成功，请登录后继续。',
-          missingCredentials: '请输入用户名和密码。',
+          missingCredentials: '请输入用户名或邮箱，并填写动态验证码。',
           invalidCredentials: '用户名或密码错误，请重试。',
           userNotFound: '未找到该用户名对应的账户。',
           genericError: '暂时无法登录，请稍后再试。',
+          passwordRequired: '使用用户名登录时需要输入密码。',
           mfa: {
             missing: '请输入动态验证码。',
             invalid: '动态验证码不正确，请重试。',
+            invalidFormat: '请输入认证器生成的 6 位数字验证码。',
             setupRequired: '请先完成多因素认证绑定后再访问控制台。',
+            challengeFailed: '暂时无法发起多因素验证，请稍后再试。',
           },
         },
       },

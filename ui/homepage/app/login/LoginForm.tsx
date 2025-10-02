@@ -35,8 +35,20 @@ export function LoginForm() {
       setError(pageCopy.missingPassword)
       return
     }
-    if (!totpCode.trim()) {
-      setError(pageCopy.missingTotp ?? authCopy.alerts.mfa.missing)
+    const sanitizedTotp = totpCode.replace(/\D/g, '')
+
+    if (!sanitizedTotp) {
+      setError(pageCopy.missingTotp ?? authCopy.alerts.mfa?.missing ?? authCopy.alerts.missingCredentials)
+      return
+    }
+
+    if (sanitizedTotp.length !== 6) {
+      setError(
+        authCopy.alerts.mfa?.invalidFormat ??
+          authCopy.alerts.mfa?.invalid ??
+          pageCopy.missingTotp ??
+          authCopy.alerts.missingCredentials,
+      )
       return
     }
 
@@ -52,8 +64,9 @@ export function LoginForm() {
         body: JSON.stringify({
           identifier: trimmedIdentifier,
           password: loginMode === 'password_totp' ? password : undefined,
-          totpCode: totpCode.trim(),
+          totpCode: sanitizedTotp,
           remember,
+          loginMode,
         }),
         credentials: 'include',
       })
@@ -71,11 +84,14 @@ export function LoginForm() {
           case 'user_not_found':
             setError(pageCopy.userNotFound)
             break
+          case 'password_required':
+            setError(authCopy.alerts.passwordRequired ?? pageCopy.missingPassword)
+            break
           case 'mfa_code_required':
-            setError(authCopy.alerts.mfa.missing)
+            setError(authCopy.alerts.mfa?.missing ?? pageCopy.missingTotp ?? authCopy.alerts.missingCredentials)
             break
           case 'invalid_mfa_code':
-            setError(authCopy.alerts.mfa.invalid)
+            setError(authCopy.alerts.mfa?.invalid ?? pageCopy.genericError)
             break
           case 'mfa_setup_required':
             if (typeof window !== 'undefined' && typeof payload.mfaToken === 'string') {
@@ -84,6 +100,9 @@ export function LoginForm() {
             router.replace('/panel/account?setupMfa=1')
             router.refresh()
             return
+          case 'mfa_challenge_failed':
+            setError(authCopy.alerts.mfa?.challengeFailed ?? pageCopy.genericError)
+            break
           default:
             setError(pageCopy.genericError)
             break
@@ -212,7 +231,10 @@ export function LoginForm() {
               inputMode="numeric"
               pattern="[0-9]*"
               value={totpCode}
-              onChange={(event) => setTotpCode(event.target.value)}
+              onChange={(event) => {
+                const digits = event.target.value.replace(/\D/g, '').slice(0, 6)
+                setTotpCode(digits)
+              }}
               placeholder={authCopy.form.mfa.codePlaceholder}
               className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-gray-900 shadow-sm transition focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
             />
