@@ -17,6 +17,7 @@ type User = {
   name?: string
   username: string
   mfaEnabled: boolean
+  mfaPending: boolean
   mfa?: {
     totpEnabled?: boolean
     totpPending?: boolean
@@ -69,6 +70,7 @@ async function fetchSessionUser(): Promise<User | null> {
         name?: string
         username?: string
         mfaEnabled?: boolean
+        mfaPending?: boolean
         mfa?: {
           totpEnabled?: boolean
           totpPending?: boolean
@@ -83,7 +85,7 @@ async function fetchSessionUser(): Promise<User | null> {
       return null
     }
 
-    const { id, uuid, email, name, username, mfaEnabled, mfa } = sessionUser
+    const { id, uuid, email, name, username, mfaEnabled, mfa, mfaPending } = sessionUser
     const identifier =
       typeof uuid === 'string' && uuid.trim().length > 0
         ? uuid.trim()
@@ -98,14 +100,26 @@ async function fetchSessionUser(): Promise<User | null> {
     const normalizedUsername =
       typeof username === 'string' && username.trim().length > 0 ? username.trim() : normalizedName
 
+    const normalizedMfa = mfa
+      ? {
+          ...mfa,
+          totpEnabled: Boolean(mfa.totpEnabled ?? mfaEnabled),
+          totpPending: Boolean(mfa.totpPending ?? mfaPending) && !Boolean(mfa.totpEnabled ?? mfaEnabled),
+        }
+      : {
+          totpEnabled: Boolean(mfaEnabled),
+          totpPending: Boolean(mfaPending) && !Boolean(mfaEnabled),
+        }
+
     return {
       id: identifier,
       uuid: identifier,
       email,
       name: normalizedName,
       username: normalizedUsername ?? email,
-      mfaEnabled: Boolean(mfaEnabled),
-      mfa,
+      mfaEnabled: Boolean(mfaEnabled ?? mfa?.totpEnabled),
+      mfaPending: Boolean(mfaPending ?? mfa?.totpPending) && !Boolean(mfaEnabled ?? mfa?.totpEnabled),
+      mfa: normalizedMfa,
     }
   } catch (error) {
     console.warn('Failed to resolve user session', error)

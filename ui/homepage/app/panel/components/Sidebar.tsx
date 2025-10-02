@@ -4,6 +4,10 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Home, Server, Code, CreditCard, User, Shield, type LucideIcon } from 'lucide-react'
 
+import { useLanguage } from '@i18n/LanguageProvider'
+import { translations } from '@i18n/translations'
+import { useUser } from '@lib/userStore'
+
 export interface SidebarProps {
   className?: string
   onNavigate?: () => void
@@ -90,6 +94,10 @@ function isActive(pathname: string, href: string) {
 
 export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
   const pathname = usePathname()
+  const { language } = useLanguage()
+  const copy = translations[language].userCenter.mfa
+  const { user } = useUser()
+  const requiresSetup = Boolean(user && (!user.mfaEnabled || user.mfaPending))
 
   return (
     <aside
@@ -101,9 +109,35 @@ export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
         <p className="text-sm text-gray-500">在同一处掌控权限与功能特性。</p>
       </div>
 
+      {requiresSetup ? (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+          <p className="font-semibold">{copy.pendingHint}</p>
+          <p className="mt-1">{copy.lockedMessage}</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Link
+              href="/panel/account?setupMfa=1"
+              onClick={onNavigate}
+              className="inline-flex items-center justify-center rounded-md bg-purple-600 px-3 py-1.5 text-xs font-medium text-white shadow transition hover:bg-purple-500"
+            >
+              {copy.actions.setup}
+            </Link>
+            <a
+              href={copy.actions.docsUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center rounded-md border border-purple-200 px-3 py-1.5 text-xs font-medium text-purple-600 transition hover:border-purple-300 hover:bg-purple-50"
+            >
+              {copy.actions.docs}
+            </a>
+          </div>
+        </div>
+      ) : null}
+
       <nav className="flex flex-1 flex-col gap-6 overflow-y-auto">
         {navSections.map((section) => {
-          const sectionDisabled = section.items.every((item) => item.disabled)
+          const sectionDisabled = section.items.every(
+            (item) => item.disabled || (requiresSetup && item.href !== '/panel/account'),
+          )
 
           return (
             <div key={section.title} className="space-y-3">
@@ -118,7 +152,7 @@ export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
                 {section.items.map((item) => {
                   const active = isActive(pathname, item.href)
                   const Icon = item.icon
-                  const disabled = item.disabled
+                  const disabled = item.disabled || (requiresSetup && item.href !== '/panel/account')
 
                   const content = (
                     <div

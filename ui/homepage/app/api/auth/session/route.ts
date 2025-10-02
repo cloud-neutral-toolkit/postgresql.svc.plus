@@ -13,6 +13,7 @@ type AccountUser = {
   username?: string
   email: string
   mfaEnabled?: boolean
+  mfaPending?: boolean
   mfa?: {
     totpEnabled?: boolean
     totpPending?: boolean
@@ -60,11 +61,39 @@ export async function GET(request: NextRequest) {
         ? rawUser.id.trim()
         : undefined
 
+  const rawMfa = rawUser.mfa ?? {}
+  const derivedMfaEnabled = Boolean(rawUser.mfaEnabled ?? rawMfa.totpEnabled)
+  const derivedMfaPendingSource =
+    typeof rawUser.mfaPending === 'boolean'
+      ? rawUser.mfaPending
+      : typeof rawMfa.totpPending === 'boolean'
+        ? rawMfa.totpPending
+        : false
+  const derivedMfaPending = derivedMfaPendingSource && !derivedMfaEnabled
+
+  const normalizedMfa = Object.keys(rawMfa).length
+    ? {
+        ...rawMfa,
+        totpEnabled: Boolean(rawMfa.totpEnabled ?? derivedMfaEnabled),
+        totpPending: Boolean(rawMfa.totpPending ?? derivedMfaPending),
+      }
+    : {
+        totpEnabled: derivedMfaEnabled,
+        totpPending: derivedMfaPending,
+      }
+
   const normalizedUser = identifier
     ? { ...rawUser, id: identifier, uuid: identifier }
     : rawUser
 
-  return NextResponse.json({ user: normalizedUser })
+  return NextResponse.json({
+    user: {
+      ...normalizedUser,
+      mfaEnabled: derivedMfaEnabled,
+      mfaPending: derivedMfaPending,
+      mfa: normalizedMfa,
+    },
+  })
 }
 
 export async function DELETE(request: NextRequest) {

@@ -173,7 +173,7 @@ export default function RegisterContent() {
 
         setAlert({ type: 'success', message: alerts.success })
         setIsSubmitting(false)
-        router.push('/login?registered=1')
+        router.push('/login?registered=1&setupMfa=1')
       } catch (error) {
         console.error('Failed to register user', error)
         setAlert({ type: 'error', message: alerts.genericError })

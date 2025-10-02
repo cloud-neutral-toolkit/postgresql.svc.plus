@@ -188,6 +188,42 @@ type AuthTranslation = {
   login: AuthLoginTranslation
 }
 
+type UserCenterOverviewTranslation = {
+  heading: string
+  loading: string
+  welcome: string
+  guest: string
+  uuidNote: string
+  lockBanner: {
+    title: string
+    body: string
+    action: string
+    docs: string
+    logout: string
+  }
+  cards: {
+    uuid: {
+      label: string
+      description: string
+      copy: string
+      copied: string
+    }
+    username: {
+      label: string
+      description: string
+    }
+    email: {
+      label: string
+      description: string
+    }
+    mfa: {
+      label: string
+      description: string
+      action: string
+    }
+  }
+}
+
 type UserCenterMfaTranslation = {
   title: string
   subtitle: string
@@ -208,10 +244,31 @@ type UserCenterMfaTranslation = {
     issuedAt: string
     confirmedAt: string
   }
+  state: {
+    enabled: string
+    pending: string
+    disabled: string
+  }
+  qrLabel: string
+  lockedMessage: string
+  steps: {
+    intro: string
+    provision: string
+    verify: string
+  }
+  actions: {
+    help: string
+    description: string
+    logout: string
+    docs: string
+    docsUrl: string
+    setup: string
+  }
   error: string
 }
 
 type UserCenterTranslation = {
+  overview: UserCenterOverviewTranslation
   mfa: UserCenterMfaTranslation
 }
 
@@ -544,6 +601,41 @@ export const translations: Record<'en' | 'zh', Translation> = {
       },
     },
     userCenter: {
+      overview: {
+        heading: 'User Center',
+        loading: 'Loading your personalized space…',
+        welcome: 'Welcome back, {name}.',
+        guest: 'Sign in to unlock your user center.',
+        uuidNote: 'Your UUID uniquely identifies you across XControl services.',
+        lockBanner: {
+          title: 'Finish MFA setup',
+          body: 'Complete multi-factor authentication to unlock every panel section.',
+          action: 'Set up MFA',
+          docs: 'View setup guide',
+          logout: 'Sign out',
+        },
+        cards: {
+          uuid: {
+            label: 'UUID',
+            description: 'This fingerprint ties every service action back to your account.',
+            copy: 'Copy',
+            copied: 'Copied',
+          },
+          username: {
+            label: 'Username',
+            description: 'System-facing credential for automation and teammates.',
+          },
+          email: {
+            label: 'Email',
+            description: 'Receive notifications and maintain a trusted identity chain.',
+          },
+          mfa: {
+            label: 'Multi-factor authentication',
+            description: 'Secure the console by pairing an authenticator app.',
+            action: 'Manage MFA',
+          },
+        },
+      },
       mfa: {
         title: 'Multi-factor authentication',
         subtitle: 'Bind Google Authenticator to finish securing your account.',
@@ -563,6 +655,26 @@ export const translations: Record<'en' | 'zh', Translation> = {
         status: {
           issuedAt: 'Key generated at',
           confirmedAt: 'Enabled at',
+        },
+        state: {
+          enabled: 'Enabled',
+          pending: 'Pending setup',
+          disabled: 'Not enabled',
+        },
+        qrLabel: 'Authenticator QR code',
+        lockedMessage: 'Finish the binding flow before exploring other sections.',
+        steps: {
+          intro: 'Complete these two steps to secure your account:',
+          provision: '1. Generate a secret and scan the QR code with Google Authenticator.',
+          verify: '2. Enter the 6-digit verification code to enable MFA.',
+        },
+        actions: {
+          help: 'Need help staying secure?',
+          description: 'If you run into issues, sign out or review the setup documentation.',
+          logout: 'Sign out',
+          docs: 'View setup guide',
+          docsUrl: '/docs/account-service-configuration/latest',
+          setup: 'Resume setup',
         },
         error: 'We could not complete the request. Please try again.',
       },
@@ -819,6 +931,41 @@ export const translations: Record<'en' | 'zh', Translation> = {
       },
     },
     userCenter: {
+      overview: {
+        heading: '用户中心',
+        loading: '正在加载你的专属空间…',
+        welcome: '欢迎回来，{name}。',
+        guest: '请登录后解锁属于你的用户中心。',
+        uuidNote: 'UUID 是你在 XControl 中的唯一身份凭证，后续的所有服务都与它关联在一起。',
+        lockBanner: {
+          title: '完成多因素认证',
+          body: '完成 MFA 绑定后即可访问所有控制台板块。',
+          action: '立即设置',
+          docs: '查看操作指引',
+          logout: '退出登录',
+        },
+        cards: {
+          uuid: {
+            label: 'UUID',
+            description: '这串指纹标识让平台中的每项服务都能准确识别你。',
+            copy: '复制',
+            copied: '已复制',
+          },
+          username: {
+            label: '用户名',
+            description: '面向系统与团队成员的登录凭据。',
+          },
+          email: {
+            label: '邮箱',
+            description: '用于接收通知、验证操作，并保持可信链路。',
+          },
+          mfa: {
+            label: '多因素认证',
+            description: '绑定认证器即可保护控制台访问。',
+            action: '前往设置',
+          },
+        },
+      },
       mfa: {
         title: '多因素认证',
         subtitle: '绑定 Google Authenticator，完成账号安全校验。',
@@ -838,6 +985,26 @@ export const translations: Record<'en' | 'zh', Translation> = {
         status: {
           issuedAt: '密钥生成时间',
           confirmedAt: '启用时间',
+        },
+        state: {
+          enabled: '已启用',
+          pending: '待验证',
+          disabled: '未开启',
+        },
+        qrLabel: '认证二维码',
+        lockedMessage: '请先完成绑定流程，再访问其他板块。',
+        steps: {
+          intro: '按照以下两步完成账号安全加固：',
+          provision: '1. 生成密钥并在认证器中扫描二维码。',
+          verify: '2. 输入认证器中的 6 位验证码完成启用。',
+        },
+        actions: {
+          help: '需要帮助？',
+          description: '遇到问题时可以退出重新登录，或查看绑定指引。',
+          logout: '退出登录',
+          docs: '查看操作指引',
+          docsUrl: '/docs/account-service-configuration/latest',
+          setup: '继续设置',
         },
         error: '操作失败，请稍后再试。',
       },

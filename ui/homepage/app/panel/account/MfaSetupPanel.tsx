@@ -23,6 +23,7 @@ type ProvisionResponse = {
   issuer?: string
   account?: string
   mfaToken?: string
+  qr?: string
   user?: { mfa?: TotpStatus }
 }
 
@@ -49,12 +50,13 @@ export default function MfaSetupPanel() {
   const copy = translations[language].userCenter.mfa
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { user, refresh } = useUser()
+  const { user, refresh, logout } = useUser()
 
   const [status, setStatus] = useState<TotpStatus | null>(null)
   const [mfaToken, setMfaToken] = useState('')
   const [secret, setSecret] = useState('')
   const [uri, setUri] = useState('')
+  const [qrImage, setQrImage] = useState('')
   const [code, setCode] = useState('')
   const [isProvisioning, setIsProvisioning] = useState(false)
   const [isVerifying, setIsVerifying] = useState(false)
@@ -62,6 +64,7 @@ export default function MfaSetupPanel() {
 
   const hasPendingMfa = Boolean(status?.totpPending && !status?.totpEnabled)
   const setupRequested = searchParams.get('setupMfa') === '1'
+  const requiresSetup = Boolean(user && (!user.mfaEnabled || user.mfaPending))
 
   const ensureTokenPersisted = useCallback((token: string) => {
     if (!token) {
@@ -77,6 +80,20 @@ export default function MfaSetupPanel() {
     setMfaToken('')
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem(MFA_STORAGE_KEY)
+    }
+  }, [])
+
+  const generateQrImage = useCallback((value: string) => {
+    if (!value) {
+      return ''
+    }
+
+    try {
+      const encoded = encodeURIComponent(value)
+      return `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encoded}`
+    } catch (err) {
+      console.warn('Failed to build MFA QR code URL', err)
+      return ''
     }
   }, [])
 
@@ -122,7 +139,10 @@ export default function MfaSetupPanel() {
         return
       }
       setSecret(payload.secret)
-      setUri(payload?.uri ?? '')
+      const nextUri = payload?.uri ?? ''
+      setUri(nextUri)
+      const nextQr = payload?.qr ?? (nextUri ? generateQrImage(nextUri) : '')
+      setQrImage(nextQr)
       ensureTokenPersisted(payload?.mfaToken ?? mfaToken)
       setStatus(payload?.user?.mfa ?? status)
     } catch (err) {
@@ -131,7 +151,7 @@ export default function MfaSetupPanel() {
     } finally {
       setIsProvisioning(false)
     }
-  }, [copy.error, ensureTokenPersisted, mfaToken, status])
+  }, [copy.error, ensureTokenPersisted, generateQrImage, mfaToken, status])
 
   const handleVerify = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
@@ -157,6 +177,7 @@ export default function MfaSetupPanel() {
         clearToken()
         setSecret('')
         setUri('')
+        setQrImage('')
         setCode('')
         await refresh()
         router.replace('/panel/account')
@@ -182,6 +203,18 @@ export default function MfaSetupPanel() {
     }
   }, [handleProvision, hasPendingMfa, secret, setupRequested, showProvisionButton])
 
+  useEffect(() => {
+    if (!secret && user?.mfa?.totpEnabled) {
+      setQrImage('')
+    }
+  }, [secret, user?.mfa?.totpEnabled])
+
+  const handleLogoutClick = useCallback(async () => {
+    await logout()
+    router.replace('/login')
+    router.refresh()
+  }, [logout, router])
+
   if (!user) {
     return (
       <Card>
@@ -200,6 +233,17 @@ export default function MfaSetupPanel() {
             {displayStatus?.totpEnabled ? copy.enabledHint : copy.subtitle}
           </p>
         </div>
+
+        {requiresSetup ? (
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-xs text-amber-800">
+            <p className="font-semibold">{copy.pendingHint}</p>
+            <p className="mt-1">{copy.steps.intro}</p>
+            <ol className="mt-2 list-decimal space-y-1 pl-5">
+              <li>{copy.steps.provision}</li>
+              <li>{copy.steps.verify}</li>
+            </ol>
+          </div>
+        ) : null}
 
         {displayStatus?.totpEnabled ? (
           <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800">
@@ -234,6 +278,18 @@ export default function MfaSetupPanel() {
 
             {secret ? (
               <div className="space-y-3 rounded-lg border border-gray-200 bg-white p-4">
+                {qrImage ? (
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">{copy.qrLabel}</p>
+                    <div className="mt-2 flex justify-center">
+                      <img
+                        src={qrImage}
+                        alt="Authenticator QR code"
+                        className="h-40 w-40 rounded-lg border border-purple-100 bg-white p-2 shadow-sm"
+                      />
+                    </div>
+                  </div>
+                ) : null}
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">{copy.secretLabel}</p>
                   <code className="mt-1 block break-all rounded bg-purple-50 px-3 py-2 text-sm text-purple-700">{secret}</code>
@@ -284,6 +340,28 @@ export default function MfaSetupPanel() {
         )}
 
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
+
+        <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-xs text-gray-600">
+          <p className="font-semibold text-gray-700">{copy.actions.help}</p>
+          <p className="mt-1 text-gray-600">{copy.actions.description}</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={handleLogoutClick}
+              className="inline-flex items-center justify-center rounded-md border border-purple-200 px-3 py-2 text-xs font-medium text-purple-600 transition hover:border-purple-300 hover:bg-purple-50"
+            >
+              {copy.actions.logout}
+            </button>
+            <a
+              href={copy.actions.docsUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center rounded-md border border-transparent bg-purple-600 px-3 py-2 text-xs font-medium text-white transition hover:bg-purple-500"
+            >
+              {copy.actions.docs}
+            </a>
+          </div>
+        </div>
       </div>
     </Card>
   )

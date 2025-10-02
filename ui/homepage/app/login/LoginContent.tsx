@@ -41,6 +41,7 @@ export default function LoginContent({ children }: LoginContentProps) {
 
   const errorParam = searchParams.get('error')
   const registeredParam = searchParams.get('registered')
+  const setupMfaParam = searchParams.get('setupMfa')
 
   const normalize = useCallback(
     (value: string) =>
@@ -59,8 +60,16 @@ export default function LoginContent({ children }: LoginContentProps) {
   const socialButtonsDisabled = true
 
   const initialAlert = useMemo(() => {
+    const successMessages: string[] = []
     if (registeredParam === '1') {
-      return { type: 'success', message: alerts.registered } as const
+      successMessages.push(alerts.registered)
+    }
+    if (setupMfaParam === '1') {
+      successMessages.push(alerts.mfa.setupRequired)
+    }
+
+    if (successMessages.length > 0) {
+      return { type: 'success', message: successMessages.join(' ') } as const
     }
 
     if (!errorParam) {
@@ -79,7 +88,7 @@ export default function LoginContent({ children }: LoginContentProps) {
     }
     const message = errorMap[normalizedError] ?? alerts.genericError
     return { type: 'error', message } as const
-  }, [alerts, errorParam, normalize, registeredParam])
+  }, [alerts, errorParam, normalize, registeredParam, setupMfaParam])
 
   const [alert, setAlert] = useState(initialAlert)
   const [isSubmitting, setIsSubmitting] = useState(false)
