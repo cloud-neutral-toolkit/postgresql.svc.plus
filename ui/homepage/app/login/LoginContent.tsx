@@ -10,6 +10,7 @@ import Footer from '@components/Footer'
 import { AskAIButton } from '@components/AskAIButton'
 import { useLanguage } from '@i18n/LanguageProvider'
 import { translations } from '@i18n/translations'
+import { getAccountServiceBaseUrl } from '@lib/serviceConfig'
 
 import { WeChatIcon } from '../components/icons/WeChatIcon'
 
@@ -53,7 +54,7 @@ export default function LoginContent({ children }: LoginContentProps) {
     [],
   )
 
-  const accountServiceBaseUrl = (process.env.NEXT_PUBLIC_ACCOUNT_SERVICE_URL || 'https://localhost:8443').replace(/\/$/, '')
+  const accountServiceBaseUrl = getAccountServiceBaseUrl()
   const githubAuthUrl = process.env.NEXT_PUBLIC_GITHUB_AUTH_URL || '/api/auth/github'
   const wechatAuthUrl = process.env.NEXT_PUBLIC_WECHAT_AUTH_URL || '/api/auth/wechat'
   const loginUrl = process.env.NEXT_PUBLIC_LOGIN_URL || `${accountServiceBaseUrl}/api/auth/login`

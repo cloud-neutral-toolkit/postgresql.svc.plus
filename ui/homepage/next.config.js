@@ -51,6 +51,13 @@ const nextConfig = {
   compress: false, // 压缩交给 Nginx，省 Node CPU
   images: { unoptimized: true }, // 关闭服务端图片处理
   featureToggles,
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.ya?ml$/i,
+      type: 'asset/source',
+    })
+    return config
+  },
   async rewrites() {
     return [
       {

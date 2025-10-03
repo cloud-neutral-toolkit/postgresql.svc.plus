@@ -50,9 +50,10 @@ make init-db   # initialize database (optional)
 
 ## Frontend configuration
 
-The Next.js homepage reads `NEXT_PUBLIC_ACCOUNT_SERVICE_URL` to reach the Account Service. When the variable is not set it
-defaults to `https://localhost:8443`, matching the hostname used by the development TLS certificate. Override the environment
-variable if your local certificates use a different host or when connecting to a remote Account Service instance.
+The Next.js homepage now resolves service endpoints through `ui/homepage/config/runtime-service-config.yaml`. The runtime
+configuration selects values based on `NEXT_PUBLIC_RUNTIME_ENV` (falling back to `NODE_ENV` and the file's
+`defaultEnvironment`). Use `NEXT_PUBLIC_ACCOUNT_SERVICE_URL` for ad-hoc overrides, otherwise adjust the YAML file to specify
+environment-specific URLs such as `http://localhost:8080` for development/test and `https://account.svc.plus` for production.
 
 ## Account service configuration
 

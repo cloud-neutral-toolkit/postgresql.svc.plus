@@ -1,0 +1,17 @@
+defaultEnvironment: production
+defaults:
+  accountService:
+    baseUrl: https://account.svc.plus
+environments:
+  development:
+    accountService:
+      baseUrl: http://localhost:8080
+  test:
+    accountService:
+      baseUrl: http://localhost:8080
+  production:
+    accountService:
+      baseUrl: https://account.svc.plus
+  production_tls:
+    accountService:
+      baseUrl: https://account.svc.plus:8443
