@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAccountServiceBaseUrl } from '@lib/serviceConfig'
 
 const ACCOUNT_SERVICE_URL = getAccountServiceBaseUrl()
+const ACCOUNT_API_BASE = `${ACCOUNT_SERVICE_URL}/api/auth`
 
 type RegistrationPayload = {
   name?: string
@@ -49,7 +50,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const response = await fetch(`${ACCOUNT_SERVICE_URL}/account/register`, {
+    const response = await fetch(`${ACCOUNT_API_BASE}/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

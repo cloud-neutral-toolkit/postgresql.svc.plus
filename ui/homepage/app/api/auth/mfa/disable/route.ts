@@ -5,6 +5,7 @@ import { SESSION_COOKIE_NAME, clearSessionCookie } from '@lib/authGateway'
 import { getAccountServiceBaseUrl } from '@lib/serviceConfig'
 
 const ACCOUNT_SERVICE_URL = getAccountServiceBaseUrl()
+const ACCOUNT_API_BASE = `${ACCOUNT_SERVICE_URL}/api/auth`
 
 export async function POST(request: NextRequest) {
   void request
@@ -15,7 +16,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const response = await fetch(`${ACCOUNT_SERVICE_URL}/account/mfa/disable`, {
+    const response = await fetch(`${ACCOUNT_API_BASE}/mfa/disable`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,

@@ -5,6 +5,7 @@ import { MFA_COOKIE_NAME, SESSION_COOKIE_NAME } from '@lib/authGateway'
 import { getAccountServiceBaseUrl } from '@lib/serviceConfig'
 
 const ACCOUNT_SERVICE_URL = getAccountServiceBaseUrl()
+const ACCOUNT_API_BASE = `${ACCOUNT_SERVICE_URL}/api/auth`
 
 export async function GET(request: NextRequest) {
   const cookieStore = cookies()
@@ -35,8 +36,8 @@ export async function GET(request: NextRequest) {
 
   const endpointParams = params.toString()
   const endpoint = endpointParams
-    ? `${ACCOUNT_SERVICE_URL}/account/mfa/status?${endpointParams}`
-    : `${ACCOUNT_SERVICE_URL}/account/mfa/status`
+    ? `${ACCOUNT_API_BASE}/mfa/status?${endpointParams}`
+    : `${ACCOUNT_API_BASE}/mfa/status`
 
   const response = await fetch(endpoint, {
     method: 'GET',

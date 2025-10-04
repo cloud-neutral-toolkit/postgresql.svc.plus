@@ -12,6 +12,7 @@ import {
 import { getAccountServiceBaseUrl } from '@lib/serviceConfig'
 
 const ACCOUNT_SERVICE_URL = getAccountServiceBaseUrl()
+const ACCOUNT_API_BASE = `${ACCOUNT_SERVICE_URL}/api/auth`
 
 type VerifyPayload = {
   token?: string
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const response = await fetch(`${ACCOUNT_SERVICE_URL}/account/mfa/verify`, {
+    const response = await fetch(`${ACCOUNT_API_BASE}/mfa/totp/verify`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -5,6 +5,7 @@ import { applyMfaCookie, applySessionCookie, clearMfaCookie, clearSessionCookie,
 import { getAccountServiceBaseUrl } from '@lib/serviceConfig'
 
 const ACCOUNT_SERVICE_URL = getAccountServiceBaseUrl()
+const ACCOUNT_API_BASE = `${ACCOUNT_SERVICE_URL}/api/auth`
 
 type LoginPayload = {
   email?: string
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
       loginBody.totpCode = totpCode
     }
 
-    const response = await fetch(`${ACCOUNT_SERVICE_URL}/account/login`, {
+    const response = await fetch(`${ACCOUNT_API_BASE}/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

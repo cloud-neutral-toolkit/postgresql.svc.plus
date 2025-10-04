@@ -5,6 +5,7 @@ import { applyMfaCookie, MFA_COOKIE_NAME } from '@lib/authGateway'
 import { getAccountServiceBaseUrl } from '@lib/serviceConfig'
 
 const ACCOUNT_SERVICE_URL = getAccountServiceBaseUrl()
+const ACCOUNT_API_BASE = `${ACCOUNT_SERVICE_URL}/api/auth`
 
 type SetupPayload = {
   token?: string
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
   const account = normalizeString(payload?.account)
 
   try {
-    const response = await fetch(`${ACCOUNT_SERVICE_URL}/account/mfa/setup`, {
+    const response = await fetch(`${ACCOUNT_API_BASE}/mfa/totp/provision`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

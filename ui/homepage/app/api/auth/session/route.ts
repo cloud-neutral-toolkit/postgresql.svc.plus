@@ -5,6 +5,7 @@ import { SESSION_COOKIE_NAME, clearSessionCookie } from '@lib/authGateway'
 import { getAccountServiceBaseUrl } from '@lib/serviceConfig'
 
 const ACCOUNT_SERVICE_URL = getAccountServiceBaseUrl()
+const ACCOUNT_API_BASE = `${ACCOUNT_SERVICE_URL}/api/auth`
 
 type AccountUser = {
   id?: string
@@ -29,7 +30,7 @@ type SessionResponse = {
 
 async function fetchSession(token: string) {
   try {
-    const response = await fetch(`${ACCOUNT_SERVICE_URL}/account/session`, {
+    const response = await fetch(`${ACCOUNT_API_BASE}/session`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -104,7 +105,7 @@ export async function DELETE(request: NextRequest) {
   const cookieStore = cookies()
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value
   if (token) {
-    await fetch(`${ACCOUNT_SERVICE_URL}/account/session`, {
+    await fetch(`${ACCOUNT_API_BASE}/session`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${token}`,
