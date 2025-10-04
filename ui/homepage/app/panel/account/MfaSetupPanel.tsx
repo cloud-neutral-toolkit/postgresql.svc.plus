@@ -49,10 +49,12 @@ export default function MfaSetupPanel() {
   const [code, setCode] = useState('')
   const [isProvisioning, setIsProvisioning] = useState(false)
   const [isVerifying, setIsVerifying] = useState(false)
+  const [isDisabling, setIsDisabling] = useState(false)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const hasPendingMfa = Boolean(status?.totpPending && !status?.totpEnabled)
   const setupRequested = searchParams.get('setupMfa') === '1'
+  const hasPendingMfa = Boolean(status?.totpPending && !status?.totpEnabled)
   const requiresSetup = Boolean(user && (!user.mfaEnabled || user.mfaPending))
 
   const generateQrImage = useCallback((value: string) => {
@@ -89,6 +91,12 @@ export default function MfaSetupPanel() {
   useEffect(() => {
     void fetchStatus()
   }, [fetchStatus])
+
+  useEffect(() => {
+    if (setupRequested) {
+      setIsDialogOpen(true)
+    }
+  }, [setupRequested])
 
   const handleProvision = useCallback(async () => {
     setIsProvisioning(true)
@@ -155,6 +163,7 @@ export default function MfaSetupPanel() {
         setQrImage('')
         setCode('')
         await refresh()
+        setIsDialogOpen(false)
         router.replace('/panel/account')
         router.refresh()
       } catch (err) {
@@ -173,10 +182,10 @@ export default function MfaSetupPanel() {
   const displayStatus = useMemo(() => status ?? user?.mfa ?? null, [status, user?.mfa])
 
   useEffect(() => {
-    if (setupRequested && showProvisionButton && !secret && !hasPendingMfa) {
+    if ((setupRequested || (isDialogOpen && requiresSetup)) && showProvisionButton && !secret && !hasPendingMfa) {
       void handleProvision()
     }
-  }, [handleProvision, hasPendingMfa, secret, setupRequested, showProvisionButton])
+  }, [handleProvision, hasPendingMfa, isDialogOpen, requiresSetup, secret, setupRequested, showProvisionButton])
 
   useEffect(() => {
     if (!secret && user?.mfa?.totpEnabled) {
@@ -190,6 +199,52 @@ export default function MfaSetupPanel() {
     router.refresh()
   }, [logout, router])
 
+  const handleDisable = useCallback(async () => {
+    setIsDisabling(true)
+    setError(null)
+    try {
+      const response = await fetch('/api/auth/mfa/disable', {
+        method: 'POST',
+        credentials: 'include',
+      })
+      const payload = (await response.json().catch(() => ({}))) as {
+        success?: boolean
+        error?: string | null
+        data?: { user?: { mfa?: TotpStatus } }
+      }
+      if (!response.ok || !payload?.success) {
+        setError(payload?.error ?? copy.error)
+        return
+      }
+      const nextStatus = payload?.data?.user?.mfa ?? null
+      setStatus(nextStatus ?? { totpEnabled: false, totpPending: false })
+      setSecret('')
+      setUri('')
+      setQrImage('')
+      setCode('')
+      await refresh()
+      router.refresh()
+    } catch (err) {
+      console.warn('Disable TOTP failed', err)
+      setError(copy.error)
+    } finally {
+      setIsDisabling(false)
+    }
+  }, [copy.error, refresh, router])
+
+  const closeDialog = useCallback(() => {
+    setIsDialogOpen(false)
+    setError(null)
+    if (setupRequested) {
+      router.replace('/panel/account')
+    }
+  }, [router, setupRequested])
+
+  const openDialog = useCallback(() => {
+    setError(null)
+    setIsDialogOpen(true)
+  }, [])
+
   if (!user) {
     return (
       <Card>
@@ -199,145 +254,227 @@ export default function MfaSetupPanel() {
     )
   }
 
+  const statusLabel = displayStatus?.totpEnabled
+    ? copy.state.enabled
+    : displayStatus?.totpPending || hasPendingMfa
+      ? copy.state.pending
+      : copy.state.disabled
+
   return (
-    <Card>
-      <div className="space-y-4">
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900">{copy.title}</h2>
-          <p className="mt-1 text-sm text-gray-600">
-            {displayStatus?.totpEnabled ? copy.enabledHint : copy.subtitle}
-          </p>
-        </div>
-
-        {requiresSetup ? (
-          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-xs text-amber-800">
-            <p className="font-semibold">{copy.pendingHint}</p>
-            <p className="mt-1">{copy.steps.intro}</p>
-            <ol className="mt-2 list-decimal space-y-1 pl-5">
-              <li>{copy.steps.provision}</li>
-              <li>{copy.steps.verify}</li>
-            </ol>
-          </div>
-        ) : null}
-
-        {displayStatus?.totpEnabled ? (
-          <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800">
-            <p className="font-medium">{copy.successTitle}</p>
-            <p className="mt-1">{copy.successBody}</p>
-            <dl className="mt-3 grid gap-2 text-xs text-green-700 sm:grid-cols-2">
-              <div>
-                <dt className="font-semibold uppercase tracking-wide">{copy.status.issuedAt}</dt>
-                <dd>{formatTimestamp(displayStatus?.totpSecretIssuedAt)}</dd>
-              </div>
-              <div>
-                <dt className="font-semibold uppercase tracking-wide">{copy.status.confirmedAt}</dt>
-                <dd>{formatTimestamp(displayStatus?.totpConfirmedAt)}</dd>
-              </div>
-            </dl>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-              {hasPendingMfa ? copy.pendingHint : copy.subtitle}
-            </p>
-            {showProvisionButton ? (
+    <>
+      <Card>
+        <div className="space-y-6">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">{copy.title}</h2>
+              <p className="mt-1 text-sm text-gray-600">{copy.summary.description}</p>
+              <dl className="mt-4 grid gap-4 text-xs text-gray-600 sm:grid-cols-2">
+                <div>
+                  <dt className="font-semibold uppercase tracking-wide text-purple-600">{copy.summary.statusLabel}</dt>
+                  <dd className="mt-1 text-sm text-gray-900">{statusLabel}</dd>
+                </div>
+                <div>
+                  <dt className="font-semibold uppercase tracking-wide text-purple-600">{copy.status.issuedAt}</dt>
+                  <dd className="mt-1 text-sm text-gray-900">{formatTimestamp(displayStatus?.totpSecretIssuedAt)}</dd>
+                </div>
+                <div>
+                  <dt className="font-semibold uppercase tracking-wide text-purple-600">{copy.status.confirmedAt}</dt>
+                  <dd className="mt-1 text-sm text-gray-900">{formatTimestamp(displayStatus?.totpConfirmedAt)}</dd>
+                </div>
+              </dl>
+            </div>
+            <div className="flex flex-col items-start gap-3 sm:items-end">
               <button
                 type="button"
-                onClick={handleProvision}
-                disabled={isProvisioning}
-                className="inline-flex items-center justify-center rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-purple-500 disabled:cursor-not-allowed disabled:opacity-70"
+                onClick={openDialog}
+                className="inline-flex items-center justify-center rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-purple-500"
               >
-                {isProvisioning ? `${provisionLabel}…` : provisionLabel}
+                {displayStatus?.totpEnabled ? copy.summary.manage : copy.summary.bind}
               </button>
-            ) : null}
-
-            {secret ? (
-              <div className="space-y-3 rounded-lg border border-gray-200 bg-white p-4">
-                {qrImage ? (
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">{copy.qrLabel}</p>
-                    <div className="mt-2 flex justify-center">
-                      <img
-                        src={qrImage}
-                        alt="Authenticator QR code"
-                        className="h-40 w-40 rounded-lg border border-purple-100 bg-white p-2 shadow-sm"
-                      />
-                    </div>
-                  </div>
-                ) : null}
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">{copy.secretLabel}</p>
-                  <code className="mt-1 block break-all rounded bg-purple-50 px-3 py-2 text-sm text-purple-700">{secret}</code>
-                </div>
-                {uri ? (
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">{copy.uriLabel}</p>
-                    <a
-                      href={uri}
-                      className="mt-1 block break-all text-sm text-purple-600 underline"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {uri}
-                    </a>
-                  </div>
-                ) : null}
-                <p className="text-xs text-gray-500">{copy.manualHint}</p>
-              </div>
-            ) : null}
-
-            {secret ? (
-              <form onSubmit={handleVerify} className="space-y-3">
-                <label className="block text-sm font-medium text-gray-700" htmlFor="mfa-code">
-                  {copy.codeLabel}
-                </label>
-                <input
-                  id="mfa-code"
-                  name="code"
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  value={code}
-                  onChange={(event) => setCode(event.target.value)}
-                  placeholder={copy.codePlaceholder}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
-                />
-                <button
-                  type="submit"
-                  disabled={isVerifying}
-                  className="inline-flex items-center justify-center rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-purple-500 disabled:cursor-not-allowed disabled:opacity-70"
-                >
-                  {isVerifying ? copy.verifying : copy.verify}
-                </button>
-              </form>
-            ) : null}
-          </div>
-        )}
-
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
-
-        <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-xs text-gray-600">
-          <p className="font-semibold text-gray-700">{copy.actions.help}</p>
-          <p className="mt-1 text-gray-600">{copy.actions.description}</p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={handleLogoutClick}
-              className="inline-flex items-center justify-center rounded-md border border-purple-200 px-3 py-2 text-xs font-medium text-purple-600 transition hover:border-purple-300 hover:bg-purple-50"
-            >
-              {copy.actions.logout}
-            </button>
-            <a
-              href={copy.actions.docsUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center justify-center rounded-md border border-transparent bg-purple-600 px-3 py-2 text-xs font-medium text-white transition hover:bg-purple-500"
-            >
-              {copy.actions.docs}
-            </a>
+              {requiresSetup ? (
+                <p className="text-xs text-amber-600">{copy.pendingHint}</p>
+              ) : null}
+            </div>
           </div>
         </div>
-      </div>
-    </Card>
+      </Card>
+
+      {isDialogOpen ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 px-4 py-10"
+          onClick={closeDialog}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="relative w-full max-w-3xl overflow-hidden rounded-2xl bg-white shadow-xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={closeDialog}
+              className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-xl text-gray-500 transition hover:border-gray-300 hover:text-gray-700"
+            >
+              <span className="sr-only">{copy.modal.close}</span>
+              ×
+            </button>
+            <div className="max-h-[85vh] overflow-y-auto p-6 sm:p-8">
+              <h3 className="text-xl font-semibold text-gray-900">{copy.modal.title}</h3>
+              <p className="mt-1 text-sm text-gray-600">
+                {displayStatus?.totpEnabled ? copy.enabledHint : copy.subtitle}
+              </p>
+
+              <div className="mt-6 space-y-6">
+                {requiresSetup ? (
+                  <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-xs text-amber-800">
+                    <p className="font-semibold">{copy.pendingHint}</p>
+                    <p className="mt-1">{copy.steps.intro}</p>
+                    <ol className="mt-2 list-decimal space-y-1 pl-5">
+                      <li>{copy.steps.provision}</li>
+                      <li>{copy.steps.verify}</li>
+                    </ol>
+                  </div>
+                ) : null}
+
+                {displayStatus?.totpEnabled ? (
+                  <div className="space-y-5">
+                    <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800">
+                      <p className="font-medium">{copy.successTitle}</p>
+                      <p className="mt-1">{copy.successBody}</p>
+                      <dl className="mt-3 grid gap-2 text-xs text-green-700 sm:grid-cols-2">
+                        <div>
+                          <dt className="font-semibold uppercase tracking-wide">{copy.status.issuedAt}</dt>
+                          <dd>{formatTimestamp(displayStatus?.totpSecretIssuedAt)}</dd>
+                        </div>
+                        <div>
+                          <dt className="font-semibold uppercase tracking-wide">{copy.status.confirmedAt}</dt>
+                          <dd>{formatTimestamp(displayStatus?.totpConfirmedAt)}</dd>
+                        </div>
+                      </dl>
+                    </div>
+
+                    <div className="space-y-3 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                      <div>
+                        <p className="font-semibold text-red-800">{copy.disable.title}</p>
+                        <p className="mt-1 text-red-700">{copy.disable.description}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleDisable}
+                        disabled={isDisabling}
+                        className="inline-flex items-center justify-center rounded-md border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-700 transition hover:border-red-400 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-70"
+                      >
+                        {isDisabling ? copy.disable.confirming : copy.disable.action}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-5">
+                    <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+                      {hasPendingMfa ? copy.pendingHint : copy.subtitle}
+                    </p>
+                    {showProvisionButton ? (
+                      <button
+                        type="button"
+                        onClick={handleProvision}
+                        disabled={isProvisioning}
+                        className="inline-flex items-center justify-center rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-purple-500 disabled:cursor-not-allowed disabled:opacity-70"
+                      >
+                        {isProvisioning ? `${provisionLabel}…` : provisionLabel}
+                      </button>
+                    ) : null}
+
+                    {secret ? (
+                      <div className="space-y-3 rounded-lg border border-gray-200 bg-white p-4">
+                        {qrImage ? (
+                          <div>
+                            <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">{copy.qrLabel}</p>
+                            <div className="mt-2 flex justify-center">
+                              <img
+                                src={qrImage}
+                                alt="Authenticator QR code"
+                                className="h-40 w-40 rounded-lg border border-purple-100 bg-white p-2 shadow-sm"
+                              />
+                            </div>
+                          </div>
+                        ) : null}
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">{copy.secretLabel}</p>
+                          <code className="mt-1 block break-all rounded bg-purple-50 px-3 py-2 text-sm text-purple-700">{secret}</code>
+                        </div>
+                        {uri ? (
+                          <div>
+                            <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">{copy.uriLabel}</p>
+                            <a
+                              href={uri}
+                              className="mt-1 block break-all text-sm text-purple-600 underline"
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              {uri}
+                            </a>
+                          </div>
+                        ) : null}
+                        <p className="text-xs text-gray-500">{copy.manualHint}</p>
+                      </div>
+                    ) : null}
+
+                    {secret ? (
+                      <form onSubmit={handleVerify} className="space-y-3">
+                        <label className="block text-sm font-medium text-gray-700" htmlFor="mfa-code">
+                          {copy.codeLabel}
+                        </label>
+                        <input
+                          id="mfa-code"
+                          name="code"
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          value={code}
+                          onChange={(event) => setCode(event.target.value)}
+                          placeholder={copy.codePlaceholder}
+                          className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
+                        />
+                        <button
+                          type="submit"
+                          disabled={isVerifying}
+                          className="inline-flex items-center justify-center rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-purple-500 disabled:cursor-not-allowed disabled:opacity-70"
+                        >
+                          {isVerifying ? copy.verifying : copy.verify}
+                        </button>
+                      </form>
+                    ) : null}
+                  </div>
+                )}
+
+                {error ? <p className="text-sm text-red-600">{error}</p> : null}
+
+                <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-xs text-gray-600">
+                  <p className="font-semibold text-gray-700">{copy.actions.help}</p>
+                  <p className="mt-1 text-gray-600">{copy.actions.description}</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={handleLogoutClick}
+                      className="inline-flex items-center justify-center rounded-md border border-purple-200 px-3 py-2 text-xs font-medium text-purple-600 transition hover:border-purple-300 hover:bg-purple-50"
+                    >
+                      {copy.actions.logout}
+                    </button>
+                    <a
+                      href={copy.actions.docsUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center justify-center rounded-md border border-transparent bg-purple-600 px-3 py-2 text-xs font-medium text-white transition hover:bg-purple-500"
+                    >
+                      {copy.actions.docs}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </>
   )
 }
