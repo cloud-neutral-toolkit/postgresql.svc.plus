@@ -167,6 +167,7 @@ type AuthLoginTranslation = {
     submit: string
     mfa: {
       mode: string
+      passwordOnly: string
       passwordAndTotp: string
       codeLabel: string
       codePlaceholder: string
@@ -572,6 +573,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
           submit: 'Sign in',
           mfa: {
             mode: 'Authentication method',
+            passwordOnly: 'Password only',
             passwordAndTotp: 'Password + authenticator code',
             codeLabel: 'Authenticator code',
             codePlaceholder: '6-digit code from your authenticator',
@@ -904,6 +906,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
           submit: '登录',
           mfa: {
             mode: '验证方式',
+            passwordOnly: '仅密码验证',
             passwordAndTotp: '密码 + 动态口令',
             codeLabel: '动态验证码',
             codePlaceholder: '来自认证器的 6 位数字',

@@ -22,12 +22,90 @@ export function LoginForm() {
   const [remember, setRemember] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [mfaRequirement, setMfaRequirement] = useState<'optional' | 'required'>(() =>
+    user?.mfaEnabled ? 'required' : 'optional',
+  )
 
   useEffect(() => {
     if (userEmail && identifier.trim().length === 0) {
       setIdentifier(userEmail)
     }
   }, [identifier, userEmail])
+
+  useEffect(() => {
+    setTotpCode('')
+  }, [identifier])
+
+  useEffect(() => {
+    if (mfaRequirement !== 'required' && totpCode !== '') {
+      setTotpCode('')
+    }
+  }, [mfaRequirement, totpCode])
+
+  useEffect(() => {
+    let isActive = true
+    const trimmedIdentifier = identifier.trim()
+
+    if (!trimmedIdentifier) {
+      if (isActive) {
+        setMfaRequirement('optional')
+      }
+      return () => {
+        isActive = false
+      }
+    }
+
+    const normalizedIdentifier = trimmedIdentifier.toLowerCase()
+
+    const controller = new AbortController()
+    const signal = controller.signal
+
+    const timeoutId = window.setTimeout(async () => {
+      try {
+        const response = await fetch(
+          `/api/auth/mfa/status?identifier=${encodeURIComponent(normalizedIdentifier)}`,
+          {
+            method: 'GET',
+            cache: 'no-store',
+            signal,
+          },
+        )
+
+        if (!isActive || signal.aborted) {
+          return
+        }
+
+        if (!response.ok) {
+          setMfaRequirement('optional')
+          return
+        }
+
+        const payload = (await response.json().catch(() => ({}))) as {
+          mfa?: { totpEnabled?: boolean }
+        }
+
+        const requiresMfa = Boolean(payload?.mfa?.totpEnabled)
+        setMfaRequirement(requiresMfa ? 'required' : 'optional')
+      } catch (lookupError) {
+        if ((lookupError as Error)?.name === 'AbortError' || signal.aborted) {
+          return
+        }
+        setMfaRequirement('optional')
+      }
+    }, 300)
+
+    return () => {
+      isActive = false
+      controller.abort()
+      window.clearTimeout(timeoutId)
+    }
+  }, [identifier])
+
+  useEffect(() => {
+    if (user?.mfaEnabled) {
+      setMfaRequirement('required')
+    }
+  }, [user?.mfaEnabled])
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -41,14 +119,25 @@ export function LoginForm() {
       setError(pageCopy.missingPassword)
       return
     }
+    const requiresTotp = mfaRequirement === 'required'
     const sanitizedTotp = totpCode.replace(/\D/g, '')
 
-    if (!sanitizedTotp) {
-      setError(pageCopy.missingTotp ?? authCopy.alerts.mfa?.missing ?? authCopy.alerts.missingCredentials)
-      return
-    }
+    if (requiresTotp) {
+      if (!sanitizedTotp) {
+        setError(pageCopy.missingTotp ?? authCopy.alerts.mfa?.missing ?? authCopy.alerts.missingCredentials)
+        return
+      }
 
-    if (sanitizedTotp.length !== 6) {
+      if (sanitizedTotp.length !== 6) {
+        setError(
+          authCopy.alerts.mfa?.invalidFormat ??
+            authCopy.alerts.mfa?.invalid ??
+            pageCopy.missingTotp ??
+            authCopy.alerts.missingCredentials,
+        )
+        return
+      }
+    } else if (sanitizedTotp && sanitizedTotp.length !== 6) {
       setError(
         authCopy.alerts.mfa?.invalidFormat ??
           authCopy.alerts.mfa?.invalid ??
@@ -70,7 +159,7 @@ export function LoginForm() {
         body: JSON.stringify({
           email: trimmedIdentifier,
           password,
-          totp: sanitizedTotp,
+          totp: sanitizedTotp.length === 6 ? sanitizedTotp : undefined,
           remember,
         }),
         credentials: 'include',
@@ -83,6 +172,7 @@ export function LoginForm() {
       }
 
       if (payload.needMfa) {
+        setMfaRequirement('required')
         router.replace('/panel/account?setupMfa=1')
         router.refresh()
         return
@@ -90,6 +180,15 @@ export function LoginForm() {
 
       if (!payload.success || !response.ok) {
         const messageKey = payload.error ?? 'generic_error'
+        if (
+          messageKey === 'mfa_code_required' ||
+          messageKey === 'invalid_mfa_code' ||
+          messageKey === 'mfa_required' ||
+          messageKey === 'mfa_setup_required' ||
+          messageKey === 'mfa_challenge_failed'
+        ) {
+          setMfaRequirement('required')
+        }
         switch (messageKey) {
           case 'missing_credentials':
             setError(authCopy.alerts.missingCredentials)
@@ -139,6 +238,11 @@ export function LoginForm() {
     router.push('/logout')
   }
 
+  const requiresTotpInput = mfaRequirement === 'required'
+  const mfaModeLabel = requiresTotpInput
+    ? authCopy.form.mfa.passwordAndTotp
+    : authCopy.form.mfa.passwordOnly
+
   return (
     <>
       {user ? (
@@ -185,7 +289,7 @@ export function LoginForm() {
           <div className="space-y-2">
             <p className="text-sm font-medium text-gray-700">{authCopy.form.mfa.mode}</p>
             <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600">
-              {authCopy.form.mfa.passwordAndTotp}
+              {mfaModeLabel}
             </div>
           </div>
           <div className="space-y-2">
@@ -208,25 +312,27 @@ export function LoginForm() {
               className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-gray-900 shadow-sm transition focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
             />
           </div>
-          <div className="space-y-2">
-            <label htmlFor="login-totp" className="text-sm font-medium text-gray-700">
-              {authCopy.form.mfa.codeLabel}
-            </label>
-            <input
-              id="login-totp"
-              name="totpCode"
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              value={totpCode}
-              onChange={(event) => {
-                const digits = event.target.value.replace(/\D/g, '').slice(0, 6)
-                setTotpCode(digits)
-              }}
-              placeholder={authCopy.form.mfa.codePlaceholder}
-              className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-gray-900 shadow-sm transition focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
-            />
-          </div>
+          {requiresTotpInput ? (
+            <div className="space-y-2">
+              <label htmlFor="login-totp" className="text-sm font-medium text-gray-700">
+                {authCopy.form.mfa.codeLabel}
+              </label>
+              <input
+                id="login-totp"
+                name="totpCode"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={totpCode}
+                onChange={(event) => {
+                  const digits = event.target.value.replace(/\D/g, '').slice(0, 6)
+                  setTotpCode(digits)
+                }}
+                placeholder={authCopy.form.mfa.codePlaceholder}
+                className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-gray-900 shadow-sm transition focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
+              />
+            </div>
+          ) : null}
           <label className="flex items-center gap-3 text-sm text-gray-600">
             <input
               type="checkbox"

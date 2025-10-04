@@ -14,6 +14,9 @@ export async function GET(request: NextRequest) {
   const url = new URL(request.url)
   const queryToken = String(url.searchParams.get('token') ?? '').trim()
   const token = queryToken || storedMfaToken
+  const identifier = String(
+    url.searchParams.get('identifier') ?? url.searchParams.get('email') ?? '',
+  ).trim()
 
   const headers: Record<string, string> = {
     Accept: 'application/json',
@@ -22,8 +25,17 @@ export async function GET(request: NextRequest) {
     headers.Authorization = `Bearer ${sessionToken}`
   }
 
-  const endpoint = token
-    ? `${ACCOUNT_SERVICE_URL}/account/mfa/status?token=${encodeURIComponent(token)}`
+  const params = new URLSearchParams()
+  if (token) {
+    params.set('token', token)
+  }
+  if (identifier) {
+    params.set('identifier', identifier.toLowerCase())
+  }
+
+  const endpointParams = params.toString()
+  const endpoint = endpointParams
+    ? `${ACCOUNT_SERVICE_URL}/account/mfa/status?${endpointParams}`
     : `${ACCOUNT_SERVICE_URL}/account/mfa/status`
 
   const response = await fetch(endpoint, {
