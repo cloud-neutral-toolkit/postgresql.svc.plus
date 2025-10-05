@@ -17,10 +17,11 @@ type TotpStatus = {
 
 type ProvisionResponse = {
   secret?: string
-  uri?: string
+  otpauth_url?: string
   issuer?: string
   account?: string
   qr?: string
+  mfa?: TotpStatus
   user?: { mfa?: TotpStatus }
 }
 
@@ -119,11 +120,11 @@ export default function MfaSetupPanel() {
       }
       const data = payload.data
       setSecret(data?.secret ?? '')
-      const nextUri = data?.uri ?? ''
+      const nextUri = data?.otpauth_url ?? ''
       setUri(nextUri)
       const nextQr = data?.qr ?? (nextUri ? generateQrImage(nextUri) : '')
       setQrImage(nextQr)
-      setStatus(data?.user?.mfa ?? status)
+      setStatus(data?.mfa ?? data?.user?.mfa ?? status)
     } catch (err) {
       console.warn('Provision TOTP failed', err)
       setError(copy.error)
