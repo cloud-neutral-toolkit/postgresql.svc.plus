@@ -165,6 +165,7 @@ type AuthLoginTranslation = {
     passwordPlaceholder: string
     remember: string
     submit: string
+    submitting?: string
     mfa: {
       mode: string
       passwordOnly: string
@@ -232,6 +233,12 @@ type UserCenterMfaTranslation = {
   subtitle: string
   pendingHint: string
   enabledHint: string
+  summary: {
+    description: string
+    statusLabel: string
+    manage: string
+    bind: string
+  }
   generate: string
   regenerate: string
   secretLabel: string
@@ -266,6 +273,16 @@ type UserCenterMfaTranslation = {
     docs: string
     docsUrl: string
     setup: string
+  }
+  modal: {
+    title: string
+    close: string
+  }
+  disable: {
+    title: string
+    description: string
+    action: string
+    confirming: string
   }
   error: string
 }
@@ -317,16 +334,17 @@ export type Translation = {
     title: string
     description: string
     usernameLabel: string
-  passwordLabel: string
-  submit: string
-  success: string
-  goHome: string
-  missingUsername: string
-  missingPassword: string
-  missingTotp?: string
-  invalidCredentials: string
-  userNotFound: string
-  genericError: string
+    passwordLabel: string
+    submit: string
+    success: string
+    goHome: string
+    missingUsername: string
+    missingPassword: string
+    missingTotp?: string
+    invalidCredentials: string
+    userNotFound: string
+    genericError: string
+    serviceUnavailable?: string
     disclaimer: string
   }
   termsTitle: string
@@ -410,6 +428,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
       invalidCredentials: 'Incorrect username or password. Please try again.',
       userNotFound: 'We could not find an account with that username.',
       genericError: 'We could not sign you in. Please try again later.',
+      serviceUnavailable: 'The account service is temporarily unavailable. Please try again shortly.',
       disclaimer: 'This demo login keeps your username in memory only to personalize navigation while you browse.',
     },
     termsTitle: 'Terms of Service',
@@ -774,6 +793,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
       invalidCredentials: '用户名或密码不正确，请重试。',
       userNotFound: '未找到该用户名对应的账户。',
       genericError: '登录失败，请稍后再试。',
+      serviceUnavailable: '账户服务暂时不可用，请稍后再试。',
       disclaimer: '此演示登录仅会在浏览期间保留用户名，以便展示个性化的导航体验。',
     },
     termsTitle: '服务条款',

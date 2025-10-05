@@ -73,7 +73,10 @@ export default function LoginContent({ children }: LoginContentProps) {
       successMessages.push(alerts.registered)
     }
     if (setupMfaParam === '1') {
-      successMessages.push(alerts.mfa.setupRequired)
+      const setupRequiredMessage = alerts.mfa?.setupRequired ?? alerts.genericError
+      if (setupRequiredMessage) {
+        successMessages.push(setupRequiredMessage)
+      }
     }
 
     if (successMessages.length > 0) {
