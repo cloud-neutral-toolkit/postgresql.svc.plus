@@ -1,11 +1,12 @@
 import runtimeServiceConfigSource from '../config/runtime-service-config.yaml'
 
-type AccountServiceRuntimeConfig = {
+type ServiceRuntimeConfig = {
   baseUrl?: string
 }
 
 type EnvironmentRuntimeConfig = {
-  accountService?: AccountServiceRuntimeConfig
+  accountService?: ServiceRuntimeConfig
+  serverService?: ServiceRuntimeConfig
 }
 
 type RuntimeServiceConfig = {
@@ -61,11 +62,28 @@ function parseSimpleYaml(source: string): RuntimeServiceConfig {
 
 const runtimeServiceConfig = parseSimpleYaml(runtimeServiceConfigSource)
 
-const DEFAULT_ACCOUNT_SERVICE_URL = 'https://account.svc.plus'
-const DEFAULT_SERVER_SERVICE_URL = 'http://localhost:8090'
-
 const runtimeEnvironments: Record<string, EnvironmentRuntimeConfig> =
   runtimeServiceConfig.environments ?? {}
+
+type ServiceKey = keyof EnvironmentRuntimeConfig
+
+const FALLBACK_ACCOUNT_SERVICE_URL = 'http://localhost:8080'
+const FALLBACK_SERVER_SERVICE_URL = 'http://localhost:8090'
+
+function getRuntimeServiceBaseUrl(serviceKey: ServiceKey): string | undefined {
+  const environmentName = resolveRuntimeEnvironment()
+  const runtimeDefaults = runtimeServiceConfig.defaults?.[serviceKey]?.baseUrl
+  const environmentValue = environmentName
+    ? runtimeEnvironments[environmentName]?.[serviceKey]?.baseUrl
+    : undefined
+
+  return environmentValue ?? runtimeDefaults
+}
+
+const DEFAULT_ACCOUNT_SERVICE_URL =
+  getRuntimeServiceBaseUrl('accountService') ?? FALLBACK_ACCOUNT_SERVICE_URL
+const DEFAULT_SERVER_SERVICE_URL =
+  getRuntimeServiceBaseUrl('serverService') ?? FALLBACK_SERVER_SERVICE_URL
 
 type RuntimeEnvironmentName = keyof typeof runtimeEnvironments
 
@@ -104,16 +122,6 @@ function resolveRuntimeEnvironment(): RuntimeEnvironmentName | undefined {
   return undefined
 }
 
-function getRuntimeAccountServiceBaseUrl(): string | undefined {
-  const environmentName = resolveRuntimeEnvironment()
-  const runtimeDefaults = runtimeServiceConfig.defaults?.accountService?.baseUrl
-  const environmentValue = environmentName
-    ? runtimeEnvironments[environmentName]?.accountService?.baseUrl
-    : undefined
-
-  return environmentValue ?? runtimeDefaults
-}
-
 function readEnvValue(...keys: string[]): string | undefined {
   for (const key of keys) {
     const raw = process.env[key]
@@ -133,8 +141,7 @@ function normalizeBaseUrl(baseUrl: string): string {
 
 export function getAccountServiceBaseUrl(): string {
   const configured = readEnvValue('ACCOUNT_SERVICE_URL', 'NEXT_PUBLIC_ACCOUNT_SERVICE_URL')
-  const runtimeConfigured = getRuntimeAccountServiceBaseUrl()
-  return normalizeBaseUrl(configured ?? runtimeConfigured ?? DEFAULT_ACCOUNT_SERVICE_URL)
+  return normalizeBaseUrl(configured ?? DEFAULT_ACCOUNT_SERVICE_URL)
 }
 
 export function getServerServiceBaseUrl(): string {

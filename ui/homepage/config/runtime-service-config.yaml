@@ -2,16 +2,26 @@ defaultEnvironment: production
 defaults:
   accountService:
     baseUrl: http://localhost:8080
+  serverService:
+    baseUrl: http://localhost:8090
 environments:
   development:
     accountService:
       baseUrl: http://localhost:8080
+    serverService:
+      baseUrl: http://localhost:8090
   test:
     accountService:
       baseUrl: http://localhost:8080
+    serverService:
+      baseUrl: http://localhost:8090
   production:
     accountService:
-      baseUrl: https://account.svc.plus
+      baseUrl: http://localhost:8080
+    serverService:
+      baseUrl: http://localhost:8090
   production_tls:
     accountService:
-      baseUrl: https://account.svc.plus:8443
+      baseUrl: http://localhost:8080
+    serverService:
+      baseUrl: http://localhost:8090
