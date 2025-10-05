@@ -111,7 +111,7 @@ function getRuntimeAccountServiceBaseUrl(): string | undefined {
     ? runtimeEnvironments[environmentName]?.accountService?.baseUrl
     : undefined
 
-  return environmentValue ?? runtimeDefaults
+  return runtimeDefaults ?? environmentValue
 }
 
 function readEnvValue(...keys: string[]): string | undefined {
