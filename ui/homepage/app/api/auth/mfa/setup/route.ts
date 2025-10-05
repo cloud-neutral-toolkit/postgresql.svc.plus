@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 
-import { applyMfaCookie, MFA_COOKIE_NAME } from '@lib/authGateway'
+import { applyMfaCookie, MFA_COOKIE_NAME, SESSION_COOKIE_NAME } from '@lib/authGateway'
 import { getAccountServiceBaseUrl } from '@lib/serviceConfig'
 
 const ACCOUNT_SERVICE_URL = getAccountServiceBaseUrl()
@@ -27,10 +27,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, error: 'invalid_request', needMfa: true }, { status: 400 })
   }
 
+  const sessionToken = cookieStore.get(SESSION_COOKIE_NAME)?.value ?? ''
   const cookieToken = cookieStore.get(MFA_COOKIE_NAME)?.value ?? ''
   const token = normalizeString(payload?.token || cookieToken)
 
-  if (!token) {
+  if (!token && !sessionToken) {
     return NextResponse.json({ success: false, error: 'mfa_token_required', needMfa: true }, { status: 400 })
   }
 
@@ -38,12 +39,28 @@ export async function POST(request: NextRequest) {
   const account = normalizeString(payload?.account)
 
   try {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    }
+    if (sessionToken) {
+      headers.Authorization = `Bearer ${sessionToken}`
+    }
+
+    const body: Record<string, string> = {}
+    if (token) {
+      body.token = token
+    }
+    if (issuer) {
+      body.issuer = issuer
+    }
+    if (account) {
+      body.account = account
+    }
+
     const response = await fetch(`${ACCOUNT_API_BASE}/mfa/totp/provision`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ token, issuer: issuer || undefined, account: account || undefined }),
+      headers,
+      body: JSON.stringify(body),
       cache: 'no-store',
     })
 
@@ -54,7 +71,10 @@ export async function POST(request: NextRequest) {
     }
 
     const result = NextResponse.json({ success: true, error: null, needMfa: true, data })
-    applyMfaCookie(result, token)
+    const nextToken = normalizeString((data as { mfaToken?: string })?.mfaToken || token || cookieToken)
+    if (nextToken) {
+      applyMfaCookie(result, nextToken)
+    }
     return result
   } catch (error) {
     console.error('Account service MFA setup proxy failed', error)
