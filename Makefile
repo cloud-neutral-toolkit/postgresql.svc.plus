@@ -67,12 +67,13 @@ ifeq ($(OS),Darwin)
 	sudo make install SCWS_HOME=/opt/homebrew PG_CONFIG=$$(brew --prefix postgresql@16)/bin/pg_config && \
 	cd / && rm -rf $$tmp_dir
 else
-	@echo "Using setup-ubuntu-2204.sh to install PostgreSQL 16..." && \
-	bash scripts/setup_ubuntu_2204.sh install-postgresql && \
-	@echo "Using setup-ubuntu-2204.sh to install pgvector..." && \
-	bash scripts/setup_ubuntu_2204.sh install-pgvector && \
-	@echo "Using setup-ubuntu-2204.sh to install zhparser..." && \
-	bash scripts/setup_ubuntu_2204.sh install-zhparser
+	@set -e; \
+		echo "Using setup-ubuntu-2204.sh to install PostgreSQL 16..."; \
+		bash scripts/setup_ubuntu_2204.sh install-postgresql; \
+		echo "Using setup-ubuntu-2204.sh to install pgvector..."; \
+		bash scripts/setup_ubuntu_2204.sh install-pgvector; \
+		echo "Using setup-ubuntu-2204.sh to install zhparser..."; \
+		bash scripts/setup_ubuntu_2204.sh install-zhparser
 endif
 
 # -----------------------------------------------------------------------------
