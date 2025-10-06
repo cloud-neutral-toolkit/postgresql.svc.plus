@@ -177,16 +177,27 @@ export default function MfaSetupPanel() {
     [code, copy.codePlaceholder, copy.error, refresh, router],
   )
 
-  const showProvisionButton = !status?.totpEnabled
-  const provisionLabel = secret ? copy.regenerate : copy.generate
-
   const displayStatus = useMemo(() => status ?? user?.mfa ?? null, [status, user?.mfa])
 
   useEffect(() => {
-    if ((setupRequested || (isDialogOpen && requiresSetup)) && showProvisionButton && !secret && !hasPendingMfa) {
+    if (
+      (setupRequested || isDialogOpen) &&
+      !displayStatus?.totpEnabled &&
+      !secret &&
+      !hasPendingMfa &&
+      !isProvisioning
+    ) {
       void handleProvision()
     }
-  }, [handleProvision, hasPendingMfa, isDialogOpen, requiresSetup, secret, setupRequested, showProvisionButton])
+  }, [
+    displayStatus?.totpEnabled,
+    handleProvision,
+    hasPendingMfa,
+    isDialogOpen,
+    isProvisioning,
+    secret,
+    setupRequested,
+  ])
 
   useEffect(() => {
     if (!secret && user?.mfa?.totpEnabled) {
@@ -326,17 +337,6 @@ export default function MfaSetupPanel() {
               </p>
 
               <div className="mt-6 space-y-6">
-                {requiresSetup ? (
-                  <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-xs text-amber-800">
-                    <p className="font-semibold">{copy.pendingHint}</p>
-                    <p className="mt-1">{copy.steps.intro}</p>
-                    <ol className="mt-2 list-decimal space-y-1 pl-5">
-                      <li>{copy.steps.provision}</li>
-                      <li>{copy.steps.verify}</li>
-                    </ol>
-                  </div>
-                ) : null}
-
                 {displayStatus?.totpEnabled ? (
                   <div className="space-y-5">
                     <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800">
@@ -374,77 +374,71 @@ export default function MfaSetupPanel() {
                     <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
                       {hasPendingMfa ? copy.pendingHint : copy.subtitle}
                     </p>
-                    {showProvisionButton ? (
+
+                    <div className="space-y-3 rounded-lg border border-gray-200 bg-white p-4">
+                      {qrImage ? (
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">{copy.qrLabel}</p>
+                          <div className="mt-2 flex justify-center">
+                            <img
+                              src={qrImage}
+                              alt="Authenticator QR code"
+                              className="h-40 w-40 rounded-lg border border-purple-100 bg-white p-2 shadow-sm"
+                            />
+                          </div>
+                        </div>
+                      ) : null}
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">{copy.secretLabel}</p>
+                        <code className="mt-1 block break-all rounded bg-purple-50 px-3 py-2 text-sm text-purple-700">{secret}</code>
+                      </div>
+                      {uri ? (
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">{copy.uriLabel}</p>
+                          <a
+                            href={uri}
+                            className="mt-1 block break-all text-sm text-purple-600 underline"
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {uri}
+                          </a>
+                        </div>
+                      ) : null}
+                      <p className="text-xs text-gray-500">{copy.manualHint}</p>
                       <button
                         type="button"
                         onClick={handleProvision}
                         disabled={isProvisioning}
+                        className="inline-flex items-center justify-center rounded-md border border-purple-200 px-3 py-2 text-xs font-medium text-purple-600 transition hover:border-purple-300 hover:bg-purple-50 disabled:cursor-not-allowed disabled:opacity-70"
+                      >
+                        {isProvisioning ? `${copy.regenerate}…` : copy.regenerate}
+                      </button>
+                    </div>
+
+                    <form onSubmit={handleVerify} className="space-y-3">
+                      <label className="block text-sm font-medium text-gray-700" htmlFor="mfa-code">
+                        {copy.codeLabel}
+                      </label>
+                      <input
+                        id="mfa-code"
+                        name="code"
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        value={code}
+                        onChange={(event) => setCode(event.target.value)}
+                        placeholder={copy.codePlaceholder}
+                        className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
+                      />
+                      <button
+                        type="submit"
+                        disabled={isVerifying}
                         className="inline-flex items-center justify-center rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-purple-500 disabled:cursor-not-allowed disabled:opacity-70"
                       >
-                        {isProvisioning ? `${provisionLabel}…` : provisionLabel}
+                        {isVerifying ? copy.verifying : copy.verify}
                       </button>
-                    ) : null}
-
-                    {secret ? (
-                      <div className="space-y-3 rounded-lg border border-gray-200 bg-white p-4">
-                        {qrImage ? (
-                          <div>
-                            <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">{copy.qrLabel}</p>
-                            <div className="mt-2 flex justify-center">
-                              <img
-                                src={qrImage}
-                                alt="Authenticator QR code"
-                                className="h-40 w-40 rounded-lg border border-purple-100 bg-white p-2 shadow-sm"
-                              />
-                            </div>
-                          </div>
-                        ) : null}
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">{copy.secretLabel}</p>
-                          <code className="mt-1 block break-all rounded bg-purple-50 px-3 py-2 text-sm text-purple-700">{secret}</code>
-                        </div>
-                        {uri ? (
-                          <div>
-                            <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">{copy.uriLabel}</p>
-                            <a
-                              href={uri}
-                              className="mt-1 block break-all text-sm text-purple-600 underline"
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              {uri}
-                            </a>
-                          </div>
-                        ) : null}
-                        <p className="text-xs text-gray-500">{copy.manualHint}</p>
-                      </div>
-                    ) : null}
-
-                    {secret ? (
-                      <form onSubmit={handleVerify} className="space-y-3">
-                        <label className="block text-sm font-medium text-gray-700" htmlFor="mfa-code">
-                          {copy.codeLabel}
-                        </label>
-                        <input
-                          id="mfa-code"
-                          name="code"
-                          type="text"
-                          inputMode="numeric"
-                          pattern="[0-9]*"
-                          value={code}
-                          onChange={(event) => setCode(event.target.value)}
-                          placeholder={copy.codePlaceholder}
-                          className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
-                        />
-                        <button
-                          type="submit"
-                          disabled={isVerifying}
-                          className="inline-flex items-center justify-center rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-purple-500 disabled:cursor-not-allowed disabled:opacity-70"
-                        >
-                          {isVerifying ? copy.verifying : copy.verify}
-                        </button>
-                      </form>
-                    ) : null}
+                    </form>
                   </div>
                 )}
 
