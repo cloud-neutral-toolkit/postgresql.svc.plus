@@ -23,6 +23,7 @@ type User = {
     totpPending?: boolean
     totpSecretIssuedAt?: string
     totpConfirmedAt?: string
+    totpLockedUntil?: string
   }
 }
 
@@ -76,6 +77,7 @@ async function fetchSessionUser(): Promise<User | null> {
           totpPending?: boolean
           totpSecretIssuedAt?: string
           totpConfirmedAt?: string
+          totpLockedUntil?: string
         }
       } | null
     }

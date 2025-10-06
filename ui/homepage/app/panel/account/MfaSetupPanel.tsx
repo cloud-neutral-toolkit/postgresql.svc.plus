@@ -2,7 +2,7 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import Image from 'next/image'
+import QRCode from 'react-qr-code'
 
 import Card from '../components/Card'
 import { useLanguage } from '@i18n/LanguageProvider'
@@ -14,6 +14,7 @@ type TotpStatus = {
   totpPending?: boolean
   totpSecretIssuedAt?: string
   totpConfirmedAt?: string
+  totpLockedUntil?: string
 }
 
 type ProvisionResponse = {
@@ -21,7 +22,6 @@ type ProvisionResponse = {
   otpauth_url?: string
   issuer?: string
   account?: string
-  qr?: string
   mfa?: TotpStatus
   user?: { mfa?: TotpStatus }
 }
@@ -47,7 +47,8 @@ export default function MfaSetupPanel() {
   const [status, setStatus] = useState<TotpStatus | null>(null)
   const [secret, setSecret] = useState('')
   const [uri, setUri] = useState('')
-  const [qrImage, setQrImage] = useState('')
+  const [issuer, setIssuer] = useState('')
+  const [accountLabel, setAccountLabel] = useState('')
   const [code, setCode] = useState('')
   const [isProvisioning, setIsProvisioning] = useState(false)
   const [isVerifying, setIsVerifying] = useState(false)
@@ -59,19 +60,40 @@ export default function MfaSetupPanel() {
   const hasPendingMfa = Boolean(status?.totpPending && !status?.totpEnabled)
   const requiresSetup = Boolean(user && (!user.mfaEnabled || user.mfaPending))
 
-  const generateQrImage = useCallback((value: string) => {
-    if (!value) {
-      return ''
-    }
+  const resolveErrorMessage = useCallback(
+    (code?: string | null) => {
+      if (!code) {
+        return copy.error
+      }
 
-    try {
-      const encoded = encodeURIComponent(value)
-      return `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encoded}`
-    } catch (err) {
-      console.warn('Failed to build MFA QR code URL', err)
-      return ''
-    }
-  }, [])
+      const normalized = code.toLowerCase()
+      const mapping: Record<string, string> = {
+        'mfa_token_required': copy.errors.sessionExpired,
+        'session_token_required': copy.errors.sessionExpired,
+        'session_required': copy.errors.sessionExpired,
+        'invalid_session': copy.errors.sessionExpired,
+        'invalid_mfa_token': copy.errors.sessionExpired,
+        'mfa_setup_failed': copy.errors.provisioningFailed,
+        'mfa_user_lookup_failed': copy.errors.provisioningFailed,
+        'mfa_secret_generation_failed': copy.errors.provisioningFailed,
+        'mfa_challenge_creation_failed': copy.errors.provisioningFailed,
+        'mfa_status_failed': copy.errors.network,
+        'account_service_unreachable': copy.errors.network,
+        'mfa_disable_failed': copy.errors.disableFailed,
+        'mfa_not_enabled': copy.errors.disableFailed,
+        'mfa_code_required': copy.errors.missingCode,
+        'missing_credentials': copy.errors.missingCode,
+        'mfa_secret_missing': copy.errors.provisioningFailed,
+        'invalid_mfa_code': copy.errors.invalidCode,
+        'mfa_verification_failed': copy.errors.verificationFailed,
+        'mfa_update_failed': copy.errors.verificationFailed,
+        'mfa_challenge_locked': copy.errors.locked,
+      }
+
+      return mapping[normalized] ?? copy.error
+    },
+    [copy.error, copy.errors],
+  )
 
   const fetchStatus = useCallback(async () => {
     try {
@@ -116,29 +138,42 @@ export default function MfaSetupPanel() {
         data?: ProvisionResponse
       }
       if (!payload?.success || !payload?.data) {
-        setError(payload?.error ?? copy.error)
+        setError(resolveErrorMessage(payload?.error))
         return
       }
+
       const data = payload.data
-      setSecret(data?.secret ?? '')
-      const nextUri = data?.otpauth_url ?? ''
+      const nextSecret = typeof data?.secret === 'string' ? data.secret.trim() : ''
+      const nextUri = typeof data?.otpauth_url === 'string' ? data.otpauth_url.trim() : ''
+      const nextIssuer = typeof data?.issuer === 'string' ? data.issuer.trim() : ''
+      const nextAccount = typeof data?.account === 'string' ? data.account.trim() : ''
+
+      setSecret(nextSecret)
       setUri(nextUri)
-      const nextQr = data?.qr ?? (nextUri ? generateQrImage(nextUri) : '')
-      setQrImage(nextQr)
-      setStatus(data?.mfa ?? data?.user?.mfa ?? status)
+      setIssuer(nextIssuer)
+      setAccountLabel(nextAccount)
+      setCode('')
+
+      const nextStatus = data?.mfa ?? data?.user?.mfa ?? null
+      if (nextStatus) {
+        setStatus(nextStatus)
+      } else {
+        void fetchStatus()
+      }
     } catch (err) {
       console.warn('Provision TOTP failed', err)
-      setError(copy.error)
+      setError(resolveErrorMessage('account_service_unreachable'))
     } finally {
       setIsProvisioning(false)
     }
-  }, [copy.error, generateQrImage, status])
+  }, [fetchStatus, resolveErrorMessage])
 
   const handleVerify = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault()
-      if (!code.trim()) {
-        setError(copy.codePlaceholder)
+      const normalizedCode = code.replace(/\D/g, '').slice(0, 6)
+      if (!normalizedCode) {
+        setError(resolveErrorMessage('mfa_code_required'))
         return
       }
       setIsVerifying(true)
@@ -148,7 +183,7 @@ export default function MfaSetupPanel() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify({ code: code.trim() }),
+          body: JSON.stringify({ code: normalizedCode }),
         })
         const payload = (await response.json().catch(() => ({}))) as {
           success?: boolean
@@ -156,29 +191,40 @@ export default function MfaSetupPanel() {
           needMfa?: boolean
         }
         if (!payload?.success || !response.ok) {
-          setError(payload?.error ?? copy.error)
+          setError(resolveErrorMessage(payload?.error))
+          void fetchStatus()
           return
         }
-        setStatus({ totpEnabled: true })
+        setStatus({ totpEnabled: true, totpPending: false })
         setSecret('')
         setUri('')
-        setQrImage('')
+        setIssuer('')
+        setAccountLabel('')
         setCode('')
         await refresh()
+        void fetchStatus()
         setIsDialogOpen(false)
         router.replace('/panel/account')
         router.refresh()
       } catch (err) {
         console.warn('Verify TOTP failed', err)
-        setError(copy.error)
+        setError(resolveErrorMessage('account_service_unreachable'))
       } finally {
         setIsVerifying(false)
       }
     },
-    [code, copy.codePlaceholder, copy.error, refresh, router],
+    [code, fetchStatus, refresh, resolveErrorMessage, router],
   )
 
   const displayStatus = useMemo(() => status ?? user?.mfa ?? null, [status, user?.mfa])
+
+  const lockoutLabel = useMemo(() => {
+    if (!displayStatus?.totpLockedUntil || displayStatus?.totpEnabled) {
+      return ''
+    }
+    return formatTimestamp(displayStatus.totpLockedUntil)
+  }, [displayStatus?.totpLockedUntil, displayStatus?.totpEnabled])
+  const lockoutActive = Boolean(lockoutLabel)
 
   useEffect(() => {
     if (
@@ -201,10 +247,14 @@ export default function MfaSetupPanel() {
   ])
 
   useEffect(() => {
-    if (!secret && user?.mfa?.totpEnabled) {
-      setQrImage('')
+    if (displayStatus?.totpEnabled) {
+      setSecret('')
+      setUri('')
+      setIssuer('')
+      setAccountLabel('')
+      setCode('')
     }
-  }, [secret, user?.mfa?.totpEnabled])
+  }, [displayStatus?.totpEnabled])
 
   const handleLogoutClick = useCallback(async () => {
     await logout()
@@ -226,24 +276,26 @@ export default function MfaSetupPanel() {
         data?: { user?: { mfa?: TotpStatus } }
       }
       if (!response.ok || !payload?.success) {
-        setError(payload?.error ?? copy.error)
+        setError(resolveErrorMessage(payload?.error))
         return
       }
       const nextStatus = payload?.data?.user?.mfa ?? null
       setStatus(nextStatus ?? { totpEnabled: false, totpPending: false })
       setSecret('')
       setUri('')
-      setQrImage('')
+      setIssuer('')
+      setAccountLabel('')
       setCode('')
       await refresh()
+      void fetchStatus()
       router.refresh()
     } catch (err) {
       console.warn('Disable TOTP failed', err)
-      setError(copy.error)
+      setError(resolveErrorMessage('account_service_unreachable'))
     } finally {
       setIsDisabling(false)
     }
-  }, [copy.error, refresh, router])
+  }, [fetchStatus, refresh, resolveErrorMessage, router])
 
   const closeDialog = useCallback(() => {
     setIsDialogOpen(false)
@@ -378,6 +430,15 @@ export default function MfaSetupPanel() {
                       {hasPendingMfa ? copy.pendingHint : copy.subtitle}
                     </p>
 
+                    {lockoutActive ? (
+                      <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                        {copy.errors.locked}
+                        {lockoutLabel ? (
+                          <span className="mt-1 block text-xs text-red-600">{lockoutLabel}</span>
+                        ) : null}
+                      </p>
+                    ) : null}
+
                     <ol className="space-y-4">
                       <li className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
                         <h4 className="text-sm font-semibold text-gray-900">{copy.guide.step1Title}</h4>
@@ -392,17 +453,17 @@ export default function MfaSetupPanel() {
                         <h4 className="text-sm font-semibold text-gray-900">{copy.guide.step2Title}</h4>
                         <p className="mt-2 text-sm text-gray-600">{copy.guide.step2Description}</p>
                         <div className="mt-4 flex flex-col gap-6 lg:flex-row lg:items-start">
-                          {qrImage ? (
+                          {uri ? (
                             <div className="flex justify-center lg:w-60 lg:justify-start">
                               <div className="rounded-xl border border-purple-100 bg-purple-50 p-3">
-                                <Image
-                                  src={qrImage}
-                                  alt={copy.qrLabel}
-                                  width={240}
-                                  height={240}
-                                  className="h-44 w-44 rounded-lg border border-purple-200 bg-white p-2 shadow-sm"
-                                  unoptimized
-                                />
+                                <div className="flex items-center justify-center rounded-lg border border-purple-200 bg-white p-2 shadow-sm">
+                                  <QRCode
+                                    value={uri}
+                                    size={200}
+                                    className="h-44 w-44"
+                                    aria-label={copy.qrLabel}
+                                  />
+                                </div>
                               </div>
                             </div>
                           ) : null}
@@ -411,6 +472,18 @@ export default function MfaSetupPanel() {
                               <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">{copy.secretLabel}</p>
                               <code className="mt-1 block break-all rounded bg-purple-50 px-3 py-2 text-sm text-purple-700">{secret}</code>
                             </div>
+                            {issuer ? (
+                              <div>
+                                <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">{copy.issuerLabel}</p>
+                                <p className="mt-1 break-all text-sm text-gray-700">{issuer}</p>
+                              </div>
+                            ) : null}
+                            {accountLabel ? (
+                              <div>
+                                <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">{copy.accountLabel}</p>
+                                <p className="mt-1 break-all text-sm text-gray-700">{accountLabel}</p>
+                              </div>
+                            ) : null}
                             {uri ? (
                               <div>
                                 <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">{copy.uriLabel}</p>
@@ -457,7 +530,10 @@ export default function MfaSetupPanel() {
                               maxLength={6}
                               autoComplete="one-time-code"
                               value={code}
-                              onChange={(event) => setCode(event.target.value)}
+                              onChange={(event) => {
+                                const digitsOnly = event.target.value.replace(/\D/g, '').slice(0, 6)
+                                setCode(digitsOnly)
+                              }}
                               placeholder={copy.codePlaceholder}
                               className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-3 text-center text-2xl font-mono tracking-[0.6em] text-gray-900 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
                             />

@@ -20,10 +20,13 @@
     "marked": "^16.1.2",
     "next": "14.2.32",
     "pdfjs-dist": "^4.2.67",
+    "prop-types": "^15.8.1",
+    "qr.js": "0.0.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-grid-layout": "^1.4.4",
     "react-pdf": "^9.1.0",
+    "react-qr-code": "^2.0.18",
     "react-resizable": "^3.0.4",
     "swr": "^2.3.0",
     "zustand": "^4.5.4"

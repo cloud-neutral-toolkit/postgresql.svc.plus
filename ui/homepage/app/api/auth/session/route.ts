@@ -20,6 +20,7 @@ type AccountUser = {
     totpPending?: boolean
     totpSecretIssuedAt?: string
     totpConfirmedAt?: string
+    totpLockedUntil?: string
   }
 }
 

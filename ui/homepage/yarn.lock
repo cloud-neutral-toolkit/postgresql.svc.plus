@@ -4274,6 +4274,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-qr-code@npm:^2.0.18":
+  version: 2.0.18
+  resolution: "react-qr-code@npm:2.0.18"
+  dependencies:
+    prop-types: "npm:^15.8.1"
+    qr.js: "npm:0.0.0"
+  checksum: 10/bf526acfbbab2cc8643ba8e4809b816219eabd76a0cdc7a0dea25459acae08afdce8b4c8a27a566f0c51d5fd403c6778c6b5bf41c404a2f36b0288db533eb94e
+  languageName: node
+  linkType: hard
+
 "react-resizable@npm:^3.0.4, react-resizable@npm:^3.0.5":
   version: 3.0.5
   resolution: "react-resizable@npm:3.0.5"
@@ -5495,6 +5505,13 @@ __metadata:
   version: 5.0.0
   resolution: "yallist@npm:5.0.0"
   checksum: 10/1884d272d485845ad04759a255c71775db0fac56308764b4c77ea56a20d56679fad340213054c8c9c9c26fcfd4c4b2a90df993b7e0aaf3cdb73c618d1d1a802a
+  languageName: node
+  linkType: hard
+
+"qr.js@npm:0.0.0":
+  version: 0.0.0
+  resolution: "qr.js@npm:0.0.0"
+  checksum: 10/7388989d66fe93613ebd8a518a61ea4aee7be5bd7fc0a9785c57891a9166ac9433e48f3cbfd698d9cce1eecd30dfab2b7c2335b17802ff1a68273e5d25fabe39
   languageName: node
   linkType: hard
 

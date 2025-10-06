@@ -242,6 +242,8 @@ type UserCenterMfaTranslation = {
   generate: string
   regenerate: string
   secretLabel: string
+  issuerLabel: string
+  accountLabel: string
   uriLabel: string
   manualHint: string
   codeLabel: string
@@ -293,6 +295,16 @@ type UserCenterMfaTranslation = {
     description: string
     action: string
     confirming: string
+  }
+  errors: {
+    provisioningFailed: string
+    verificationFailed: string
+    missingCode: string
+    invalidCode: string
+    locked: string
+    sessionExpired: string
+    network: string
+    disableFailed: string
   }
   error: string
 }
@@ -685,6 +697,8 @@ export const translations: Record<'en' | 'zh', Translation> = {
         generate: 'Generate setup key',
         regenerate: 'Regenerate key',
         secretLabel: 'Secret key',
+        issuerLabel: 'Issuer',
+        accountLabel: 'Account label',
         uriLabel: 'Authenticator link',
         manualHint: 'Scan the link with Google Authenticator or enter the key manually.',
         codeLabel: 'Verification code',
@@ -740,6 +754,16 @@ export const translations: Record<'en' | 'zh', Translation> = {
           description: 'Removing MFA will disable extra verification until you bind an authenticator again.',
           action: 'Unbind MFA',
           confirming: 'Unbinding…',
+        },
+        errors: {
+          provisioningFailed: 'We could not generate a new secret. Please try again.',
+          verificationFailed: 'The verification failed. Enter a fresh authenticator code.',
+          missingCode: 'Enter the 6-digit code from your authenticator.',
+          invalidCode: 'The code did not match. Try again with a new one.',
+          locked: 'Too many invalid attempts. Wait for the cooldown before retrying.',
+          sessionExpired: 'Your authentication session has expired. Sign in again to continue.',
+          network: 'The account service is not reachable right now. Try again in a moment.',
+          disableFailed: 'We could not reset MFA. Please try again later.',
         },
         error: 'We could not complete the request. Please try again.',
       },
@@ -1049,6 +1073,8 @@ export const translations: Record<'en' | 'zh', Translation> = {
         generate: '生成绑定密钥',
         regenerate: '重新生成密钥',
         secretLabel: '密钥',
+        issuerLabel: '签发方',
+        accountLabel: '账户标识',
         uriLabel: '认证链接',
         manualHint: '使用 Google Authenticator 扫描链接或手动输入密钥。',
         codeLabel: '动态验证码',
@@ -1100,6 +1126,16 @@ export const translations: Record<'en' | 'zh', Translation> = {
           description: '解绑后将暂停额外验证，建议在重新绑定前谨慎操作。',
           action: '立即解绑',
           confirming: '解绑中…',
+        },
+        errors: {
+          provisioningFailed: '暂时无法生成新的密钥，请稍后重试。',
+          verificationFailed: '验证码校验失败，请重新输入新的动态验证码。',
+          missingCode: '请输入 6 位动态验证码以继续。',
+          invalidCode: '验证码不正确，请重试或等待新的验证码。',
+          locked: '错误次数过多，请等待冷却时间后再试。',
+          sessionExpired: '登录状态已失效，请重新登录后再继续操作。',
+          network: '账户服务暂时不可用，请稍后再试。',
+          disableFailed: '无法重置多因素认证，请稍后再试。',
         },
         error: '操作失败，请稍后再试。',
       },
