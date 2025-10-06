@@ -56,9 +56,8 @@ install-nodejs() {
 
     # NodeSource 官方仓库（更稳妥的 GPG 方式）
     sudo install -d -m 0755 /etc/apt/keyrings
-    curl -fsSL --socks5-hostname 127.0.0.1:1080 \
-	    https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
-	    | sudo gpg --batch --yes --dearmor -o /etc/apt/keyrings/nodesource.gpg
+    curl -fsSL --socks5-hostname 127.0.0.1:1080 https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --batch --yes --dearmor -o /etc/apt/keyrings/nodesource.gpg || true
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --batch --yes --dearmor -o /etc/apt/keyrings/nodesource.gpg || true
     gpg --keyserver keyserver.ubuntu.com --recv-keys 2F59B5F99B1BE0B4
     gpg --export --armor 2F59B5F99B1BE0B4 | sudo tee /etc/apt/trusted.gpg.d/missing-key.gpg
 
