@@ -85,6 +85,7 @@ var rootCmd = &cobra.Command{
 		r := server.New(
 			api.RegisterRoutes(conn, cfg.Sync.Repo.Proxy),
 		)
+		server.UseCORS(r, logger, cfg.Server)
 
 		addr := cfg.Server.Addr
 		if addr == "" {

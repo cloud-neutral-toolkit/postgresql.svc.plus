@@ -153,9 +153,11 @@ func (d Duration) String() string {
 
 // ServerCfg contains HTTP server runtime configuration.
 type ServerCfg struct {
-	Addr         string   `yaml:"addr"`
-	ReadTimeout  Duration `yaml:"readTimeout"`
-	WriteTimeout Duration `yaml:"writeTimeout"`
+	Addr           string   `yaml:"addr"`
+	ReadTimeout    Duration `yaml:"readTimeout"`
+	WriteTimeout   Duration `yaml:"writeTimeout"`
+	PublicURL      string   `yaml:"publicUrl"`
+	AllowedOrigins []string `yaml:"allowedOrigins"`
 }
 
 type Config struct {

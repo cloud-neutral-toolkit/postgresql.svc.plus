@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"reflect"
 	"testing"
 	"time"
 )
@@ -36,5 +37,20 @@ func TestLoad(t *testing.T) {
 	}
 	if cfg.Server.WriteTimeout.Duration != 15*time.Second {
 		t.Fatalf("unexpected server write timeout %s", cfg.Server.WriteTimeout)
+	}
+	if cfg.Server.PublicURL != "https://www.svc.plus" {
+		t.Fatalf("unexpected server public url %q", cfg.Server.PublicURL)
+	}
+	wantOrigins := []string{
+		"https://www.svc.plus",
+		"https://global-homepage.svc.plus",
+		"https://account.svc.plus",
+		"http://localhost:3000",
+		"http://127.0.0.1:3000",
+		"http://localhost:3001",
+		"http://127.0.0.1:3001",
+	}
+	if !reflect.DeepEqual(cfg.Server.AllowedOrigins, wantOrigins) {
+		t.Fatalf("unexpected server allowed origins %#v", cfg.Server.AllowedOrigins)
 	}
 }

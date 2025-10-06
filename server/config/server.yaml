@@ -2,6 +2,15 @@ server:
   addr: ":8090"
   readTimeout: 15s
   writeTimeout: 15s
+  publicUrl: "https://www.svc.plus"
+  allowedOrigins:
+    - "https://www.svc.plus"
+    - "https://global-homepage.svc.plus"
+    - "https://account.svc.plus"
+    - "http://localhost:3000"
+    - "http://127.0.0.1:3000"
+    - "http://localhost:3001"
+    - "http://127.0.0.1:3001"
 
 global:
   redis:
