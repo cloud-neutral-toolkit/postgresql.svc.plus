@@ -178,7 +178,9 @@ export function LoginForm() {
         return
       }
 
-      if (!payload.success || !response.ok) {
+      const isSuccessful = response.ok && (payload.success ?? true)
+
+      if (!isSuccessful) {
         const messageKey = payload.error ?? 'generic_error'
         if (
           messageKey === 'mfa_code_required' ||
