@@ -6,7 +6,7 @@ NODE_MAJOR ?= 22
 
 export PATH := $(GO_BIN):$(PATH)
 
-.PHONY: install install-openresty install-redis install-postgresql install-pgvector install-zhparser init-db \
+.PHONY: install install-openresty install-redis install-postgresql init-db \
         build update-homepage-manifests build-server build-homepage \
 	start start-openresty start-server start-homepage \
 	stop stop-server stop-homepage stop-openresty restart
@@ -15,7 +15,7 @@ export PATH := $(GO_BIN):$(PATH)
 # Dependency installation
 # -----------------------------------------------------------------------------
 
-install: install-nodejs install-go install-openresty install-redis install-postgresql install-pgvector install-zhparser
+install: install-nodejs install-go install-openresty install-redis install-postgresql
 
 install-nodejs:
 ifeq ($(OS),Darwin)
@@ -57,30 +57,21 @@ endif
 
 install-postgresql:
 ifeq ($(OS),Darwin)
-	brew install postgresql@14 && brew services start postgresql@14
-else
-	@echo "Using setup-ubuntu-2204.sh to install PostgreSQL 14..."
-	bash docs/setup_ubuntu_2204.sh install-postgresql
-endif
-
-install-pgvector:
-ifeq ($(OS),Darwin)
-	brew install pgvector
-else
-	@echo "Using setup-ubuntu-2204.sh to install pgvector..."
-	bash docs/setup_ubuntu_2204.sh install-pgvector
-endif
-
-install-zhparser:
-ifeq ($(OS),Darwin)
+	brew install postgresql@16 && \
+	brew services start postgresql@16 && \
+	brew install pgvector && \
 	brew install scws && \
 	tmp_dir=$$(mktemp -d) && cd $$tmp_dir && \
 	git clone https://github.com/amutu/zhparser.git && \
-	cd zhparser && make SCWS_HOME=/opt/homebrew PG_CONFIG=$$(brew --prefix postgresql@14)/bin/pg_config && \
-	sudo make install SCWS_HOME=/opt/homebrew PG_CONFIG=$$(brew --prefix postgresql@14)/bin/pg_config && \
+	cd zhparser && make SCWS_HOME=/opt/homebrew PG_CONFIG=$$(brew --prefix postgresql@16)/bin/pg_config && \
+	sudo make install SCWS_HOME=/opt/homebrew PG_CONFIG=$$(brew --prefix postgresql@16)/bin/pg_config && \
 	cd / && rm -rf $$tmp_dir
 else
-	@echo "Using setup-ubuntu-2204.sh to install zhparser..."
+	@echo "Using setup-ubuntu-2204.sh to install PostgreSQL 16..." && \
+	bash docs/setup_ubuntu_2204.sh install-postgresql && \
+	@echo "Using setup-ubuntu-2204.sh to install pgvector..." && \
+	bash docs/setup_ubuntu_2204.sh install-pgvector && \
+	@echo "Using setup-ubuntu-2204.sh to install zhparser..." && \
 	bash docs/setup_ubuntu_2204.sh install-zhparser
 endif
 
