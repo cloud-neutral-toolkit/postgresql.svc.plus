@@ -27,14 +27,14 @@ ifeq ($(OS),Darwin)
 	@echo "Node: $$(node -v)"; echo "Yarn: $$(yarn -v 2>/dev/null || echo n/a)"
 else
 	@echo "Using setup_ubuntu_2204.sh to install Node.js..."
-	NODE_MAJOR=$(NODE_MAJOR) bash docs/setup_ubuntu_2204.sh install-nodejs
+	NODE_MAJOR=$(NODE_MAJOR) bash scripts/setup_ubuntu_2204.sh install-nodejs
 endif
 
 install-go:
 ifeq ($(OS),Darwin)
 	brew install go
 else
-	GO_VERSION=$(GO_VERSION) bash docs/setup_ubuntu_2204.sh install-go
+	GO_VERSION=$(GO_VERSION) bash scripts/setup_ubuntu_2204.sh install-go
 endif
 
 install-openresty:
@@ -52,7 +52,7 @@ ifeq ($(OS),Darwin)
 	brew install redis && brew services start redis
 else
 	@echo "Using setup_ubuntu_2204.sh to install Redis..."
-	bash docs/setup_ubuntu_2204.sh install-redis
+	bash scripts/setup_ubuntu_2204.sh install-redis
 endif
 
 install-postgresql:
@@ -68,11 +68,11 @@ ifeq ($(OS),Darwin)
 	cd / && rm -rf $$tmp_dir
 else
 	@echo "Using setup-ubuntu-2204.sh to install PostgreSQL 16..." && \
-	bash docs/setup_ubuntu_2204.sh install-postgresql && \
+	bash scripts/setup_ubuntu_2204.sh install-postgresql && \
 	@echo "Using setup-ubuntu-2204.sh to install pgvector..." && \
-	bash docs/setup_ubuntu_2204.sh install-pgvector && \
+	bash scripts/setup_ubuntu_2204.sh install-pgvector && \
 	@echo "Using setup-ubuntu-2204.sh to install zhparser..." && \
-	bash docs/setup_ubuntu_2204.sh install-zhparser
+	bash scripts/setup_ubuntu_2204.sh install-zhparser
 endif
 
 # -----------------------------------------------------------------------------
