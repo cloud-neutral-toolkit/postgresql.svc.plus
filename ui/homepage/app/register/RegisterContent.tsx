@@ -16,6 +16,51 @@ import { WeChatIcon } from '../components/icons/WeChatIcon'
 
 type AlertState = { type: 'error' | 'success'; message: string }
 
+function normalizePathname(pathname: string): string {
+  return pathname.replace(/\/+$/, '').toLowerCase()
+}
+
+function coerceRegisterUrlOverride(rawValue: string | undefined | null, accountServiceBaseUrl: string): string {
+  const fallbackUrl = `${accountServiceBaseUrl}/api/auth/register`
+  if (!rawValue) {
+    return fallbackUrl
+  }
+
+  const trimmed = rawValue.trim()
+  if (!trimmed) {
+    return fallbackUrl
+  }
+
+  const rewritePathname = (pathname: string) => {
+    const normalized = normalizePathname(pathname)
+    if (normalized === '/register' || normalized === 'register') {
+      return '/api/auth/register'
+    }
+    return undefined
+  }
+
+  try {
+    const parsed = new URL(trimmed)
+    const rewritten = rewritePathname(parsed.pathname)
+    if (rewritten) {
+      parsed.pathname = rewritten
+      return parsed.toString()
+    }
+    return parsed.toString()
+  } catch (error) {
+    try {
+      const parsed = new URL(trimmed, 'http://localhost')
+      const rewritten = rewritePathname(parsed.pathname)
+      if (rewritten) {
+        return `${rewritten}${parsed.search}${parsed.hash}`
+      }
+    } catch (relativeError) {
+      console.warn('Failed to parse register URL override', relativeError)
+    }
+    return trimmed
+  }
+}
+
 export default function RegisterContent() {
   const { language } = useLanguage()
   const t = translations[language].auth.register
@@ -26,7 +71,7 @@ export default function RegisterContent() {
   const accountServiceBaseUrl = getAccountServiceBaseUrl()
   const githubAuthUrl = process.env.NEXT_PUBLIC_GITHUB_AUTH_URL || '/api/auth/github'
   const wechatAuthUrl = process.env.NEXT_PUBLIC_WECHAT_AUTH_URL || '/api/auth/wechat'
-  const registerUrl = process.env.NEXT_PUBLIC_REGISTER_URL || `${accountServiceBaseUrl}/api/auth/register`
+  const registerUrl = coerceRegisterUrlOverride(process.env.NEXT_PUBLIC_REGISTER_URL, accountServiceBaseUrl)
   const isSocialAuthVisible = false
 
   const registerUrlRef = useRef(registerUrl)
