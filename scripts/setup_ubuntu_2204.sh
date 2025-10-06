@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+PG_MAJOR="${PG_MAJOR:-16}"
+
 install-go() {
     local version="${GO_VERSION:-1.24.5}"
     local tarball="go${version}.linux-amd64.tar.gz"
@@ -93,7 +95,7 @@ install-nodejs() {
 }
 
 install-postgresql() {
-    echo "=== 安装 PostgreSQL 14 ==="
+    echo "=== 安装 PostgreSQL ${PG_MAJOR} ==="
     sudo apt-get update
     sudo apt-get install -y wget curl gnupg lsb-release ca-certificates
     if ! grep -q "apt.postgresql.org" /etc/apt/sources.list.d/pgdg.list 2>/dev/null; then
@@ -104,7 +106,8 @@ install-postgresql() {
             | sudo tee /etc/apt/sources.list.d/pgdg.list
         sudo apt-get update
     fi
-    sudo apt-get install -y postgresql-14 postgresql-client-14 postgresql-contrib-14 postgresql-server-dev-14
+    sudo apt-get install -y "postgresql-${PG_MAJOR}" "postgresql-client-${PG_MAJOR}" \
+        "postgresql-contrib-${PG_MAJOR}" "postgresql-server-dev-${PG_MAJOR}"
     sudo systemctl enable --now postgresql
 }
 
@@ -162,8 +165,9 @@ install-zhparser() {
     git clone https://github.com/amutu/zhparser.git || \
     git clone https://ghproxy.com/https://github.com/amutu/zhparser.git
     cd zhparser
-    make SCWS_HOME=/usr PG_CONFIG=/usr/lib/postgresql/14/bin/pg_config
-    sudo make install SCWS_HOME=/usr PG_CONFIG=/usr/lib/postgresql/14/bin/pg_config
+    pg_config_path="$(command -v pg_config || echo "/usr/lib/postgresql/${PG_MAJOR}/bin/pg_config")"
+    make SCWS_HOME=/usr PG_CONFIG="${pg_config_path}"
+    sudo make install SCWS_HOME=/usr PG_CONFIG="${pg_config_path}"
     cd /
     rm -rf "$tmp_dir"
 }
