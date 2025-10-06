@@ -20,15 +20,40 @@ function normalizePathname(pathname: string): string {
   return pathname.replace(/\/+$/, '').toLowerCase()
 }
 
+function ensureHttpsForSameHost(url: string): string {
+  if (typeof window === 'undefined') {
+    return url
+  }
+
+  try {
+    const currentOrigin = window.location.origin
+    const parsed = new URL(url, currentOrigin)
+
+    if (
+      window.location.protocol === 'https:' &&
+      parsed.protocol === 'http:' &&
+      parsed.hostname === window.location.hostname
+    ) {
+      parsed.protocol = 'https:'
+      return parsed.toString()
+    }
+
+    return parsed.toString()
+  } catch (error) {
+    console.warn('Failed to normalize register URL, falling back to provided value', error)
+    return url
+  }
+}
+
 function coerceRegisterUrlOverride(rawValue: string | undefined | null, accountServiceBaseUrl: string): string {
   const fallbackUrl = `${accountServiceBaseUrl}/api/auth/register`
   if (!rawValue) {
-    return fallbackUrl
+    return ensureHttpsForSameHost(fallbackUrl)
   }
 
   const trimmed = rawValue.trim()
   if (!trimmed) {
-    return fallbackUrl
+    return ensureHttpsForSameHost(fallbackUrl)
   }
 
   const rewritePathname = (pathname: string) => {
@@ -44,20 +69,20 @@ function coerceRegisterUrlOverride(rawValue: string | undefined | null, accountS
     const rewritten = rewritePathname(parsed.pathname)
     if (rewritten) {
       parsed.pathname = rewritten
-      return parsed.toString()
+      return ensureHttpsForSameHost(parsed.toString())
     }
-    return parsed.toString()
+    return ensureHttpsForSameHost(parsed.toString())
   } catch (error) {
     try {
       const parsed = new URL(trimmed, 'http://localhost')
       const rewritten = rewritePathname(parsed.pathname)
       if (rewritten) {
-        return `${rewritten}${parsed.search}${parsed.hash}`
+        return ensureHttpsForSameHost(`${rewritten}${parsed.search}${parsed.hash}`)
       }
     } catch (relativeError) {
       console.warn('Failed to parse register URL override', relativeError)
     }
-    return trimmed
+    return ensureHttpsForSameHost(trimmed)
   }
 }
 
