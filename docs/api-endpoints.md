@@ -4,7 +4,7 @@ This document describes the HTTP endpoints provided by the XControl platform. Ea
 
 ## Authentication Gateway (Next.js)
 
-The XControl web frontend exposes authentication APIs under `ui/homepage/app/api/auth`. These endpoints act as a secure gateway that proxies requests to the shared Account Service (`/account/register`, `/account/verify`, `/account/login`, `/account/mfa/setup`, `/account/mfa/verify`). Responses always include `{ "success": boolean, "error": string | null, "needMfa": boolean }` so that multiple frontends can share the same Account Service behaviour.
+The XControl web frontend exposes authentication APIs under `ui/homepage/app/api/auth`. These endpoints act as a secure gateway that proxies requests to the shared Account Service (`/api/auth/register`, `/api/auth/register/verify`, `/api/auth/login`, `/api/auth/mfa/setup`, `/api/auth/mfa/verify`). Responses always include `{ "success": boolean, "error": string | null, "needMfa": boolean }` so that multiple frontends can share the same Account Service behaviour.
 
 Gateway-managed session cookies (`xc_session`) and MFA challenge cookies (`xc_mfa_challenge`) are issued with `HttpOnly`, `Secure`, and `SameSite=Strict` attributes. Cookies are HTTPS-only and never expose raw secrets to JavaScript.
 
