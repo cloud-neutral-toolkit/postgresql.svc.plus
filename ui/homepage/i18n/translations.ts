@@ -250,6 +250,16 @@ type UserCenterMfaTranslation = {
   verifying: string
   successTitle: string
   successBody: string
+  guide: {
+    step1Title: string
+    step1Description: string
+    step1Ios: string
+    step1Android: string
+    step2Title: string
+    step2Description: string
+    step3Title: string
+    step3Description: string
+  }
   status: {
     issuedAt: string
     confirmedAt: string

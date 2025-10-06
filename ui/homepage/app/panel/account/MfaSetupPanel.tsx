@@ -2,6 +2,7 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import Image from 'next/image'
 
 import Card from '../components/Card'
 import { useLanguage } from '@i18n/LanguageProvider'
@@ -394,10 +395,13 @@ export default function MfaSetupPanel() {
                           {qrImage ? (
                             <div className="flex justify-center lg:w-60 lg:justify-start">
                               <div className="rounded-xl border border-purple-100 bg-purple-50 p-3">
-                                <img
+                                <Image
                                   src={qrImage}
-                                  alt="Authenticator QR code"
+                                  alt={copy.qrLabel}
+                                  width={240}
+                                  height={240}
                                   className="h-44 w-44 rounded-lg border border-purple-200 bg-white p-2 shadow-sm"
+                                  unoptimized
                                 />
                               </div>
                             </div>
