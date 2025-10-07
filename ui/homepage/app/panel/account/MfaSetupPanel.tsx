@@ -26,6 +26,50 @@ type ProvisionResponse = {
   user?: { mfa?: TotpStatus }
 }
 
+const DEFAULT_TOTP_ISSUER = 'svc.plus'
+
+function applyTotpUriOverrides(originalUri: string, issuer: string, accountName: string) {
+  const trimmedUri = originalUri.trim()
+  if (!trimmedUri) {
+    return ''
+  }
+
+  const normalizedIssuer = issuer.trim()
+  const normalizedAccount = accountName.trim()
+
+  if (!normalizedIssuer && !normalizedAccount) {
+    return trimmedUri
+  }
+
+  try {
+    const uri = new URL(trimmedUri)
+    if (uri.protocol !== 'otpauth:') {
+      return trimmedUri
+    }
+
+    if (normalizedIssuer) {
+      uri.searchParams.set('issuer', normalizedIssuer)
+    }
+
+    const labelParts: string[] = []
+    if (normalizedIssuer) {
+      labelParts.push(encodeURIComponent(normalizedIssuer))
+    }
+    if (normalizedAccount) {
+      labelParts.push(encodeURIComponent(normalizedAccount))
+    }
+
+    if (labelParts.length > 0) {
+      uri.pathname = `/${labelParts.join(':')}`
+    }
+
+    return uri.toString()
+  } catch (error) {
+    console.warn('Failed to normalize otpauth URI', error)
+    return trimmedUri
+  }
+}
+
 function formatTimestamp(value?: string) {
   if (!value) {
     return '—'
@@ -145,13 +189,31 @@ export default function MfaSetupPanel() {
       const data = payload.data
       const nextSecret = typeof data?.secret === 'string' ? data.secret.trim() : ''
       const nextUri = typeof data?.otpauth_url === 'string' ? data.otpauth_url.trim() : ''
-      const nextIssuer = typeof data?.issuer === 'string' ? data.issuer.trim() : ''
       const nextAccount = typeof data?.account === 'string' ? data.account.trim() : ''
 
+      const resolvedAccountLabel = (() => {
+        const username = typeof user?.username === 'string' ? user.username.trim() : ''
+        if (username) {
+          return username
+        }
+        const email = typeof user?.email === 'string' ? user.email.trim() : ''
+        if (email) {
+          return email
+        }
+        const name = typeof user?.name === 'string' ? user.name.trim() : ''
+        if (name) {
+          return name
+        }
+        return nextAccount
+      })()
+
+      const resolvedIssuer = DEFAULT_TOTP_ISSUER
+      const updatedUri = applyTotpUriOverrides(nextUri, resolvedIssuer, resolvedAccountLabel)
+
       setSecret(nextSecret)
-      setUri(nextUri)
-      setIssuer(nextIssuer)
-      setAccountLabel(nextAccount)
+      setUri(updatedUri)
+      setIssuer(resolvedIssuer)
+      setAccountLabel(resolvedAccountLabel)
       setCode('')
 
       const nextStatus = data?.mfa ?? data?.user?.mfa ?? null
@@ -166,7 +228,7 @@ export default function MfaSetupPanel() {
     } finally {
       setIsProvisioning(false)
     }
-  }, [fetchStatus, resolveErrorMessage])
+  }, [fetchStatus, resolveErrorMessage, user?.email, user?.name, user?.username])
 
   const handleVerify = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
