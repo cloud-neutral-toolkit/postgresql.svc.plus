@@ -22,6 +22,9 @@ type AccountUser = {
     totpConfirmedAt?: string
     totpLockedUntil?: string
   }
+  role?: string
+  groups?: string[]
+  permissions?: string[]
 }
 
 type SessionResponse = {
@@ -78,6 +81,21 @@ export async function GET(request: NextRequest) {
         : false
   const derivedMfaPending = derivedMfaPendingSource && !derivedMfaEnabled
 
+  const normalizedRole =
+    typeof rawUser.role === 'string' && rawUser.role.trim().length > 0
+      ? rawUser.role.trim().toLowerCase()
+      : 'user'
+  const normalizedGroups = Array.isArray(rawUser.groups)
+    ? rawUser.groups
+        .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+        .map((value) => value.trim())
+    : []
+  const normalizedPermissions = Array.isArray(rawUser.permissions)
+    ? rawUser.permissions
+        .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+        .map((value) => value.trim())
+    : []
+
   const normalizedMfa = Object.keys(rawMfa).length
     ? {
         ...rawMfa,
@@ -97,6 +115,9 @@ export async function GET(request: NextRequest) {
       mfaEnabled: derivedMfaEnabled,
       mfaPending: derivedMfaPending,
       mfa: normalizedMfa,
+      role: normalizedRole,
+      groups: normalizedGroups,
+      permissions: normalizedPermissions,
     },
   })
 }

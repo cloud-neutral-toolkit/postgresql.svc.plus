@@ -18,6 +18,9 @@ type User = {
   username: string
   mfaEnabled: boolean
   mfaPending: boolean
+  role: string
+  groups: string[]
+  permissions: string[]
   mfa?: {
     totpEnabled?: boolean
     totpPending?: boolean
@@ -72,6 +75,9 @@ async function fetchSessionUser(): Promise<User | null> {
         username?: string
         mfaEnabled?: boolean
         mfaPending?: boolean
+        role?: string
+        groups?: string[]
+        permissions?: string[]
         mfa?: {
           totpEnabled?: boolean
           totpPending?: boolean
@@ -87,7 +93,7 @@ async function fetchSessionUser(): Promise<User | null> {
       return null
     }
 
-    const { id, uuid, email, name, username, mfaEnabled, mfa, mfaPending } = sessionUser
+    const { id, uuid, email, name, username, mfaEnabled, mfa, mfaPending, role, groups, permissions } = sessionUser
     const identifier =
       typeof uuid === 'string' && uuid.trim().length > 0
         ? uuid.trim()
@@ -113,6 +119,18 @@ async function fetchSessionUser(): Promise<User | null> {
           totpPending: Boolean(mfaPending) && !Boolean(mfaEnabled),
         }
 
+    const normalizedRole = typeof role === 'string' && role.trim().length > 0 ? role.trim().toLowerCase() : 'user'
+    const normalizedGroups = Array.isArray(groups)
+      ? groups
+          .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+          .map((value) => value.trim())
+      : []
+    const normalizedPermissions = Array.isArray(permissions)
+      ? permissions
+          .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+          .map((value) => value.trim())
+      : []
+
     return {
       id: identifier,
       uuid: identifier,
@@ -122,6 +140,9 @@ async function fetchSessionUser(): Promise<User | null> {
       mfaEnabled: Boolean(mfaEnabled ?? mfa?.totpEnabled),
       mfaPending: Boolean(mfaPending ?? mfa?.totpPending) && !Boolean(mfaEnabled ?? mfa?.totpEnabled),
       mfa: normalizedMfa,
+      role: normalizedRole,
+      groups: normalizedGroups,
+      permissions: normalizedPermissions,
     }
   } catch (error) {
     console.warn('Failed to resolve user session', error)

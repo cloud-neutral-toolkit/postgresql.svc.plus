@@ -83,7 +83,24 @@ Gateway-managed session cookies (`xc_session`) and MFA challenge cookies (`xc_mf
   ```
 
 ### Session Lookup
-- **GET /api/auth/session** – Returns `{ "user": { ... } }` when the `xc_session` cookie is present. Clears the cookie automatically if the Account Service rejects the session.
+- **GET /api/auth/session** – Returns `{ "user": { ... } }` when the `xc_session` cookie is present. The payload now mirrors the Account Service metadata and exposes the `role`, `groups`, and `permissions` arrays that are derived from the server-side `level` field. Clears the cookie automatically if the Account Service rejects the session.
+- **Test:**
+  ```bash
+  curl -b cookies.txt http://localhost:3000/api/auth/session | jq
+  ```
+  Example response after a successful login:
+  ```json
+  {
+    "user": {
+      "uuid": "72c70df9-b7b6-4e81-84ef-5f0e5b1fc7c6",
+      "name": "demo",
+      "email": "demo@example.com",
+      "role": "user",
+      "groups": ["User"],
+      "permissions": ["session:read"]
+    }
+  }
+  ```
 - **DELETE /api/auth/session** – Revokes the active session both at the gateway and the Account Service.
 
 > **TLS note:** Deploy the frontend behind HTTPS so that `Secure` cookies are accepted by browsers. When testing with curl, add `-k` only if using a self-signed development certificate.

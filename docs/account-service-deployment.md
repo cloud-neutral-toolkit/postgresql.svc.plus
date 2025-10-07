@@ -64,7 +64,19 @@
      -d '{"identifier":"demo@example.com","totpCode":"123456"}'
 
    # 查看当前会话
-   curl -b cookies.txt http://127.0.0.1:8080/api/auth/session
+   curl -b cookies.txt http://127.0.0.1:8080/api/auth/session | jq
+
+   # 预期响应示例（展示角色、用户组与权限列表）
+   # {
+   #   "user": {
+   #     "uuid": "72c70df9-b7b6-4e81-84ef-5f0e5b1fc7c6",
+   #     "name": "demo",
+   #     "email": "demo@example.com",
+   #     "role": "user",
+   #     "groups": ["User"],
+   #     "permissions": ["session:read"]
+   #   }
+   # }
    ```
 
    若需要重新绑定 MFA，可再次发起登录以获取新的 `mfaToken`，然后重复 `provision` → `verify` 流程；如需彻底重置，可在数据库中清理相关 MFA 字段后重新执行上述步骤。
@@ -167,6 +179,88 @@ curl -k https://127.0.0.1:8443/healthz
 - 对外提供服务时务必启用 HTTPS，保护登录口令与 TOTP 码。
 - 对数据库、证书等敏感资源使用最小权限原则，并定期轮换。
 - 定期回顾 `account/api/api_test.go` 中的场景测试，确保关键登录链路持续可用。
+
+## 9. 数据库备份、迁移与回滚示例
+
+> 以下示例假设 PostgreSQL 运行在 `localhost`，数据库名称为 `account`, 用户为 `xcontrol`。根据实际环境替换连接信息。
+
+1. **迁移前备份**
+
+   在应用任何结构变更前，先导出当前库或指定表：
+
+   ```bash
+   pg_dump -h localhost -U xcontrol -d account > backup_before_role_metadata.sql
+   # 仅备份 users 表可使用：
+   pg_dump -h localhost -U xcontrol -d account -t public.users > backup_users_only.sql
+   ```
+
+2. **执行角色元数据迁移**
+
+   若数据库仍是旧版本（缺少 `role`、`groups`、`permissions` 列），可通过 `psql` 在事务中执行以下语句：
+
+   ```sql
+   BEGIN;
+   ALTER TABLE public.users
+     ADD COLUMN IF NOT EXISTS level INTEGER DEFAULT 20 NOT NULL,
+     ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'user' NOT NULL,
+     ADD COLUMN IF NOT EXISTS groups JSONB DEFAULT '[]'::jsonb NOT NULL,
+     ADD COLUMN IF NOT EXISTS permissions JSONB DEFAULT '[]'::jsonb NOT NULL;
+
+   UPDATE public.users
+   SET role = CASE level
+       WHEN 0 THEN 'admin'
+       WHEN 10 THEN 'operator'
+       ELSE 'user'
+     END,
+     groups = CASE level
+       WHEN 0 THEN '["Admin"]'::jsonb
+       WHEN 10 THEN '["Operator"]'::jsonb
+       ELSE '["User"]'::jsonb
+     END,
+     permissions = CASE level
+       WHEN 0 THEN '["session:read","session:write","user:manage"]'::jsonb
+       WHEN 10 THEN '["session:read","session:write"]'::jsonb
+       ELSE '["session:read"]'::jsonb
+     END
+   WHERE role IS NULL OR role = '' OR groups = '[]'::jsonb;
+
+   COMMIT;
+   ```
+
+   > **提示**：如已在 CI/CD 中托管 `account/sql/schema.sql`，也可直接执行 `psql -h ... -f account/sql/schema.sql`，该脚本为幂等实现，会自动跳过已有对象。
+
+3. **验证数据**
+
+   ```sql
+   SELECT username, level, role, groups, permissions
+   FROM public.users
+   ORDER BY created_at DESC
+   LIMIT 5;
+   ```
+
+   预期 `level` 与 `role` 一致，并且新注册用户属于 `User` 组。
+
+4. **回滚策略**
+
+   - **快速恢复**：如迁移失败，可直接用备份文件恢复：
+
+     ```bash
+     psql -h localhost -U xcontrol -d account < backup_before_role_metadata.sql
+     ```
+
+   - **局部回退**：若仅需删除新增列，可执行：
+
+     ```sql
+     BEGIN;
+     ALTER TABLE public.users
+       DROP COLUMN IF EXISTS permissions,
+       DROP COLUMN IF EXISTS groups,
+       DROP COLUMN IF EXISTS role,
+       DROP COLUMN IF EXISTS level;
+     COMMIT;
+     ```
+
+   恢复后重新运行 `schema.sql` 或上述迁移脚本，即可重新引入角色元数据。
 
 ---
 以上步骤覆盖从开发到生产的核心流程，可根据企业环境补充额外的安全、审计或合规要求。
