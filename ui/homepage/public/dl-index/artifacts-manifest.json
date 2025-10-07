@@ -750,8 +750,8 @@
         "lastModified": "2025-09-26T01:51:56Z"
       },
       {
-        "name": "xray/",
-        "href": "/dashboard/_next/static/chunks/app/panel/xray/",
+        "name": "management/",
+        "href": "/dashboard/_next/static/chunks/app/panel/management/",
         "type": "dir",
         "lastModified": "2025-09-26T01:51:56Z"
       }
@@ -818,11 +818,11 @@
     ]
   },
   {
-    "path": "dashboard/_next/static/chunks/app/panel/xray/",
+    "path": "dashboard/_next/static/chunks/app/panel/management/",
     "entries": [
       {
         "name": "page-f036d24f65fa1934.js",
-        "href": "/dashboard/_next/static/chunks/app/panel/xray/page-f036d24f65fa1934.js",
+        "href": "/dashboard/_next/static/chunks/app/panel/management/page-f036d24f65fa1934.js",
         "type": "file",
         "size": 195,
         "lastModified": "2025-09-26T01:51:56Z"
@@ -9679,8 +9679,8 @@
         "lastModified": "2025-09-26T01:52:33Z"
       },
       {
-        "name": "xray/",
-        "href": "/dashboard/download/dashboard/_next/static/chunks/app/panel/xray/",
+        "name": "management/",
+        "href": "/dashboard/download/dashboard/_next/static/chunks/app/panel/management/",
         "type": "dir",
         "lastModified": "2025-09-26T01:52:33Z"
       }
@@ -9782,18 +9782,18 @@
     ]
   },
   {
-    "path": "dashboard/download/dashboard/_next/static/chunks/app/panel/xray/",
+    "path": "dashboard/download/dashboard/_next/static/chunks/app/panel/management/",
     "entries": [
       {
         "name": "index.html",
-        "href": "/dashboard/download/dashboard/_next/static/chunks/app/panel/xray/index.html",
+        "href": "/dashboard/download/dashboard/_next/static/chunks/app/panel/management/index.html",
         "type": "file",
         "size": 11169,
         "lastModified": "2025-09-26T01:52:33Z"
       },
       {
         "name": "index.txt",
-        "href": "/dashboard/download/dashboard/_next/static/chunks/app/panel/xray/index.txt",
+        "href": "/dashboard/download/dashboard/_next/static/chunks/app/panel/management/index.txt",
         "type": "file",
         "size": 4169,
         "lastModified": "2025-09-26T01:52:33Z"
@@ -15882,8 +15882,8 @@
         "lastModified": "2025-09-26T01:52:57Z"
       },
       {
-        "name": "xray/",
-        "href": "/dashboard/download/dashboard/download/dashboard/_next/static/chunks/app/panel/xray/",
+        "name": "management/",
+        "href": "/dashboard/download/dashboard/download/dashboard/_next/static/chunks/app/panel/management/",
         "type": "dir",
         "lastModified": "2025-09-26T01:52:57Z"
       }
@@ -15985,18 +15985,18 @@
     ]
   },
   {
-    "path": "dashboard/download/dashboard/download/dashboard/_next/static/chunks/app/panel/xray/",
+    "path": "dashboard/download/dashboard/download/dashboard/_next/static/chunks/app/panel/management/",
     "entries": [
       {
         "name": "index.html",
-        "href": "/dashboard/download/dashboard/download/dashboard/_next/static/chunks/app/panel/xray/index.html",
+        "href": "/dashboard/download/dashboard/download/dashboard/_next/static/chunks/app/panel/management/index.html",
         "type": "file",
         "size": 12941,
         "lastModified": "2025-09-26T01:52:57Z"
       },
       {
         "name": "index.txt",
-        "href": "/dashboard/download/dashboard/download/dashboard/_next/static/chunks/app/panel/xray/index.txt",
+        "href": "/dashboard/download/dashboard/download/dashboard/_next/static/chunks/app/panel/management/index.txt",
         "type": "file",
         "size": 4495,
         "lastModified": "2025-09-26T01:52:57Z"
@@ -20460,8 +20460,8 @@
         "lastModified": "2025-09-26T01:53:16Z"
       },
       {
-        "name": "xray/",
-        "href": "/dashboard/download/dashboard/download/dashboard/panel/xray/",
+        "name": "management/",
+        "href": "/dashboard/download/dashboard/download/dashboard/panel/management/",
         "type": "dir",
         "lastModified": "2025-09-26T01:53:17Z"
       }
@@ -20563,18 +20563,18 @@
     ]
   },
   {
-    "path": "dashboard/download/dashboard/download/dashboard/panel/xray/",
+    "path": "dashboard/download/dashboard/download/dashboard/panel/management/",
     "entries": [
       {
         "name": "index.html",
-        "href": "/dashboard/download/dashboard/download/dashboard/panel/xray/index.html",
+        "href": "/dashboard/download/dashboard/download/dashboard/panel/management/index.html",
         "type": "file",
         "size": 11775,
         "lastModified": "2025-09-26T01:53:16Z"
       },
       {
         "name": "index.txt",
-        "href": "/dashboard/download/dashboard/download/dashboard/panel/xray/index.txt",
+        "href": "/dashboard/download/dashboard/download/dashboard/panel/management/index.txt",
         "type": "file",
         "size": 4231,
         "lastModified": "2025-09-26T01:53:17Z"
@@ -23507,8 +23507,8 @@
         "lastModified": "2025-09-26T01:53:30Z"
       },
       {
-        "name": "xray/",
-        "href": "/dashboard/download/dashboard/panel/xray/",
+        "name": "management/",
+        "href": "/dashboard/download/dashboard/panel/management/",
         "type": "dir",
         "lastModified": "2025-09-26T01:53:30Z"
       }
@@ -23610,18 +23610,18 @@
     ]
   },
   {
-    "path": "dashboard/download/dashboard/panel/xray/",
+    "path": "dashboard/download/dashboard/panel/management/",
     "entries": [
       {
         "name": "index.html",
-        "href": "/dashboard/download/dashboard/panel/xray/index.html",
+        "href": "/dashboard/download/dashboard/panel/management/index.html",
         "type": "file",
         "size": 11100,
         "lastModified": "2025-09-26T01:53:30Z"
       },
       {
         "name": "index.txt",
-        "href": "/dashboard/download/dashboard/panel/xray/index.txt",
+        "href": "/dashboard/download/dashboard/panel/management/index.txt",
         "type": "file",
         "size": 4029,
         "lastModified": "2025-09-26T01:53:30Z"
@@ -24697,8 +24697,8 @@
         "lastModified": "2025-09-26T01:53:35Z"
       },
       {
-        "name": "xray/",
-        "href": "/dashboard/panel/xray/",
+        "name": "management/",
+        "href": "/dashboard/panel/management/",
         "type": "dir",
         "lastModified": "2025-09-26T01:53:35Z"
       }
@@ -24800,18 +24800,18 @@
     ]
   },
   {
-    "path": "dashboard/panel/xray/",
+    "path": "dashboard/panel/management/",
     "entries": [
       {
         "name": "index.html",
-        "href": "/dashboard/panel/xray/index.html",
+        "href": "/dashboard/panel/management/index.html",
         "type": "file",
         "size": 14719,
         "lastModified": "2025-09-26T01:53:35Z"
       },
       {
         "name": "index.txt",
-        "href": "/dashboard/panel/xray/index.txt",
+        "href": "/dashboard/panel/management/index.txt",
         "type": "file",
         "size": 3595,
         "lastModified": "2025-09-26T01:53:35Z"

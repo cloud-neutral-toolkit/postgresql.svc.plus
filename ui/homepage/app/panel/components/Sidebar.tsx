@@ -101,20 +101,22 @@ export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
   const requiresSetup = Boolean(user && (!user.mfaEnabled || user.mfaPending))
 
   const navSections = useMemo(() => {
-    const sections = [...baseNavSections]
+    const sections = baseNavSections.map((section) => ({
+      ...section,
+      items: [...section.items],
+    }))
 
     if (user?.isAdmin || user?.isOperator) {
-      sections.push({
-        title: '管理页面',
-        items: [
-          {
-            href: '/panel/xray',
-            label: 'XRay Console',
-            description: '零信任策略与运维控制',
-            icon: Settings,
-          },
-        ],
-      })
+      const userCenterSection = sections.find((section) => section.title === '用户中心')
+
+      if (userCenterSection) {
+        userCenterSection.items.push({
+          href: '/panel/management',
+          label: 'Management Console',
+          description: '零信任策略与运维控制',
+          icon: Settings,
+        })
+      }
     }
 
     return sections

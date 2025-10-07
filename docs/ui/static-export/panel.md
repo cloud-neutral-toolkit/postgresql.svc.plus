@@ -4,7 +4,7 @@
 - `/panel`
 - `/panel/account`
 - `/panel/agent`
-- `/panel/xray`
+- `/panel/management`
 - `/panel/subscription`
 - `/panel/api`
 - `/panel/ldp`

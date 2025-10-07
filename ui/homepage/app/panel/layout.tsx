@@ -19,7 +19,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
   const { user, isLoading, logout } = useUser()
 
   const requiresSetup = Boolean(user && (!user.mfaEnabled || user.mfaPending))
-  const isManagementRoute = pathname.startsWith('/panel/xray')
+  const isManagementRoute = pathname.startsWith('/panel/management')
 
   useEffect(() => {
     if (isLoading) {
