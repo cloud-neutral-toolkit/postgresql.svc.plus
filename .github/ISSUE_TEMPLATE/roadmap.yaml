@@ -8,8 +8,8 @@ body:
   - type: dropdown
     id: task_type
     attributes:
-      label: 🧩 任务类型 / Task Type
-      description: 请选择此 Issue 的任务类别
+      label: "🧩 任务类型 / Task Type"
+      description: "请选择此 Issue 的任务类别"
       options:
         - "Feature — 新功能开发"
         - "Improvement — 功能优化 / 重构"
@@ -23,8 +23,8 @@ body:
   - type: textarea
     id: summary
     attributes:
-      label: 📋 概要描述 / Summary
-      description: 简要说明任务目标、背景与核心改动（中英文均可）
+      label: "📋 概要描述 / Summary"
+      description: "简要说明任务目标、背景与核心改动（中英文均可）"
       placeholder: |
         e.g. 实现用户角色与权限体系；支持前端展示角色徽章与管理面板入口。
     validations:
@@ -33,8 +33,8 @@ body:
   - type: dropdown
     id: dependencies
     attributes:
-      label: 🔗 依赖任务 / Dependencies
-      description: 选择本任务依赖的上游任务（可多选，无则留空）
+      label: "🔗 依赖任务 / Dependencies"
+      description: "选择本任务依赖的上游任务（可多选，无则留空）"
       multiple: true
       options:
         - "None"
@@ -47,8 +47,8 @@ body:
   - type: textarea
     id: deliverables
     attributes:
-      label: 🎯 交付内容 / Deliverables
-      description: 列出任务完成后预期的可验证成果或文件路径
+      label: "🎯 交付内容 / Deliverables"
+      description: "列出任务完成后预期的可验证成果或文件路径"
       placeholder: |
         - 新增 /internal/service/user_metrics.go
         - 更新 /ui/dashboard/pages/admin.tsx
@@ -57,8 +57,8 @@ body:
   - type: textarea
     id: acceptance
     attributes:
-      label: ✅ 验收标准 / Acceptance Criteria
-      description: 描述完成定义 (Definition of Done)，包括代码、测试、文档与功能验证。
+      label: "✅ 验收标准 / Acceptance Criteria"
+      description: "描述完成定义 (Definition of Done)，包括代码、测试、文档与功能验证。"
       placeholder: |
         - 单元测试通过率 ≥ 80%
         - 所有 CI 检查通过
@@ -68,35 +68,35 @@ body:
   - type: input
     id: milestone
     attributes:
-      label: 🗓️ 里程碑 / Milestone
-      description: 对应版本或阶段（例如 v0.6.0 或 “Phase 2”）
-      placeholder: v0.6.0
+      label: "🗓️ 里程碑 / Milestone"
+      description: "对应版本或阶段（例如 v0.6.0 或 “Phase 2”）"
+      placeholder: "v0.6.0"
 
   - type: dropdown
     id: area
     attributes:
-      label: 🧭 模块领域 / Area
-      description: 标记所属系统或模块
+      label: "🧭 模块领域 / Area"
+      description: "标记所属系统或模块"
       multiple: true
       options:
-        - backend
-        - frontend
-        - api
-        - database
-        - infra
-        - ui
-        - auth
-        - metrics
-        - documentation
-        - testing
-        - ci-cd
-        - release
+        - "backend"
+        - "frontend"
+        - "api"
+        - "database"
+        - "infra"
+        - "ui"
+        - "auth"
+        - "metrics"
+        - "documentation"
+        - "testing"
+        - "ci-cd"
+        - "release"
 
   - type: textarea
     id: risks
     attributes:
-      label: ⚠️ 风险与备注 / Risks & Notes
-      description: 记录技术风险、依赖约束或设计决策
+      label: "⚠️ 风险与备注 / Risks & Notes"
+      description: "记录技术风险、依赖约束或设计决策"
       placeholder: |
         - 依赖数据库 schema 迁移
         - 与其他分支存在冲突风险
