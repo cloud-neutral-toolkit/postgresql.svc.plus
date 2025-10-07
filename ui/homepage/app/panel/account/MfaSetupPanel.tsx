@@ -1,8 +1,9 @@
 'use client'
 
+import Image from 'next/image'
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import QRCode from 'react-qr-code'
+import { toDataURL as generateQrCode } from 'qrcode'
 
 import Card from '../components/Card'
 import { useLanguage } from '@i18n/LanguageProvider'
@@ -94,6 +95,7 @@ export default function MfaSetupPanel() {
   const [issuer, setIssuer] = useState('')
   const [accountLabel, setAccountLabel] = useState('')
   const [code, setCode] = useState('')
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState('')
   const [isProvisioning, setIsProvisioning] = useState(false)
   const [isVerifying, setIsVerifying] = useState(false)
   const [isDisabling, setIsDisabling] = useState(false)
@@ -165,6 +167,39 @@ export default function MfaSetupPanel() {
       setIsDialogOpen(true)
     }
   }, [setupRequested])
+
+  useEffect(() => {
+    let active = true
+
+    const renderQr = async () => {
+      if (!uri) {
+        setQrCodeDataUrl('')
+        return
+      }
+
+      try {
+        const dataUrl = await generateQrCode(uri, {
+          errorCorrectionLevel: 'M',
+          margin: 1,
+          scale: 6,
+        })
+        if (active) {
+          setQrCodeDataUrl(dataUrl)
+        }
+      } catch (error) {
+        console.warn('Failed to generate MFA QR code', error)
+        if (active) {
+          setQrCodeDataUrl('')
+        }
+      }
+    }
+
+    void renderQr()
+
+    return () => {
+      active = false
+    }
+  }, [uri])
 
   const handleProvision = useCallback(async () => {
     setIsProvisioning(true)
@@ -515,15 +550,17 @@ export default function MfaSetupPanel() {
                         <h4 className="text-sm font-semibold text-gray-900">{copy.guide.step2Title}</h4>
                         <p className="mt-2 text-sm text-gray-600">{copy.guide.step2Description}</p>
                         <div className="mt-4 flex flex-col gap-6 lg:flex-row lg:items-start">
-                          {uri ? (
+                          {qrCodeDataUrl ? (
                             <div className="flex justify-center lg:w-60 lg:justify-start">
                               <div className="rounded-xl border border-purple-100 bg-purple-50 p-3">
                                 <div className="flex items-center justify-center rounded-lg border border-purple-200 bg-white p-2 shadow-sm">
-                                  <QRCode
-                                    value={uri}
-                                    size={200}
+                                  <Image
+                                    src={qrCodeDataUrl}
+                                    alt={copy.qrLabel}
+                                    width={176}
+                                    height={176}
                                     className="h-44 w-44"
-                                    aria-label={copy.qrLabel}
+                                    unoptimized
                                   />
                                 </div>
                               </div>

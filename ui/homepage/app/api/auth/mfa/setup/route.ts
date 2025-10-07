@@ -7,6 +7,11 @@ import { getAccountServiceBaseUrl } from '@lib/serviceConfig'
 const ACCOUNT_SERVICE_URL = getAccountServiceBaseUrl()
 const ACCOUNT_API_BASE = `${ACCOUNT_SERVICE_URL}/api/auth`
 
+// This Next.js route proxies MFA provisioning requests to the account service.
+// The UI calls /api/auth/mfa/setup, which in turn forwards to the Go backend
+// at /api/auth/mfa/totp/provision, keeping browser credentials opaque to the
+// external service and letting us manage cookies centrally.
+
 type SetupPayload = {
   token?: string
   issuer?: string
