@@ -16,5 +16,6 @@ func RegisterRoutes(conn *pgx.Conn, repoProxy string) server.Registrar {
 		registerKnowledgeRoutes(api, conn, repoProxy)
 		registerRAGRoutes(api)
 		registerAskAIRoutes(api)
+		registerAdminSettingRoutes(api)
 	}
 }
