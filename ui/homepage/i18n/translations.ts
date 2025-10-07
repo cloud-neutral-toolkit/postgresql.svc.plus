@@ -349,6 +349,7 @@ export type Translation = {
       welcome: string
       logout: string
       userCenter: string
+      management: string
     }
     releaseChannels: ReleaseChannelLabels
   }
@@ -413,6 +414,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
         welcome: 'Welcome, {username}',
         logout: 'Sign out',
         userCenter: 'User Center',
+        management: 'Management Console',
       },
       releaseChannels: {
         label: 'Preview',
@@ -804,6 +806,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
         welcome: '欢迎，{username}',
         logout: '退出登录',
         userCenter: '用户中心',
+        management: '管理控制台',
       },
       releaseChannels: {
         label: '体验版本',

@@ -12,6 +12,12 @@ import { create } from 'zustand'
 
 export type UserRole = 'guest' | 'user' | 'operator' | 'admin'
 
+export type TenantMembership = {
+  id: string
+  name?: string
+  role?: UserRole
+}
+
 type User = {
   id: string
   uuid: string
@@ -27,6 +33,8 @@ type User = {
   isUser: boolean
   isOperator: boolean
   isAdmin: boolean
+  tenantId?: string
+  tenants?: TenantMembership[]
   mfa?: {
     totpEnabled?: boolean
     totpPending?: boolean
@@ -35,6 +43,8 @@ type User = {
     totpLockedUntil?: string
   }
 }
+
+export type SessionUser = User | null
 
 type UserContextValue = {
   user: User | null
@@ -106,6 +116,8 @@ async function fetchSessionUser(): Promise<User | null> {
         role?: string
         groups?: string[]
         permissions?: string[]
+        tenantId?: string
+        tenants?: TenantMembership[]
         mfa?: {
           totpEnabled?: boolean
           totpPending?: boolean
@@ -158,6 +170,39 @@ async function fetchSessionUser(): Promise<User | null> {
           .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
           .map((value) => value.trim())
       : []
+    const normalizedTenantId =
+      typeof sessionUser.tenantId === 'string' && sessionUser.tenantId.trim().length > 0
+        ? sessionUser.tenantId.trim()
+        : undefined
+    const normalizedTenants = Array.isArray(sessionUser.tenants)
+      ? sessionUser.tenants
+          .map((tenant) => {
+            if (!tenant || typeof tenant !== 'object') {
+              return null
+            }
+            const identifier =
+              typeof tenant.id === 'string' && tenant.id.trim().length > 0
+                ? tenant.id.trim()
+                : undefined
+            if (!identifier) {
+              return null
+            }
+            const label =
+              typeof tenant.name === 'string' && tenant.name.trim().length > 0
+                ? tenant.name.trim()
+                : undefined
+            const roleValue =
+              typeof tenant.role === 'string' && tenant.role.trim().length > 0
+                ? normalizeRole(tenant.role)
+                : undefined
+            return {
+              id: identifier,
+              name: label,
+              role: roleValue,
+            }
+          })
+          .filter((tenant): tenant is TenantMembership => Boolean(tenant))
+      : undefined
 
     return {
       id: identifier,
@@ -175,6 +220,8 @@ async function fetchSessionUser(): Promise<User | null> {
       isUser: normalizedRole === 'user',
       isOperator: normalizedRole === 'operator',
       isAdmin: normalizedRole === 'admin',
+      tenantId: normalizedTenantId,
+      tenants: normalizedTenants,
     }
   } catch (error) {
     console.warn('Failed to resolve user session', error)

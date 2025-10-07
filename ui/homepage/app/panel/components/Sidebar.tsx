@@ -107,16 +107,17 @@ export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
     }))
 
     if (user?.isAdmin || user?.isOperator) {
-      const userCenterSection = sections.find((section) => section.title === '用户中心')
-
-      if (userCenterSection) {
-        userCenterSection.items.push({
-          href: '/panel/management',
-          label: 'Management Console',
-          description: '零信任策略与运维控制',
-          icon: Settings,
-        })
-      }
+      sections.push({
+        title: '管理页面',
+        items: [
+          {
+            href: '/panel/management',
+            label: 'Management',
+            description: '集中化的权限矩阵与用户编排',
+            icon: Settings,
+          },
+        ],
+      })
     }
 
     return sections

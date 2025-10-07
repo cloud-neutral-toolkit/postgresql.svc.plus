@@ -106,6 +106,16 @@ export default function Navbar() {
           href: '/panel',
           togglePath: '/panel',
         },
+        ...(user?.isAdmin || user?.isOperator
+          ? [
+              {
+                key: 'management',
+                label: accountCopy.management,
+                href: '/panel/management',
+                togglePath: '/panel/management',
+              } satisfies NavSubItem,
+            ]
+          : []),
         {
           key: 'logout',
           label: accountCopy.logout,

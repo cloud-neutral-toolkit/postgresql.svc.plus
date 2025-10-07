@@ -25,6 +25,12 @@ type AccountUser = {
   role?: string
   groups?: string[]
   permissions?: string[]
+  tenantId?: string
+  tenants?: Array<{
+    id?: string
+    name?: string
+    role?: string
+  }>
 }
 
 type SessionResponse = {
@@ -95,6 +101,41 @@ export async function GET(request: NextRequest) {
         .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
         .map((value) => value.trim())
     : []
+  const normalizedTenantId =
+    typeof rawUser.tenantId === 'string' && rawUser.tenantId.trim().length > 0
+      ? rawUser.tenantId.trim()
+      : undefined
+  const normalizedTenants = Array.isArray(rawUser.tenants)
+    ? rawUser.tenants
+        .map((tenant) => {
+          if (!tenant || typeof tenant !== 'object') {
+            return null
+          }
+
+          const identifier =
+            typeof tenant.id === 'string' && tenant.id.trim().length > 0
+              ? tenant.id.trim()
+              : undefined
+          if (!identifier) {
+            return null
+          }
+
+          const label =
+            typeof tenant.name === 'string' && tenant.name.trim().length > 0
+              ? tenant.name.trim()
+              : undefined
+          const roleValue =
+            typeof tenant.role === 'string' && tenant.role.trim().length > 0
+              ? tenant.role.trim().toLowerCase()
+              : undefined
+          return {
+            id: identifier,
+            name: label,
+            role: roleValue,
+          }
+        })
+        .filter((tenant): tenant is { id: string; name?: string; role?: string } => Boolean(tenant))
+    : undefined
 
   const normalizedMfa = Object.keys(rawMfa).length
     ? {
@@ -118,6 +159,8 @@ export async function GET(request: NextRequest) {
       role: normalizedRole,
       groups: normalizedGroups,
       permissions: normalizedPermissions,
+      tenantId: normalizedTenantId,
+      tenants: normalizedTenants,
     },
   })
 }

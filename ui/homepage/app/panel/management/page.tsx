@@ -10,6 +10,7 @@ import PermissionMatrixEditor, {
 } from './components/PermissionMatrixEditor'
 import UserGroupManagement, { type ManagedUser } from './components/UserGroupManagement'
 import Card from '../components/Card'
+import { resolveAccess } from '@lib/accessControl'
 import { useUser } from '@lib/userStore'
 
 type UserMetricsResponse = {
@@ -57,7 +58,8 @@ async function jsonFetcher<T>(input: RequestInfo, init?: RequestInit): Promise<T
 
 export default function ManagementPage() {
   const { user, isLoading: isUserLoading } = useUser()
-  const canAccess = Boolean(user?.isAdmin || user?.isOperator)
+  const accessDecision = useMemo(() => resolveAccess(user, { requireLogin: true, roles: ['admin', 'operator'] }), [user])
+  const canAccess = accessDecision.allowed
   const canEditPermissions = Boolean(user?.isAdmin)
   const canEditRoles = Boolean(user?.isAdmin)
 
@@ -227,7 +229,11 @@ export default function ManagementPage() {
       <Card>
         <div className="flex flex-col items-start gap-3 text-sm text-gray-700">
           <h2 className="text-lg font-semibold text-gray-900">权限不足</h2>
-          <p>该页面仅向管理员与运营角色开放。如果你认为这是一个错误，请联系管理员。</p>
+          <p>
+            {accessDecision.reason === 'unauthenticated'
+              ? '请先登录后再访问该页面。'
+              : '该页面仅向管理员与运营角色开放。如果你认为这是一个错误，请联系管理员。'}
+          </p>
         </div>
       </Card>
     )

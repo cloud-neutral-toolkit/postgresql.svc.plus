@@ -8,7 +8,35 @@ import Header from './components/Header'
 import Sidebar from './components/Sidebar'
 import { useLanguage } from '@i18n/LanguageProvider'
 import { translations } from '@i18n/translations'
+import { resolveAccess, type AccessRule } from '@lib/accessControl'
 import { useUser } from '@lib/userStore'
+
+type RouteGuard = {
+  test: (pathname: string) => boolean
+  redirect: {
+    unauthenticated: string
+    forbidden?: string
+  }
+  rule: AccessRule
+}
+
+const routeGuards: RouteGuard[] = [
+  {
+    test: (pathname) => pathname.startsWith('/panel/management'),
+    redirect: {
+      unauthenticated: '/login',
+      forbidden: '/panel',
+    },
+    rule: { requireLogin: true, roles: ['admin', 'operator'] },
+  },
+  {
+    test: (pathname) => pathname.startsWith('/panel'),
+    redirect: {
+      unauthenticated: '/login',
+    },
+    rule: { requireLogin: true },
+  },
+]
 
 export default function PanelLayout({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
@@ -17,24 +45,29 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
   const { language } = useLanguage()
   const copy = translations[language].userCenter.mfa
   const { user, isLoading, logout } = useUser()
-
   const requiresSetup = Boolean(user && (!user.mfaEnabled || user.mfaPending))
-  const isManagementRoute = pathname.startsWith('/panel/management')
-
+  
   useEffect(() => {
     if (isLoading) {
       return
     }
 
-    if (!user) {
-      router.replace('/login')
+    const guard = routeGuards.find((entry) => entry.test(pathname))
+    if (!guard) {
       return
     }
 
-    if (isManagementRoute && !(user.isAdmin || user.isOperator)) {
-      router.replace('/panel')
+    const decision = resolveAccess(user, guard.rule)
+    if (!decision.allowed) {
+      const destination =
+        decision.reason === 'unauthenticated'
+          ? guard.redirect.unauthenticated
+          : guard.redirect.forbidden ?? guard.redirect.unauthenticated
+      if (destination && destination !== pathname) {
+        router.replace(destination)
+      }
     }
-  }, [isLoading, isManagementRoute, router, user])
+  }, [isLoading, pathname, router, user])
 
   useEffect(() => {
     if (!requiresSetup || pathname.startsWith('/panel/account')) {
