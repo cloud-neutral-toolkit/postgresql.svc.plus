@@ -10,6 +10,8 @@ import {
 import useSWR from 'swr'
 import { create } from 'zustand'
 
+export type UserRole = 'guest' | 'user' | 'operator' | 'admin'
+
 type User = {
   id: string
   uuid: string
@@ -18,9 +20,13 @@ type User = {
   username: string
   mfaEnabled: boolean
   mfaPending: boolean
-  role: string
+  role: UserRole
   groups: string[]
   permissions: string[]
+  isGuest: boolean
+  isUser: boolean
+  isOperator: boolean
+  isAdmin: boolean
   mfa?: {
     totpEnabled?: boolean
     totpPending?: boolean
@@ -51,6 +57,28 @@ const sessionStore = create<UserStore>((set) => ({
 const UserContext = createContext<UserContextValue | undefined>(undefined)
 
 const SESSION_CACHE_KEY = 'account_session'
+
+const KNOWN_ROLE_MAP: Record<string, UserRole> = {
+  admin: 'admin',
+  administrator: 'admin',
+  operator: 'operator',
+  ops: 'operator',
+  user: 'user',
+  member: 'user',
+}
+
+function normalizeRole(input?: string | null): UserRole {
+  if (!input || typeof input !== 'string') {
+    return 'guest'
+  }
+
+  const normalized = input.trim().toLowerCase()
+  if (!normalized) {
+    return 'guest'
+  }
+
+  return KNOWN_ROLE_MAP[normalized] ?? 'guest'
+}
 
 async function fetchSessionUser(): Promise<User | null> {
   try {
@@ -119,7 +147,7 @@ async function fetchSessionUser(): Promise<User | null> {
           totpPending: Boolean(mfaPending) && !Boolean(mfaEnabled),
         }
 
-    const normalizedRole = typeof role === 'string' && role.trim().length > 0 ? role.trim().toLowerCase() : 'user'
+    const normalizedRole = normalizeRole(role)
     const normalizedGroups = Array.isArray(groups)
       ? groups
           .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
@@ -143,6 +171,10 @@ async function fetchSessionUser(): Promise<User | null> {
       role: normalizedRole,
       groups: normalizedGroups,
       permissions: normalizedPermissions,
+      isGuest: normalizedRole === 'guest',
+      isUser: normalizedRole === 'user',
+      isOperator: normalizedRole === 'operator',
+      isAdmin: normalizedRole === 'admin',
     }
   } catch (error) {
     console.warn('Failed to resolve user session', error)

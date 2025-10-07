@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Server, Code, CreditCard, User, Shield, type LucideIcon } from 'lucide-react'
+import { Home, Server, Code, CreditCard, User, Shield, Settings, type LucideIcon } from 'lucide-react'
+import { useMemo } from 'react'
 
 import { useLanguage } from '@i18n/LanguageProvider'
 import { translations } from '@i18n/translations'
@@ -26,7 +27,7 @@ interface NavSection {
   items: NavItem[]
 }
 
-const navSections: NavSection[] = [
+const baseNavSections: NavSection[] = [
   {
     title: '用户中心',
     items: [
@@ -98,6 +99,26 @@ export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
   const copy = translations[language].userCenter.mfa
   const { user } = useUser()
   const requiresSetup = Boolean(user && (!user.mfaEnabled || user.mfaPending))
+
+  const navSections = useMemo(() => {
+    const sections = [...baseNavSections]
+
+    if (user?.isAdmin || user?.isOperator) {
+      sections.push({
+        title: '管理页面',
+        items: [
+          {
+            href: '/panel/xray',
+            label: 'XRay Console',
+            description: '零信任策略与运维控制',
+            icon: Settings,
+          },
+        ],
+      })
+    }
+
+    return sections
+  }, [user?.isAdmin, user?.isOperator])
 
   return (
     <aside

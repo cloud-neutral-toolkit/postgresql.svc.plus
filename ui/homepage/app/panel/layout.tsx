@@ -19,6 +19,22 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
   const { user, isLoading, logout } = useUser()
 
   const requiresSetup = Boolean(user && (!user.mfaEnabled || user.mfaPending))
+  const isManagementRoute = pathname.startsWith('/panel/xray')
+
+  useEffect(() => {
+    if (isLoading) {
+      return
+    }
+
+    if (!user) {
+      router.replace('/login')
+      return
+    }
+
+    if (isManagementRoute && !(user.isAdmin || user.isOperator)) {
+      router.replace('/panel')
+    }
+  }, [isLoading, isManagementRoute, router, user])
 
   useEffect(() => {
     if (!requiresSetup || pathname.startsWith('/panel/account')) {
@@ -49,9 +65,9 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
         />
       )}
 
-      <div className="flex min-h-screen flex-1 flex-col md:pl-64">
+      <div className="flex min-h-screen flex-1 flex-col">
         <Header onMenu={() => setOpen((prev) => !prev)} />
-        <main className="flex-1 space-y-6 bg-transparent px-3 py-6 md:px-6">
+        <main className="flex flex-1 flex-col space-y-6 bg-white/60 px-3 py-5 sm:px-4 md:px-6 lg:px-8">
           {requiresSetup ? (
             <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
               <p className="font-semibold">{copy.pendingHint}</p>
@@ -87,7 +103,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
               </div>
             </div>
           ) : null}
-          <div className="flex w-full flex-col gap-6">{children}</div>
+          <div className="flex w-full flex-1 flex-col gap-5 md:gap-6">{children}</div>
         </main>
       </div>
     </div>

@@ -4,6 +4,14 @@ import Link from 'next/link'
 import { Menu } from 'lucide-react'
 
 import { useUser } from '@lib/userStore'
+import type { UserRole } from '@lib/userStore'
+
+const ROLE_BADGES: Record<UserRole, { label: string; className: string }> = {
+  guest: { label: 'Guest', className: 'bg-gray-200 text-gray-600' },
+  user: { label: 'User', className: 'bg-blue-100 text-blue-700' },
+  operator: { label: 'Operator', className: 'bg-emerald-100 text-emerald-700' },
+  admin: { label: 'Admin', className: 'bg-purple-100 text-purple-700' },
+}
 
 interface HeaderProps {
   onMenu: () => void
@@ -24,12 +32,12 @@ function resolveAccountInitial(input?: string | null) {
 
 export default function Header({ onMenu }: HeaderProps) {
   const { user, isLoading } = useUser()
+  const role: UserRole = user?.role ?? 'guest'
+  const badge = ROLE_BADGES[role]
   const accountLabel = user?.name ?? user?.username ?? user?.email ?? 'Guest user'
   const accountInitial = resolveAccountInitial(accountLabel)
-  const statusBadge = isLoading ? 'Syncing' : user ? 'Admin' : 'Guest'
-  const badgeClasses = user
-    ? 'bg-purple-100 text-purple-700'
-    : 'bg-gray-200 text-gray-600'
+  const statusBadge = isLoading ? 'Syncing' : badge.label
+  const badgeClasses = isLoading ? 'bg-gray-200 text-gray-600' : badge.className
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between border-b border-gray-200 bg-white/80 px-4 py-3 shadow-sm backdrop-blur md:px-6">
