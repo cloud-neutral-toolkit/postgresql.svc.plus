@@ -337,19 +337,19 @@ SELECT pglogical.replication_set_add_all_tables('rep_all', ARRAY['public']);
 如果提示 “already exists” 可以忽略。
 
 
-### 在 global-homepage 创建节点与订阅
+### 在 cn-homepage 创建节点与订阅
 
 ```
 -- 注册 global 节点（Provider）
 SELECT pglogical.create_node(
-    node_name := 'node_global',
-    dsn := 'host=global-homepage.svc.plus port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full'
+    node_name := 'node_cn',
+    dsn := 'host=47.120.61.35 port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full'
 );
 
 -- 创建对 cn-homepage 的订阅
 SELECT pglogical.create_subscription(
     subscription_name := 'sub_from_cn',
-    provider_dsn := 'host=cn-homepage.svc.plus port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full',
+    provider_dsn := 'host=167.179.72.223 port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full',
     replication_sets := ARRAY['rep_all'],
     synchronize_structure := false,
     synchronize_data := false,
@@ -357,19 +357,19 @@ SELECT pglogical.create_subscription(
 );
 ```
 
-### 在 cn-homepage 创建节点与订阅
+### 在 global-homepage 创建节点与订阅
 
 ```
 -- 注册 cn-homepage 节点（Provider）
 SELECT pglogical.create_node(
     node_name := 'node_cn',
-    dsn := 'host=cn-homepage.svc.plus port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full'
+    dsn := 'host=47.120.61.35 port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full'
 );
 
 -- 创建对 global-homepage 的订阅
 SELECT pglogical.create_subscription(
     subscription_name := 'sub_from_global',
-    provider_dsn := 'host=global-homepage.svc.plus port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full',
+    provider_dsn := 'host=167.179.72.223 port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full',
     replication_sets := ARRAY['rep_all'],
     synchronize_structure := false,
     synchronize_data := true,
