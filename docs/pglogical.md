@@ -284,32 +284,53 @@ pglogical  | Replication, Login
 ### 节点 A
 
 ```sql
--- 启用扩展
+-- 启用扩展（如果尚未启用）
 CREATE EXTENSION IF NOT EXISTS pglogical;
 
--- 注册节点
+-- 注册 Provider 节点
 SELECT pglogical.create_node(
     node_name := 'node_cn',
-    dsn := 'host=cn-homepage.svc.plus port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full'
+    dsn := 'host=global-homepage.svc.plus port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full'
 );
 
--- 创建复制集，包含 public 模式下所有表
+-- 创建复制集（包含所有 public 表）
 SELECT pglogical.create_replication_set('rep_all');
 SELECT pglogical.replication_set_add_all_tables('rep_all', ARRAY['public']);
+
+-- 授权 schema 访问（订阅端会远程调用 pglogical schema）
+GRANT USAGE ON SCHEMA pglogical TO pglogical;
+GRANT ALL ON ALL TABLES IN SCHEMA pglogical TO pglogical;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA pglogical TO pglogical;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA pglogical TO pglogical;
+ALTER DEFAULT PRIVILEGES IN SCHEMA pglogical GRANT ALL ON TABLES TO pglogical;
+ALTER DEFAULT PRIVILEGES IN SCHEMA pglogical GRANT EXECUTE ON FUNCTIONS TO pglogical;
+
 ```
 
 ### 节点 B
 
 ```sql
+-- 启用扩展（如果尚未启用）
 CREATE EXTENSION IF NOT EXISTS pglogical;
 
+-- 注册 Provider 节点
 SELECT pglogical.create_node(
     node_name := 'node_global',
     dsn := 'host=global-homepage.svc.plus port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full'
 );
 
+-- 创建复制集（包含所有 public 表）
 SELECT pglogical.create_replication_set('rep_all');
 SELECT pglogical.replication_set_add_all_tables('rep_all', ARRAY['public']);
+
+-- 授权 schema 访问（订阅端会远程调用 pglogical schema）
+GRANT USAGE ON SCHEMA pglogical TO pglogical;
+GRANT ALL ON ALL TABLES IN SCHEMA pglogical TO pglogical;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA pglogical TO pglogical;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA pglogical TO pglogical;
+ALTER DEFAULT PRIVILEGES IN SCHEMA pglogical GRANT ALL ON TABLES TO pglogical;
+ALTER DEFAULT PRIVILEGES IN SCHEMA pglogical GRANT EXECUTE ON FUNCTIONS TO pglogical;
+
 ```
 
 ## 建立双向订阅
