@@ -45,8 +45,8 @@
 
 | 节点 | 主机名 | 数据库 | 角色 |
 | :--- | :--- | :--- | :--- |
-| A | `cn-homepage.svc.plus` | `account` | `node_a` |
-| B | `global-homepage.svc.plus` | `account` | `node_b` |
+| A | `pgA.svc.plus` | `account` | `node_a` |
+| B | `pgB.svc.plus` | `account` | `node_b` |
 
 两台节点均运行 PostgreSQL 16，并且网络互通。
 
