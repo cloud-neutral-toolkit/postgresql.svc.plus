@@ -305,10 +305,10 @@ SELECT pglogical.create_subscription(
 
 | 操作 | SQL 命令 |
 | :--- | :--- |
-| 暂停订阅 | `SELECT pglogical.alter_subscription_disable('sub_from_b');` |
-| 恢复订阅 | `SELECT pglogical.alter_subscription_enable('sub_from_b', true);` |
-| 删除订阅 | `SELECT pglogical.drop_subscription('sub_from_b');` |
-| 删除节点 | `SELECT pglogical.drop_node('node_a');` |
+| 暂停订阅 | `SELECT pglogical.alter_subscription_disable('sub_from_global');` |
+| 恢复订阅 | `SELECT pglogical.alter_subscription_enable('sub_from_global', true);` |
+| 删除订阅 | `SELECT pglogical.drop_subscription('sub_from_global');` |
+| 删除节点 | `SELECT pglogical.drop_node('node_cn');` |
 
 ## 监控指标
 
