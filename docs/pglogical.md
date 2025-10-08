@@ -173,6 +173,8 @@ pglogical  | Replication, Login
 
 ## 创建节点与复制集
 
+现在进入目标数据库（account）： sudo -u postgres psql -d account
+
 ### 节点 A
 
 ```sql
