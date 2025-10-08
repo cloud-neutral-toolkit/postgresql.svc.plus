@@ -109,9 +109,12 @@ GRANT ALL PRIVILEGES ON DATABASE account TO pglogical;
 
 ## 配置 PostgreSQL 参数
 
-在两台节点的 `postgresql.conf` 中设置逻辑复制所需参数：
+在两台节点的 `/etc/postgresql/16/main/postgresql.conf` 中设置逻辑复制所需参数：
 
-```conf
+```
+# 修改 PostgreSQL 监听地址
+listen_addresses = '*'
+
 # 逻辑复制基础
 wal_level = logical
 max_wal_senders = 10
@@ -126,7 +129,7 @@ track_commit_timestamp = on
 
 ## 配置访问控制（pg_hba.conf）
 
-编辑主库（Publisher）上的 /etc/postgresql/16/main/pg_hba.conf：
+编辑主库（Publisher）上的 /etc/postgresql/16/main/pg_hba.conf 限定允许的远程节点:
 ```
 # 本地管理
 local   all             postgres                                peer
