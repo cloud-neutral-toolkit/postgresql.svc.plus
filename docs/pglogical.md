@@ -72,23 +72,6 @@
 psql -d account -c "CREATE EXTENSION IF NOT EXISTS pglogical;"
 ```
 
-## 配置 PostgreSQL 参数
-
-在两台节点的 `postgresql.conf` 中设置逻辑复制所需参数：
-
-```conf
-# 逻辑复制基础
-wal_level = logical
-max_wal_senders = 10
-max_replication_slots = 10
-max_worker_processes = 10
-max_logical_replication_workers = 8
-
-# 建议优化
-shared_preload_libraries = 'pglogical'
-track_commit_timestamp = on
-```
-
 
 ## 创建 repl_user（基础复制用户）
 
@@ -122,6 +105,24 @@ GRANT ALL PRIVILEGES ON DATABASE account TO pglogical;
 
 ⚠️ 注意：pglogical 账号仅需复制与读写权限，无需 SUPERUSER。
 生产环境建议使用强密码、并限制来源 IP。
+
+
+## 配置 PostgreSQL 参数
+
+在两台节点的 `postgresql.conf` 中设置逻辑复制所需参数：
+
+```conf
+# 逻辑复制基础
+wal_level = logical
+max_wal_senders = 10
+max_replication_slots = 10
+max_worker_processes = 10
+max_logical_replication_workers = 8
+
+# 建议优化
+shared_preload_libraries = 'pglogical'
+track_commit_timestamp = on
+```
 
 ## 配置访问控制（pg_hba.conf）
 
