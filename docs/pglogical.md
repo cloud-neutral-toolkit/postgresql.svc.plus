@@ -323,50 +323,56 @@ pglogical  | Replication, Login
 - 定义相同的 replication_set；
 - 创建互为订阅（create_subscription）。
 
-### 准备阶段
 
-两台主机（global 与 cn）都要具备相同的数据库结构和 schema,在两台机器上都执行.
+### 步骤 1：CN 节点初始化
 
-现在进入目标数据库（account）： sudo -u postgres psql -d account
+登录 CN 主机（cn-homepage.svc.plus）： 
+
+执行: sudo -u postgres psql -d account 
+执行：
 
 ```
+-- 启用扩展
 CREATE EXTENSION IF NOT EXISTS pglogical;
+
+-- 注册本地节点
+SELECT pglogical.create_node(
+    node_name := 'node_cn',
+    dsn := 'host=47.120.61.35 port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full'
+);
+
+-- 创建复制集
 SELECT pglogical.create_replication_set('rep_all');
 SELECT pglogical.replication_set_add_all_tables('rep_all', ARRAY['public']);
 ```
-如果提示 “already exists” 可以忽略。
 
+### 步骤 2：Global 节点初始化
 
-### 在 cn-homepage 创建节点与订阅
+登录 Global 主机（global-homepage.svc.plus）：
 
+执行:sudo -u postgres psql -d account
+执行：
 ```
--- 注册 global 节点（Provider）
+-- 启用扩展
+CREATE EXTENSION IF NOT EXISTS pglogical;
+
+-- 注册本地节点
 SELECT pglogical.create_node(
-    node_name := 'node_cn',
-    dsn := 'host=47.120.61.35 port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full'
+    node_name := 'node_global',
+    dsn := 'host=167.179.72.223 port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full'
 );
 
--- 创建对 cn-homepage 的订阅
-SELECT pglogical.create_subscription(
-    subscription_name := 'sub_from_cn',
-    provider_dsn := 'host=167.179.72.223 port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full',
-    replication_sets := ARRAY['rep_all'],
-    synchronize_structure := false,
-    synchronize_data := false,
-    forward_origins := '{}'
-);
+-- 创建复制集
+SELECT pglogical.create_replication_set('rep_all');
+SELECT pglogical.replication_set_add_all_tables('rep_all', ARRAY['public']);
 ```
 
-### 在 global-homepage 创建节点与订阅
+
+### 步骤 3：建立双向订阅
+
+- 在 CN 节点 上创建订阅（订阅 Global）
 
 ```
--- 注册 cn-homepage 节点（Provider）
-SELECT pglogical.create_node(
-    node_name := 'node_cn',
-    dsn := 'host=47.120.61.35 port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full'
-);
-
--- 创建对 global-homepage 的订阅
 SELECT pglogical.create_subscription(
     subscription_name := 'sub_from_global',
     provider_dsn := 'host=167.179.72.223 port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full',
@@ -375,15 +381,51 @@ SELECT pglogical.create_subscription(
     synchronize_data := true,
     forward_origins := '{}'
 );
-
 ```
 
-参数说明：
+- 在 Global 节点 上创建订阅（订阅 CN）
 
-- `synchronize_structure = false`：假设双方的表结构已对齐。
-- `synchronize_data = true`：初次创建时自动进行数据同步。
-- `forward_origins = '{}'`：防止回环复制，避免来自对端的写入再次回传。
-- `sslmode = verify-full`：开启 TLS 并校验证书。
+```
+SELECT pglogical.create_subscription(
+    subscription_name := 'sub_from_cn',
+    provider_dsn := 'host=47.120.61.35 port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full',
+    replication_sets := ARRAY['rep_all'],
+    synchronize_structure := false,
+    synchronize_data := true,
+    forward_origins := '{}'
+);
+```
+
+### 参数解释
+
+参数	含义
+synchronize_structure=false	表示两端表结构已经一致，不再自动创建表。
+synchronize_data=true	首次订阅时自动同步现有数据。
+forward_origins='{}'	防止环形复制（即从对方同步的数据再传回去）。
+sslmode=verify-full	使用 TLS 校验证书和域名。
+
+### 检查状态
+
+两端都执行：
+
+SELECT * FROM pglogical.node;
+SELECT * FROM pglogical.subscription;
+SELECT * FROM pglogical.show_subscription_status();
+
+
+正常情况下你会看到：
+
+各自注册的 node（node_cn / node_global）
+一条订阅（sub_from_cn / sub_from_global）
+
+状态为 “replicating”
+
+🚦 常见问题排查
+错误	原因	解决
+current database is not configured as pglogical node	没有先执行 create_node()	先执行 pglogical.create_node()
+could not connect to server	对方 pg_hba.conf 未放行	检查 hostssl all pglogical <peer_ip>/32 scram-sha-256
+no pg_hba.conf entry for host ... SSL	SSL 模式与证书不匹配	用 sslmode=prefer 临时测试
+双向数据回环	forward_origins 未设为 {}	确保订阅语句中加 forward_origins := '{}'
 
 
 ## 验证复制状态
