@@ -297,86 +297,85 @@ pglogical  | Replication, Login
 
 ## 创建节点与复制集
 
-现在进入目标数据库（account）： sudo -u postgres psql -d account
-
-### 节点 A
-
-```sql
--- 启用扩展（如果尚未启用）
-CREATE EXTENSION IF NOT EXISTS pglogical;
-
--- 注册 Provider 节点
-SELECT pglogical.create_node(
-    node_name := 'node_cn',
-    dsn := 'host=global-homepage.svc.plus port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full'
-);
-
--- 创建复制集（包含所有 public 表）
-SELECT pglogical.create_replication_set('rep_all');
-SELECT pglogical.replication_set_add_all_tables('rep_all', ARRAY['public']);
-
--- 授权 schema 访问（订阅端会远程调用 pglogical schema）
-GRANT USAGE ON SCHEMA pglogical TO pglogical;
-GRANT ALL ON ALL TABLES IN SCHEMA pglogical TO pglogical;
-GRANT ALL ON ALL SEQUENCES IN SCHEMA pglogical TO pglogical;
-GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA pglogical TO pglogical;
-ALTER DEFAULT PRIVILEGES IN SCHEMA pglogical GRANT ALL ON TABLES TO pglogical;
-ALTER DEFAULT PRIVILEGES IN SCHEMA pglogical GRANT EXECUTE ON FUNCTIONS TO pglogical;
+### 双向架构概览
 
 ```
+┌───────────────────────────┐
+│   🌍 global-homepage      │
+│   node_name = node_global │
+│   publishes → node_cn     │
+│   subscribes ← node_cn    │
+└───────────────────────────┘
+               ▲  │
+               │  ▼
+┌───────────────────────────┐
+│   🇨🇳 cn-homepage          │
+│   node_name = node_cn     │
+│   publishes → node_global │
+│   subscribes ← node_global│
+└───────────────────────────┘
+```
 
-### 节点 B
+两个节点都：
 
-```sql
--- 启用扩展（如果尚未启用）
+- 拥有 pglogical 扩展；
+- 注册自己的 node；
+- 定义相同的 replication_set；
+- 创建互为订阅（create_subscription）。
+
+### 准备阶段
+
+两台主机（global 与 cn）都要具备相同的数据库结构和 schema,在两台机器上都执行.
+
+现在进入目标数据库（account）： sudo -u postgres psql -d account
+
+```
 CREATE EXTENSION IF NOT EXISTS pglogical;
+SELECT pglogical.create_replication_set('rep_all');
+SELECT pglogical.replication_set_add_all_tables('rep_all', ARRAY['public']);
+```
+如果提示 “already exists” 可以忽略。
 
--- 注册 Provider 节点
+
+### 在 global-homepage 创建节点与订阅
+
+```
+-- 注册 global 节点（Provider）
 SELECT pglogical.create_node(
     node_name := 'node_global',
     dsn := 'host=global-homepage.svc.plus port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full'
 );
 
--- 创建复制集（包含所有 public 表）
-SELECT pglogical.create_replication_set('rep_all');
-SELECT pglogical.replication_set_add_all_tables('rep_all', ARRAY['public']);
-
--- 授权 schema 访问（订阅端会远程调用 pglogical schema）
-GRANT USAGE ON SCHEMA pglogical TO pglogical;
-GRANT ALL ON ALL TABLES IN SCHEMA pglogical TO pglogical;
-GRANT ALL ON ALL SEQUENCES IN SCHEMA pglogical TO pglogical;
-GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA pglogical TO pglogical;
-ALTER DEFAULT PRIVILEGES IN SCHEMA pglogical GRANT ALL ON TABLES TO pglogical;
-ALTER DEFAULT PRIVILEGES IN SCHEMA pglogical GRANT EXECUTE ON FUNCTIONS TO pglogical;
-
-```
-
-## 建立双向订阅
-
-### 节点 CN 订阅节点 GLobal
-
-```sql
-SELECT pglogical.create_subscription(
-    subscription_name := 'sub_from_global',
-    provider_dsn := 'host=167.179.72.223 port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full',
-    replication_sets := ARRAY['rep_all'],
-    synchronize_structure := false,
-    synchronize_data := true,
-    forward_origins := '{}'
-);
-```
-
-### 节点 GLobal 订阅节点 CN
-
-```sql
+-- 创建对 cn-homepage 的订阅
 SELECT pglogical.create_subscription(
     subscription_name := 'sub_from_cn',
-    provider_dsn := 'host=47.120.61.35 port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full',
+    provider_dsn := 'host=cn-homepage.svc.plus port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full',
+    replication_sets := ARRAY['rep_all'],
+    synchronize_structure := false,
+    synchronize_data := false,  -- 避免循环全量同步
+    forward_origins := '{}'
+);
+```
+
+### 在 cn-homepage 创建节点与订阅
+
+```
+-- 注册 cn-homepage 节点（Provider）
+SELECT pglogical.create_node(
+    node_name := 'node_cn',
+    dsn := 'host=cn-homepage.svc.plus port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full'
+);
+
+-- 创建对 global-homepage 的订阅
+SELECT pglogical.create_subscription(
+    subscription_name := 'sub_from_global',
+    provider_dsn := 'host=global-homepage.svc.plus port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full',
     replication_sets := ARRAY['rep_all'],
     synchronize_structure := false,
     synchronize_data := true,
     forward_origins := '{}'
 );
+
 ```
 
 参数说明：
@@ -385,6 +384,7 @@ SELECT pglogical.create_subscription(
 - `synchronize_data = true`：初次创建时自动进行数据同步。
 - `forward_origins = '{}'`：防止回环复制，避免来自对端的写入再次回传。
 - `sslmode = verify-full`：开启 TLS 并校验证书。
+
 
 ## 验证复制状态
 
