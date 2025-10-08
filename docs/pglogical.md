@@ -338,7 +338,7 @@ CREATE EXTENSION IF NOT EXISTS pglogical;
 -- 注册本地节点
 SELECT pglogical.create_node(
     node_name := 'node_cn',
-    dsn := 'host=47.120.61.35 port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full'
+    dsn := 'host=47.120.61.35 port=5432 dbname=account user=pglogical password=StrongPass sslmode=prefer'
 );
 
 -- 创建复制集
@@ -359,7 +359,7 @@ CREATE EXTENSION IF NOT EXISTS pglogical;
 -- 注册本地节点
 SELECT pglogical.create_node(
     node_name := 'node_global',
-    dsn := 'host=167.179.72.223 port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full'
+    dsn := 'host=167.179.72.223 port=5432 dbname=account user=pglogical password=StrongPass sslmode=prefer'
 );
 
 -- 创建复制集
