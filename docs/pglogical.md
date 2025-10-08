@@ -181,8 +181,8 @@ CREATE EXTENSION IF NOT EXISTS pglogical;
 
 -- 注册节点
 SELECT pglogical.create_node(
-    node_name := 'node_a',
-    dsn := 'host=pgA.svc.plus port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full'
+    node_name := 'node_cn',
+    dsn := 'host=cn-homepage.svc.plus port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full'
 );
 
 -- 创建复制集，包含 public 模式下所有表
@@ -196,8 +196,8 @@ SELECT pglogical.replication_set_add_all_tables('rep_all', ARRAY['public']);
 CREATE EXTENSION IF NOT EXISTS pglogical;
 
 SELECT pglogical.create_node(
-    node_name := 'node_b',
-    dsn := 'host=pgB.svc.plus port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full'
+    node_name := 'node_global',
+    dsn := 'host=global-homepage.svc.plus port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full'
 );
 
 SELECT pglogical.create_replication_set('rep_all');
@@ -206,12 +206,12 @@ SELECT pglogical.replication_set_add_all_tables('rep_all', ARRAY['public']);
 
 ## 建立双向订阅
 
-### 节点 A 订阅节点 B
+### 节点 CN 订阅节点 GLobal
 
 ```sql
 SELECT pglogical.create_subscription(
-    subscription_name := 'sub_from_b',
-    provider_dsn := 'host=pgB.svc.plus port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full',
+    subscription_name := 'sub_from_global',
+    provider_dsn := 'host=global-homepage.svc.plus port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full',
     replication_sets := ARRAY['rep_all'],
     synchronize_structure := false,
     synchronize_data := true,
@@ -219,12 +219,12 @@ SELECT pglogical.create_subscription(
 );
 ```
 
-### 节点 B 订阅节点 A
+### 节点 GLobal 订阅节点 CN
 
 ```sql
 SELECT pglogical.create_subscription(
-    subscription_name := 'sub_from_a',
-    provider_dsn := 'host=pgA.svc.plus port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full',
+    subscription_name := 'sub_from_cn',
+    provider_dsn := 'host=cn-homepage.svc.plus port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full',
     replication_sets := ARRAY['rep_all'],
     synchronize_structure := false,
     synchronize_data := true,
