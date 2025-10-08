@@ -352,7 +352,7 @@ SELECT pglogical.create_subscription(
     provider_dsn := 'host=cn-homepage.svc.plus port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full',
     replication_sets := ARRAY['rep_all'],
     synchronize_structure := false,
-    synchronize_data := false,  -- 避免循环全量同步
+    synchronize_data := false,
     forward_origins := '{}'
 );
 ```
