@@ -375,7 +375,7 @@ SELECT pglogical.replication_set_add_all_tables('rep_all', ARRAY['public']);
 ```
 SELECT pglogical.create_subscription(
     subscription_name := 'sub_from_global',
-    provider_dsn := 'host=167.179.72.223 port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full',
+    provider_dsn := 'host=167.179.72.223 port=5432 dbname=account user=pglogical password=StrongPass sslmode=prefer',
     replication_sets := ARRAY['rep_all'],
     synchronize_structure := false,
     synchronize_data := true,
@@ -388,7 +388,7 @@ SELECT pglogical.create_subscription(
 ```
 SELECT pglogical.create_subscription(
     subscription_name := 'sub_from_cn',
-    provider_dsn := 'host=47.120.61.35 port=5432 dbname=account user=pglogical password=StrongPass sslmode=verify-full',
+    provider_dsn := 'host=47.120.61.35 port=5432 dbname=account user=pglogical password=StrongPass sslmode=prefer',
     replication_sets := ARRAY['rep_all'],
     synchronize_structure := false,
     synchronize_data := true,
