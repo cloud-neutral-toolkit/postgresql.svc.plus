@@ -89,27 +89,86 @@ shared_preload_libraries = 'pglogical'
 track_commit_timestamp = on
 ```
 
-在 `pg_hba.conf` 中授权（建议开启 TLS）：
 
-```conf
-hostssl replication   repl_user   <peer_ip>/32  scram-sha-256
-hostssl all           pglogical   <peer_ip>/32  scram-sha-256
+## 创建 repl_user（基础复制用户）
+
+在主库（Publisher）执行以下操作： sudo -u postgres psql
+
+执行 SQL：
+```
+-- 创建用于逻辑/物理复制的底层用户
+CREATE ROLE repl_user WITH LOGIN REPLICATION PASSWORD 'StrongPassword123!';
+-- 确认创建成功
+\du repl_user
 ```
 
-> **注意**：更新配置后需要重启服务生效：
->
-> ```bash
-> sudo systemctl restart postgresql@16-main
-> ```
+输出应包含：
 
-## 创建复制用户
+```
+Role name | Attributes
+-----------+-------------------------------
+repl_user  | Replication, Login
+```
 
-在两台数据库上分别执行：
+## 创建 pglogical（逻辑复制应用用户）
 
-```sql
-CREATE ROLE pglogical LOGIN REPLICATION PASSWORD 'StrongPass';
+仍在 PostgreSQL 中执行：
+```
+-- 创建逻辑复制用的应用账户
+CREATE ROLE pglogical WITH LOGIN REPLICATION PASSWORD 'StrongPass';
+-- 授权访问业务数据库（假设名为 account）
 GRANT ALL PRIVILEGES ON DATABASE account TO pglogical;
 ```
+
+⚠️ 注意：pglogical 账号仅需复制与读写权限，无需 SUPERUSER。
+生产环境建议使用强密码、并限制来源 IP。
+
+## 配置访问控制（pg_hba.conf）
+
+编辑主库（Publisher）上的 /etc/postgresql/16/main/pg_hba.conf：
+```
+# 本地管理
+local   all             postgres                                peer
+host    all             all             127.0.0.1/32            md5
+
+# 允许复制与逻辑复制（加密连接）
+hostssl replication     repl_user       <peer_ip>/32            scram-sha-256
+hostssl all             pglogical       <peer_ip>/32            scram-sha-256
+```
+
+其中 <peer_ip> 为另一台数据库节点的 IP 地址或域名。
+
+## 启用 TLS（postgresql.conf）
+
+编辑 /etc/postgresql/16/main/postgresql.conf 检查下面配置是否存在
+
+```
+ssl = on
+ssl_cert_file = '/etc/ssl/certs/svc.plus.crt'
+ssl_key_file  = '/etc/ssl/private/svc.plus.key'
+```
+
+重启 PostgreSQL 生效 
+
+sudo systemctl restart postgresql@16-main
+或（简写方式）：
+sudo systemctl restart postgresql
+
+## 验证角色与访问
+
+1️⃣ 查看角色列表 sudo -u postgres psql -c "\du"
+应看到：
+
+repl_user  | Replication, Login
+pglogical  | Replication, Login
+
+2️⃣ 订阅端测试连接
+
+在另一台节点测试 TLS 登录： psql "host=<publisher_ip> user=pglogical password=StrongPass dbname=account sslmode=require"
+
+
+成功进入 account=> 提示符表示逻辑复制用户配置完毕 ✅。
+
 
 ## 创建节点与复制集
 
