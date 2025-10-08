@@ -247,7 +247,25 @@ echo "包含 SAN: *.svc.plus, global-homepage, cn-homepage, IP(167.179.72.223, 4
 echo "==============================================================="
 ```
 
-编辑 /etc/postgresql/16/main/postgresql.conf 检查下面配置是否存在
+创建好的证书分发到在两台节点上
+
+两台节点上执行：
+
+PostgreSQL 客户端必须存在一份 受信任 CA 根证书文件， 路径固定为 /var/lib/postgresql/.postgresql/root.crt （属于 postgres 用户，权限必须是 600）。
+
+```
+# 1️⃣ 创建目录 
+sudo -u postgres mkdir -p /var/lib/postgresql/.postgresql
+
+# 2️⃣ 从 global-homepage 拉取服务器的 CA 根证书
+cp /etc/ssl/certs/svc.plus-postgres-ca.crt /var/lib/postgresql/.postgresql/root.crt
+
+# 3️⃣ 设置权限
+sudo chown postgres:postgres /var/lib/postgresql/.postgresql/root.crt
+sudo chmod 600 /var/lib/postgresql/.postgresql/root.crt
+```
+
+在两台节点上执行：编辑 /etc/postgresql/16/main/postgresql.conf 检查下面配置是否存在
 
 ```
 ssl = on
