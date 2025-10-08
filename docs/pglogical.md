@@ -101,10 +101,10 @@ repl_user  | Replication, Login
 CREATE ROLE pglogical WITH LOGIN REPLICATION PASSWORD 'StrongPass';
 -- 授权访问业务数据库（假设名为 account）
 GRANT ALL PRIVILEGES ON DATABASE account TO pglogical;
+ALTER ROLE pglogical WITH SUPERUSER;
 ```
 
-⚠️ 注意：pglogical 账号仅需复制与读写权限，无需 SUPERUSER。
-生产环境建议使用强密码、并限制来源 IP。
+⚠️ 注意：pglogical 账号需要复制与读写权限，目前测试需要SUPERUSER。生产环境建议使用强密码、并限制来源 IP。
 
 
 ## 配置 PostgreSQL 参数
