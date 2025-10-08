@@ -399,19 +399,21 @@ SELECT pglogical.create_subscription(
 ### 参数解释
 
 参数	含义
-synchronize_structure=false	表示两端表结构已经一致，不再自动创建表。
-synchronize_data=true	首次订阅时自动同步现有数据。
-forward_origins='{}'	防止环形复制（即从对方同步的数据再传回去）。
-sslmode=verify-full	使用 TLS 校验证书和域名。
+
+- synchronize_structure=false	表示两端表结构已经一致，不再自动创建表。
+- synchronize_data=true	首次订阅时自动同步现有数据。
+- forward_origins='{}'	防止环形复制（即从对方同步的数据再传回去）。
+- sslmode=verify-full	使用 TLS 校验证书和域名。
 
 ### 检查状态
 
 两端都执行：
 
+```
 SELECT * FROM pglogical.node;
 SELECT * FROM pglogical.subscription;
 SELECT * FROM pglogical.show_subscription_status();
-
+```
 
 正常情况下你会看到：
 
