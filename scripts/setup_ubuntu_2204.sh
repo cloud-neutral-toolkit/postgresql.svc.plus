@@ -98,16 +98,9 @@ install-postgresql() {
     echo "=== 安装 PostgreSQL ${PG_MAJOR} ==="
     sudo apt-get update
     sudo apt-get install -y wget curl gnupg lsb-release ca-certificates
-    if ! grep -q "apt.postgresql.org" /etc/apt/sources.list.d/pgdg.list 2>/dev/null; then
-        curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc -o /tmp/pgdg.asc || \
-        curl -fsSL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xB97B0E2D95A5761FB72B0C18ACCC4CF8" -o /tmp/pgdg.asc
-        sudo gpg --dearmor -o /usr/share/keyrings/postgresql.gpg /tmp/pgdg.asc
-        echo "deb [signed-by=/usr/share/keyrings/postgresql.gpg] http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
-            | sudo tee /etc/apt/sources.list.d/pgdg.list
-        sudo apt-get update
-    fi
-    sudo apt-get install -y "postgresql-${PG_MAJOR}" "postgresql-client-${PG_MAJOR}" \
-        "postgresql-contrib-${PG_MAJOR}" "postgresql-server-dev-${PG_MAJOR}"
+    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 2F59B5F99B1BE0B4
+    echo "deb [signed-by=/usr/share/keyrings/postgresql.gpg] http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+    sudo apt-get install -y "postgresql-${PG_MAJOR}" "postgresql-client-${PG_MAJOR}" "postgresql-contrib-${PG_MAJOR}" "postgresql-server-dev-${PG_MAJOR}"
     sudo systemctl enable --now postgresql
 }
 
@@ -123,8 +116,7 @@ install-pgvector() {
     sudo apt-get install -y git make gcc
     tmp_dir=$(mktemp -d)
     cd "$tmp_dir"
-    git clone --branch v0.8.0 https://github.com/pgvector/pgvector.git || \
-    git clone https://ghproxy.com/https://github.com/pgvector/pgvector.git
+    git clone git@github.com:svc-design/pgvector.git
     cd pgvector
     make && sudo make install
     cd /
@@ -138,8 +130,7 @@ install-zhparser() {
     # 编译安装 scws v1.2.3
     tmp_dir=$(mktemp -d)
     cd "$tmp_dir"
-    git clone https://github.com/hightman/scws.git || \
-    git clone https://ghproxy.com/https://github.com/hightman/scws.git
+    git clone git@github.com:svc-design/scws.git 
     cd scws
 
     # 修掉 automake 不兼容的注释
@@ -162,8 +153,7 @@ install-zhparser() {
     # 编译安装 zhparser
     tmp_dir=$(mktemp -d)
     cd "$tmp_dir"
-    git clone https://github.com/amutu/zhparser.git || \
-    git clone https://ghproxy.com/https://github.com/amutu/zhparser.git
+    git clone git@github.com:svc-design/zhparser.git
     cd zhparser
     pg_config_path="$(command -v pg_config || echo "/usr/lib/postgresql/${PG_MAJOR}/bin/pg_config")"
     make SCWS_HOME=/usr PG_CONFIG="${pg_config_path}"
