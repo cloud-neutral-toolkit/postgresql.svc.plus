@@ -66,11 +66,14 @@
   sudo yum install pglogical_16
   ```
 
-安装完成后，在 `account` 数据库中创建扩展验证：
+安装完成后，请使用具有 **SUPERUSER** 权限的账号（例如 `postgres`）在 `account` 数据库中创建并验证扩展：
 
-```sql
-psql -d account -c "CREATE EXTENSION IF NOT EXISTS pglogical;"
+```bash
+sudo -u postgres psql -d account -c "CREATE EXTENSION IF NOT EXISTS pglogical;"
+sudo -u postgres psql -d account -c "\dx pglogical"
 ```
+
+若缺少超级用户权限，可请数据库管理员预先创建扩展，再继续后续的 pglogical 配置。
 
 
 ## 创建 repl_user（基础复制用户）
