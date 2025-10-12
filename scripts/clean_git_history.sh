@@ -4,7 +4,7 @@
 # 用于清理指定文件的历史提交记录，但保留当前版本
 #
 # 使用示例：
-#   ./clean_git_history.sh account/sql/schema_pglogical_region_cn.sql account/sql/schema_pglogical_region_global.sql
+#   ./clean_git_history.sh account/sql/schema_pglogical_region.sql
 #
 
 set -euo pipefail
