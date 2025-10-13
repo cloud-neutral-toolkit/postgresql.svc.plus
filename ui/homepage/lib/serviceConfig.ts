@@ -70,6 +70,8 @@ type ServiceKey = keyof EnvironmentRuntimeConfig
 const FALLBACK_ACCOUNT_SERVICE_URL = 'http://localhost:8080'
 const FALLBACK_SERVER_SERVICE_URL = 'http://localhost:8090'
 
+const LOCAL_HOSTNAMES = new Set(['localhost', '127.0.0.1', '[::1]'])
+
 function getRuntimeServiceBaseUrl(serviceKey: ServiceKey): string | undefined {
   const environmentName = resolveRuntimeEnvironment()
   const runtimeDefaults = runtimeServiceConfig.defaults?.[serviceKey]?.baseUrl
@@ -149,9 +151,43 @@ function normalizeBaseUrl(baseUrl: string): string {
   return baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl
 }
 
+function normalizeBrowserBaseUrl(baseUrl: string): string {
+  if (typeof window === 'undefined') {
+    return normalizeBaseUrl(baseUrl)
+  }
+
+  try {
+    const browserOrigin = window.location.origin
+    const parsed = new URL(baseUrl, browserOrigin)
+
+    const parsedHostname = parsed.hostname.toLowerCase()
+    const browserHostname = window.location.hostname.toLowerCase()
+
+    const parsedIsLocal = LOCAL_HOSTNAMES.has(parsedHostname)
+    const browserIsLocal = LOCAL_HOSTNAMES.has(browserHostname)
+
+    if (parsedIsLocal && !browserIsLocal) {
+      return normalizeBaseUrl(browserOrigin)
+    }
+
+    if (window.location.protocol === 'https:' && parsed.protocol === 'http:' && parsedHostname === browserHostname) {
+      parsed.protocol = 'https:'
+      return normalizeBaseUrl(parsed.toString())
+    }
+
+    return normalizeBaseUrl(parsed.toString())
+  } catch (error) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('Failed to normalize account service base URL, falling back to provided value', error)
+    }
+    return normalizeBaseUrl(baseUrl)
+  }
+}
+
 export function getAccountServiceBaseUrl(): string {
   const configured = readEnvValue('ACCOUNT_SERVICE_URL', 'NEXT_PUBLIC_ACCOUNT_SERVICE_URL')
-  return normalizeBaseUrl(configured ?? DEFAULT_ACCOUNT_SERVICE_URL)
+  const resolved = configured ?? DEFAULT_ACCOUNT_SERVICE_URL
+  return normalizeBrowserBaseUrl(resolved)
 }
 
 export function getServerServiceBaseUrl(): string {
