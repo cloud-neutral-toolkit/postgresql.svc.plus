@@ -118,6 +118,26 @@ function coerceRegisterUrlOverride(rawValue: string | undefined | null, accountS
   }
 }
 
+function deriveSameOriginFallback(url: string): string | undefined {
+  if (typeof window === 'undefined') {
+    return undefined
+  }
+
+  try {
+    const currentOrigin = window.location.origin
+    const parsed = new URL(url, currentOrigin)
+    const preferred = preferSameOrigin(ensureHttpsForSameHost(parsed.toString()))
+
+    if (preferred !== url) {
+      return preferred
+    }
+  } catch (error) {
+    console.warn('Failed to derive same-origin fallback for register URL', error)
+  }
+
+  return undefined
+}
+
 export default function RegisterContent() {
   const { language } = useLanguage()
   const t = translations[language].auth.register
@@ -257,20 +277,32 @@ export default function RegisterContent() {
         try {
           response = await fetch(usedUrl, requestPayload)
         } catch (primaryError) {
-          const httpsPattern = /^https:/i
-          if (httpsPattern.test(usedUrl)) {
-            const insecureUrl = usedUrl.replace(httpsPattern, 'http:')
-
+          const sameOriginFallback = deriveSameOriginFallback(usedUrl)
+          if (sameOriginFallback && sameOriginFallback !== usedUrl) {
             try {
-              response = await fetch(insecureUrl, requestPayload)
-              registerUrlRef.current = insecureUrl
-              usedUrl = insecureUrl
+              response = await fetch(sameOriginFallback, requestPayload)
+              registerUrlRef.current = sameOriginFallback
+              usedUrl = sameOriginFallback
             } catch (fallbackError) {
-              console.error('Primary register request failed, insecure fallback also failed', fallbackError)
+              console.error('Primary register request failed, same-origin fallback also failed', fallbackError)
               throw fallbackError
             }
           } else {
-            throw primaryError
+            const httpsPattern = /^https:/i
+            if (httpsPattern.test(usedUrl)) {
+              const insecureUrl = usedUrl.replace(httpsPattern, 'http:')
+
+              try {
+                response = await fetch(insecureUrl, requestPayload)
+                registerUrlRef.current = insecureUrl
+                usedUrl = insecureUrl
+              } catch (fallbackError) {
+                console.error('Primary register request failed, insecure fallback also failed', fallbackError)
+                throw fallbackError
+              }
+            } else {
+              throw primaryError
+            }
           }
         }
 

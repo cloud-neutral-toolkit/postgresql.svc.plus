@@ -61,6 +61,47 @@ export default function LoginContent({ children }: LoginContentProps) {
 
   const loginUrlRef = useRef(loginUrl)
 
+  const deriveSameOriginLoginFallback = useCallback((url: string): string | undefined => {
+    if (typeof window === 'undefined') {
+      return undefined
+    }
+
+    try {
+      const currentOrigin = window.location.origin
+      const parsed = new URL(url, currentOrigin)
+
+      if (parsed.origin === currentOrigin) {
+        const relative = `${parsed.pathname}${parsed.search}${parsed.hash}` || '/api/auth/login'
+        return relative
+      }
+
+      const localHostnames = new Set(['localhost', '127.0.0.1', '[::1]'])
+      const parsedHostname = parsed.hostname.toLowerCase()
+      const browserHostname = window.location.hostname.toLowerCase()
+
+      const parsedIsLocal = localHostnames.has(parsedHostname)
+      const browserIsLocal = localHostnames.has(browserHostname)
+
+      if (!browserIsLocal && parsedIsLocal) {
+        const relative = `${parsed.pathname}${parsed.search}${parsed.hash}` || '/api/auth/login'
+        return relative
+      }
+
+      if (
+        window.location.protocol === 'https:' &&
+        parsed.protocol === 'http:' &&
+        parsedHostname === browserHostname
+      ) {
+        parsed.protocol = 'https:'
+        return parsed.toString()
+      }
+    } catch (error) {
+      console.warn('Failed to derive same-origin login fallback', error)
+    }
+
+    return undefined
+  }, [])
+
   useEffect(() => {
     loginUrlRef.current = loginUrl
   }, [loginUrl])
@@ -148,20 +189,32 @@ export default function LoginContent({ children }: LoginContentProps) {
         try {
           response = await fetch(usedUrl, requestPayload)
         } catch (primaryError) {
-          const httpsPattern = /^https:/i
-          if (httpsPattern.test(usedUrl)) {
-            const insecureUrl = usedUrl.replace(httpsPattern, 'http:')
-
+          const sameOriginFallback = deriveSameOriginLoginFallback(usedUrl)
+          if (sameOriginFallback && sameOriginFallback !== usedUrl) {
             try {
-              response = await fetch(insecureUrl, requestPayload)
-              loginUrlRef.current = insecureUrl
-              usedUrl = insecureUrl
+              response = await fetch(sameOriginFallback, requestPayload)
+              loginUrlRef.current = sameOriginFallback
+              usedUrl = sameOriginFallback
             } catch (fallbackError) {
-              console.error('Primary login request failed, insecure fallback also failed', fallbackError)
+              console.error('Primary login request failed, same-origin fallback also failed', fallbackError)
               throw fallbackError
             }
           } else {
-            throw primaryError
+            const httpsPattern = /^https:/i
+            if (httpsPattern.test(usedUrl)) {
+              const insecureUrl = usedUrl.replace(httpsPattern, 'http:')
+
+              try {
+                response = await fetch(insecureUrl, requestPayload)
+                loginUrlRef.current = insecureUrl
+                usedUrl = insecureUrl
+              } catch (fallbackError) {
+                console.error('Primary login request failed, insecure fallback also failed', fallbackError)
+                throw fallbackError
+              }
+            } else {
+              throw primaryError
+            }
           }
         }
 
