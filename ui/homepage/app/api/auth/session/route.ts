@@ -120,19 +120,19 @@ export async function GET(request: NextRequest) {
             return null
           }
 
-          const label =
-            typeof tenant.name === 'string' && tenant.name.trim().length > 0
-              ? tenant.name.trim()
-              : undefined
-          const roleValue =
-            typeof tenant.role === 'string' && tenant.role.trim().length > 0
-              ? tenant.role.trim().toLowerCase()
-              : undefined
-          return {
+          const normalizedTenant: { id: string; name?: string; role?: string } = {
             id: identifier,
-            name: label,
-            role: roleValue,
           }
+
+          if (typeof tenant.name === 'string' && tenant.name.trim().length > 0) {
+            normalizedTenant.name = tenant.name.trim()
+          }
+
+          if (typeof tenant.role === 'string' && tenant.role.trim().length > 0) {
+            normalizedTenant.role = tenant.role.trim().toLowerCase()
+          }
+
+          return normalizedTenant
         })
         .filter((tenant): tenant is { id: string; name?: string; role?: string } => Boolean(tenant))
     : undefined

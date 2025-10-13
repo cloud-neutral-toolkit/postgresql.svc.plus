@@ -187,19 +187,20 @@ async function fetchSessionUser(): Promise<User | null> {
             if (!identifier) {
               return null
             }
-            const label =
-              typeof tenant.name === 'string' && tenant.name.trim().length > 0
-                ? tenant.name.trim()
-                : undefined
-            const roleValue =
-              typeof tenant.role === 'string' && tenant.role.trim().length > 0
-                ? normalizeRole(tenant.role)
-                : undefined
-            return {
+
+            const normalizedTenant: TenantMembership = {
               id: identifier,
-              name: label,
-              role: roleValue,
             }
+
+            if (typeof tenant.name === 'string' && tenant.name.trim().length > 0) {
+              normalizedTenant.name = tenant.name.trim()
+            }
+
+            if (typeof tenant.role === 'string' && tenant.role.trim().length > 0) {
+              normalizedTenant.role = normalizeRole(tenant.role)
+            }
+
+            return normalizedTenant
           })
           .filter((tenant): tenant is TenantMembership => Boolean(tenant))
       : undefined
