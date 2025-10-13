@@ -103,3 +103,47 @@
 - Is there a requirement for encryption/signing of snapshots during transit/storage?
 
 Addressing these clarifications will shape the detailed implementation plan.
+
+## Execution Task Breakdown
+
+To operationalize the plan, execute the following sub-tasks sequentially. Each task lists its prerequisites and expected outputs to simplify coordination across contributors.
+
+1. **Clarify Merge Semantics (Design Task)**
+   - **Prerequisites**: Gather input from stakeholders on merge requirements, including conflict rules for users, identities, and sessions.
+   - **Actions**: Document chosen merge strategy (field preservation rules, conflict resolution order, snapshot validation needs) and update this plan accordingly.
+   - **Deliverables**: Design decision record or updated specification ready for implementation sign-off.
+
+2. **Define Configuration Schema**
+   - **Prerequisites**: Approved merge semantics and understanding of deployment environments.
+   - **Actions**: Draft `SyncConfig` Go structs, configuration file layout, and validation rules; prepare example manifests in `docs/`.
+   - **Deliverables**: Schema proposal merged into repository, including sample configuration and documentation references.
+
+3. **Prototype Merge-capable Importer**
+   - **Prerequisites**: Finalized merge semantics and schema guidance for importer flags/options.
+   - **Actions**: Implement `--merge` flag, dry-run support, identity/session diffing, and logging counters. Add unit tests covering merge scenarios.
+   - **Deliverables**: Pull request containing importer changes, tests, and updated CLI documentation.
+
+4. **Implement Service Mode MVP**
+   - **Prerequisites**: Prototype importer merged; configuration structs available.
+   - **Actions**: Add `service` command with scheduling loop, context cancellation, and structured logging. Integrate configuration loading and sequential job execution.
+   - **Deliverables**: Running service mode executable with basic observability hooks and documentation updates.
+
+5. **Add Observability and Reliability Enhancements**
+   - **Prerequisites**: Service mode MVP operational.
+   - **Actions**: Introduce metrics emission, health endpoints, retry/backoff behavior, and optional alerting hooks.
+   - **Deliverables**: Instrumented service with documented metrics/alerts plus corresponding tests where applicable.
+
+6. **Expand Testing & Automation**
+   - **Prerequisites**: Importer and service features in place.
+   - **Actions**: Build integration tests using ephemeral PostgreSQL, end-to-end service sync scenarios, and update CI pipelines to run them.
+   - **Deliverables**: Automated test suite covering merge/service workflows with CI integration notes.
+
+7. **Documentation & Rollout Preparation**
+   - **Prerequisites**: Feature implementation stabilized.
+   - **Actions**: Update `docs/account-service-deployment.md`, produce operator runbooks, and outline staged rollout/monitoring steps.
+   - **Deliverables**: Comprehensive documentation bundle and rollout checklist ready for production enablement.
+
+8. **Operational Review & Handoff**
+   - **Prerequisites**: All technical tasks completed and documented.
+   - **Actions**: Conduct readiness review, gather final approvals, and schedule deployment. Ensure metrics and alerting are monitored during rollout.
+   - **Deliverables**: Signed-off deployment plan and ownership handoff notes.
