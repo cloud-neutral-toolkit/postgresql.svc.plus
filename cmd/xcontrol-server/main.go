@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"log/slog"
 	"net/http"
@@ -11,6 +12,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/redis/go-redis/v9"
 	"github.com/spf13/cobra"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 
 	rconfig "xcontrol/internal/rag/config"
 	"xcontrol/server"
@@ -54,8 +57,13 @@ var rootCmd = &cobra.Command{
 		logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: level}))
 		slog.SetDefault(logger)
 
-		var conn *pgx.Conn
-		if dsn := cfg.Global.VectorDB.DSN(); dsn != "" {
+		api.ConfigureServiceDB(nil)
+		dsn := cfg.Global.VectorDB.DSN()
+		var (
+			conn  *pgx.Conn
+			sqlDB *sql.DB
+		)
+		if dsn != "" {
 			logger.Debug("connecting to postgres", "dsn", dsn)
 			conn, err = pgx.Connect(context.Background(), dsn)
 			if err != nil {
@@ -63,8 +71,27 @@ var rootCmd = &cobra.Command{
 			} else {
 				logger.Info("postgres connected")
 			}
+
+			gormDB, gormErr := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+			if gormErr != nil {
+				logger.Error("gorm postgres connect error", "err", gormErr)
+			} else {
+				api.ConfigureServiceDB(gormDB)
+				sqlDB, err = gormDB.DB()
+				if err != nil {
+					logger.Error("postgres db handle error", "err", err)
+				}
+			}
 		} else {
 			logger.Warn("postgres dsn not provided")
+		}
+
+		if sqlDB != nil {
+			defer func() {
+				if cerr := sqlDB.Close(); cerr != nil {
+					logger.Error("close postgres db", "err", cerr)
+				}
+			}()
 		}
 
 		if addr := cfg.Global.Redis.Addr; addr != "" {
