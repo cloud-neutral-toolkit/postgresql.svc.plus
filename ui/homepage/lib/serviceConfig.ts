@@ -217,7 +217,15 @@ export function getInternalServerServiceBaseUrl(): string {
   try {
     const parsed = new URL(external)
     if (LOCAL_HOSTNAMES.has(parsed.hostname)) {
-      return normalizeBaseUrl(external)
+      if (parsed.hostname !== '127.0.0.1') {
+        parsed.hostname = '127.0.0.1'
+      }
+
+      if (parsed.protocol === 'https:') {
+        parsed.protocol = 'http:'
+      }
+
+      return normalizeBaseUrl(parsed.toString())
     }
   } catch {
     // Ignore parsing errors and fall back to the internal default below.
