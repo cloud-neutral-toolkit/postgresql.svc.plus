@@ -20,7 +20,8 @@
       "@components/*": ["components/*"],
       "@i18n/*": ["i18n/*"],
       "@lib/*": ["lib/*"],
-      "@types/*": ["types/*"]
+      "@types/*": ["types/*"],
+      "@server/*": ["server/*"]
     },
     "types": ["node"],
     "plugins": [{ "name": "next" }]
@@ -30,6 +31,7 @@
     "components",
     "i18n",
     "lib",
+    "server",
     "types",
     ".next/types/**/*.ts"
   ],

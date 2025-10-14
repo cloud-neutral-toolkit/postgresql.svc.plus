@@ -168,39 +168,68 @@ export function AskAIDialog({
     }
 
     try {
-      let { answer, retrieved } = await streamChat(
-        '/api/rag/query',
-        { question: normalized, history },
-        updateAI
-      )
+      let ragAnswer = ''
+      let ragRetrieved: any[] = []
+      let ragError: any = null
 
-      if (!answer || retrieved.length === 0) {
-        console.warn(
-          !answer
-            ? 'RAG query returned empty answer, falling back to /api/askai'
-            : 'RAG query returned no relevant chunks, falling back to /api/askai'
+      try {
+        const result = await streamChat(
+          '/api/rag/query',
+          { question: normalized, history },
+          updateAI
         )
+        ragAnswer = result?.answer ?? ''
+        ragRetrieved = Array.isArray(result?.retrieved) ? result.retrieved : []
+      } catch (err: any) {
+        if (err?.name === 'AbortError') {
+          throw err
+        }
+        ragError = err
+      }
+
+      if (ragError) {
+        console.warn('RAG query failed, falling back to /api/askai', ragError)
+      }
+
+      let answer = ragAnswer
+      let retrieved = ragRetrieved
+
+      if (!answer || retrieved.length === 0 || ragError) {
+        if (!ragError && !answer) {
+          console.warn('RAG query returned empty answer, falling back to /api/askai')
+        } else if (!ragError && retrieved.length === 0) {
+          console.warn('RAG query returned no relevant chunks, falling back to /api/askai')
+        }
+
         try {
           const result = await streamChat(
             '/api/askai',
             { question: normalized, history },
             updateAI
           )
-          if (result.answer) {
+          if (result?.answer) {
             answer = result.answer
           }
-          if (result.retrieved && result.retrieved.length > 0) {
+          if (Array.isArray(result?.retrieved) && result.retrieved.length > 0) {
             retrieved = result.retrieved
           }
-        } catch (err) {
-          console.error('Fallback /api/askai failed', err)
-          // ignore, fallback handled below
+        } catch (fallbackError: any) {
+          if (fallbackError?.name === 'AbortError') {
+            throw fallbackError
+          }
+          console.error('Fallback /api/askai failed', fallbackError)
+          if (!answer) {
+            updateAI('Sorry, I could not find an answer at this time.')
+            return
+          }
         }
 
         if (!answer) {
           answer = 'Sorry, I could not find an answer at this time.'
           updateAI(answer)
-        } else if (retrieved.length === 0) {
+          return
+        }
+        if (retrieved.length === 0) {
           answer +=
             '\n\n_Note: No relevant documents were found; this answer may be inaccurate._'
           updateAI(answer)
