@@ -11,12 +11,10 @@ const MAX_CACHE_SIZE = 50
 
 export function AskAIDialog({
   open,
-  apiBase,
   onMinimize,
   onEnd
 }: {
   open: boolean
-  apiBase: string
   onMinimize: () => void
   onEnd: () => void
 }) {
@@ -171,7 +169,7 @@ export function AskAIDialog({
 
     try {
       let { answer, retrieved } = await streamChat(
-        `${apiBase}/api/rag/query`,
+        '/api/rag/query',
         { question: normalized, history },
         updateAI
       )
@@ -184,7 +182,7 @@ export function AskAIDialog({
         )
         try {
           const result = await streamChat(
-            `${apiBase}/api/askai`,
+            '/api/askai',
             { question: normalized, history },
             updateAI
           )

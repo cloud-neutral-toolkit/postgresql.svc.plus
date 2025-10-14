@@ -4,12 +4,10 @@ import { useState } from 'react'
 import { Bot } from 'lucide-react'
 import { AskAIDialog } from './AskAIDialog'
 import { useAccess } from '@lib/accessControl'
-import { getServerServiceBaseUrl } from '@lib/serviceConfig'
 
 export function AskAIButton() {
   const [open, setOpen] = useState(false)
   const [minimized, setMinimized] = useState(false)
-  const apiBase = getServerServiceBaseUrl()
   const { allowed, isLoading } = useAccess({ allowGuests: true })
 
   if (!allowed && !isLoading) {
@@ -32,7 +30,6 @@ export function AskAIButton() {
 
       <AskAIDialog
         open={open}
-        apiBase={apiBase}
         onMinimize={() => {
           setOpen(false)
           setMinimized(true)
