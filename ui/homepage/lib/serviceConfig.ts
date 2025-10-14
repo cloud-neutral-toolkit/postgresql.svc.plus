@@ -69,6 +69,7 @@ type ServiceKey = keyof EnvironmentRuntimeConfig
 
 const FALLBACK_ACCOUNT_SERVICE_URL = 'http://localhost:8080'
 const FALLBACK_SERVER_SERVICE_URL = 'http://localhost:8090'
+const FALLBACK_SERVER_SERVICE_INTERNAL_URL = 'http://127.0.0.1:8090'
 
 const LOCAL_HOSTNAMES = new Set(['localhost', '127.0.0.1', '[::1]'])
 
@@ -197,6 +198,32 @@ export function getServerServiceBaseUrl(): string {
     'NEXT_PUBLIC_API_BASE_URL',
   )
   return normalizeBaseUrl(configured ?? DEFAULT_SERVER_SERVICE_URL)
+}
+
+const SERVER_INTERNAL_URL_ENV_KEYS = [
+  'SERVER_SERVICE_INTERNAL_URL',
+  'SERVER_INTERNAL_URL',
+  'INTERNAL_SERVER_SERVICE_URL',
+] as const
+
+export function getInternalServerServiceBaseUrl(): string {
+  const configured = readEnvValue(...SERVER_INTERNAL_URL_ENV_KEYS)
+  if (configured) {
+    return normalizeBaseUrl(configured)
+  }
+
+  const external = getServerServiceBaseUrl()
+
+  try {
+    const parsed = new URL(external)
+    if (LOCAL_HOSTNAMES.has(parsed.hostname)) {
+      return normalizeBaseUrl(external)
+    }
+  } catch {
+    // Ignore parsing errors and fall back to the internal default below.
+  }
+
+  return normalizeBaseUrl(FALLBACK_SERVER_SERVICE_INTERNAL_URL)
 }
 
 export const serviceConfig = {

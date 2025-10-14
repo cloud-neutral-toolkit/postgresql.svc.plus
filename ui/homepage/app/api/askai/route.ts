@@ -1,8 +1,8 @@
-import { getServerServiceBaseUrl } from '@lib/serviceConfig'
+import { getInternalServerServiceBaseUrl } from '@lib/serviceConfig'
 
 export async function POST(req: Request) {
   const { question, history } = await req.json()
-  const apiBase = getServerServiceBaseUrl()
+  const apiBase = getInternalServerServiceBaseUrl()
   const res = await fetch(`${apiBase}/api/askai`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

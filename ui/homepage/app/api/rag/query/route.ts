@@ -1,9 +1,9 @@
-import { getServerServiceBaseUrl } from '@lib/serviceConfig'
+import { getInternalServerServiceBaseUrl } from '@lib/serviceConfig'
 
 export async function POST(req: Request) {
   try {
     const { question, history } = await req.json()
-    const apiBase = getServerServiceBaseUrl()
+    const apiBase = getInternalServerServiceBaseUrl()
     const response = await fetch(`${apiBase}/api/rag/query`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
