@@ -78,7 +78,7 @@ func Embed(text string) ([]float32, error) { /* 调用 Embedding 模型 */ }
 ## 5. 项目代码规划
 
 ```
-  internal/rag/
+  rag-server/internal/rag/
   ├── sync/                  # Git 克隆/更新
   ├── ingest/                # 文档转换与分块
   ├── embed/                 # 向量化

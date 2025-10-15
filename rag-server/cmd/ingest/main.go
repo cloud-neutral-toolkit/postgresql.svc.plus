@@ -6,8 +6,8 @@ import (
 	"log"
 	"runtime"
 
-	cfgpkg "xcontrol/internal/rag/config"
-	"xcontrol/internal/rag/ingest"
+	cfgpkg "xcontrol/rag-server/internal/rag/config"
+	"xcontrol/rag-server/internal/rag/ingest"
 	"xcontrol/rag-server/proxy"
 )
 

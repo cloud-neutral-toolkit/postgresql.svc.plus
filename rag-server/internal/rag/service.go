@@ -9,10 +9,10 @@ import (
 	"github.com/jackc/pgx/v5"
 	pgvector "github.com/pgvector/pgvector-go"
 
-	"xcontrol/internal/rag/config"
-	"xcontrol/internal/rag/embed"
-	"xcontrol/internal/rag/rerank"
-	"xcontrol/internal/rag/store"
+	"xcontrol/rag-server/internal/rag/config"
+	"xcontrol/rag-server/internal/rag/embed"
+	"xcontrol/rag-server/internal/rag/rerank"
+	"xcontrol/rag-server/internal/rag/store"
 )
 
 type Service struct {

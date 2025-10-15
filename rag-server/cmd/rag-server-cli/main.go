@@ -15,11 +15,11 @@ import (
 
 	"github.com/spf13/cobra"
 
-	rconfig "xcontrol/internal/rag/config"
-	"xcontrol/internal/rag/embed"
-	"xcontrol/internal/rag/ingest"
-	"xcontrol/internal/rag/store"
-	rsync "xcontrol/internal/rag/sync"
+	rconfig "xcontrol/rag-server/internal/rag/config"
+	"xcontrol/rag-server/internal/rag/embed"
+	"xcontrol/rag-server/internal/rag/ingest"
+	"xcontrol/rag-server/internal/rag/store"
+	rsync "xcontrol/rag-server/internal/rag/sync"
 	"xcontrol/rag-server/proxy"
 )
 

@@ -11,8 +11,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"xcontrol/internal/rag"
-	"xcontrol/internal/rag/store"
+	"xcontrol/rag-server/internal/rag"
+	"xcontrol/rag-server/internal/rag/store"
 )
 
 type mockRAGService struct {

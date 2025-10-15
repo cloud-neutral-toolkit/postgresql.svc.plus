@@ -73,7 +73,7 @@
 ## 6. Go 代码模块划分
 
 ```
-internal/rag/
+rag-server/internal/rag/
 ├── config/          # 仓库与模型配置
 ├── sync/            # GitHub 同步逻辑
 ├── ingest/          # Markdown 解析与分块

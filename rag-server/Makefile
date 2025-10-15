@@ -1,5 +1,5 @@
 APP_NAME := xcontrol-server
-MAIN_FILE := ../cmd/xcontrol-server/main.go
+MAIN_FILE := cmd/xcontrol-server/main.go
 MODULE := xcontrol
 PORT := 8090
 OS := $(shell uname -s)
@@ -69,30 +69,30 @@ dev:
 	fi
 
 clean:
-        @echo ">>> 清理构建产物"
-        rm -f $(APP_NAME)
+	@echo ">>> 清理构建产物"
+	rm -f $(APP_NAME)
 
 init-db:
-        @echo ">>> 初始化 RAG schema ($(SCHEMA_FILE))"
-        @$(PSQL) -f $(SCHEMA_FILE)
+	@echo ">>> 初始化 RAG schema ($(SCHEMA_FILE))"
+	@$(PSQL) -f $(SCHEMA_FILE)
 
 drop-db:
-        @echo ">>> 删除 RAG schema 对象"
-        @$(PSQL) -c "DROP TABLE IF EXISTS public.documents CASCADE;"
+	@echo ">>> 删除 RAG schema 对象"
+	@$(PSQL) -c "DROP TABLE IF EXISTS public.documents CASCADE;"
 
 reinit-db: drop-db init-db
 
 help:
-        @echo " XControl Server Makefile"
-        @echo ""
-        @echo "make build     编译 server 可执行文件"
-        @echo "make start     后台运行 server (默认端口: $(PORT))"
-        @echo "make stop      停止运行 server"
-        @echo "make restart   重启 server"
-        @echo "make test      运行单元测试"
-        @echo "make dev       开发模式运行 (自动检测 air，如无则用 go run)"
-        @echo "make init      初始化依赖（自动选择国内/默认 Go 模块代理，air 可选）"
-        @echo "make clean     清理构建产物"
-        @echo "make init-db   初始化数据库 schema ($(SCHEMA_FILE))"
-        @echo "make drop-db   删除 RAG 相关数据库对象"
-        @echo "make reinit-db 重置数据库 schema (drop + init)"
+	@echo " XControl Server Makefile"
+	@echo ""
+	@echo "make build     编译 server 可执行文件"
+	@echo "make start     后台运行 server (默认端口: $(PORT))"
+	@echo "make stop      停止运行 server"
+	@echo "make restart   重启 server"
+	@echo "make test      运行单元测试"
+	@echo "make dev       开发模式运行 (自动检测 air，如无则用 go run)"
+	@echo "make init      初始化依赖（自动选择国内/默认 Go 模块代理，air 可选）"
+	@echo "make clean     清理构建产物"
+	@echo "make init-db   初始化数据库 schema ($(SCHEMA_FILE))"
+	@echo "make drop-db   删除 RAG 相关数据库对象"
+	@echo "make reinit-db 重置数据库 schema (drop + init)"

@@ -8,10 +8,10 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	cfgpkg "xcontrol/internal/rag/config"
-	"xcontrol/internal/rag/embed"
-	"xcontrol/internal/rag/store"
-	rsync "xcontrol/internal/rag/sync"
+	cfgpkg "xcontrol/rag-server/internal/rag/config"
+	"xcontrol/rag-server/internal/rag/embed"
+	"xcontrol/rag-server/internal/rag/store"
+	rsync "xcontrol/rag-server/internal/rag/sync"
 	"xcontrol/rag-server/proxy"
 )
 

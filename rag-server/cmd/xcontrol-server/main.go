@@ -15,10 +15,10 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	rconfig "xcontrol/internal/rag/config"
 	"xcontrol/rag-server"
 	"xcontrol/rag-server/api"
 	"xcontrol/rag-server/config"
+	rconfig "xcontrol/rag-server/internal/rag/config"
 	"xcontrol/rag-server/proxy"
 )
 

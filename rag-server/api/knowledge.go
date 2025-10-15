@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
 
-	rsync "xcontrol/internal/rag/sync"
+	rsync "xcontrol/rag-server/internal/rag/sync"
 	"xcontrol/rag-server/proxy"
 )
 

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	cfgpkg "xcontrol/internal/rag/config"
+	cfgpkg "xcontrol/rag-server/internal/rag/config"
 )
 
 func TestBuildChunksHeading(t *testing.T) {

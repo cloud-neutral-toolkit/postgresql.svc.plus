@@ -8,10 +8,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"xcontrol/internal/rag"
-	rconfig "xcontrol/internal/rag/config"
-	ragembed "xcontrol/internal/rag/embed"
-	"xcontrol/internal/rag/store"
+	"xcontrol/rag-server/internal/rag"
+	rconfig "xcontrol/rag-server/internal/rag/config"
+	ragembed "xcontrol/rag-server/internal/rag/embed"
+	"xcontrol/rag-server/internal/rag/store"
 	"xcontrol/rag-server/proxy"
 )
 
