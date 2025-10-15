@@ -1,10 +1,16 @@
+OS := $(shell uname -s)
+PORT := 8090
+MODULE := xcontrol
 APP_NAME := xcontrol-server
 MAIN_FILE := cmd/xcontrol-server/main.go
-MODULE := xcontrol
-PORT := 8090
-OS := $(shell uname -s)
-DB_URL ?= postgres://shenlan:password@127.0.0.1:5432/xserver?sslmode=disable
+
+DB_NAME := knowledge_db
+DB_USER := shenlan
+DB_HOST := 127.0.0.1
+DB_PORT := 5432
+DB_URL  := postgres://$(DB_USER):password@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable
 SCHEMA_FILE := sql/schema.sql
+
 PSQL := psql "$(DB_URL)" -v ON_ERROR_STOP=1
 export PATH := /usr/local/go/bin:$(PATH)
 
@@ -72,7 +78,19 @@ clean:
 	@echo ">>> 清理构建产物"
 	rm -f $(APP_NAME)
 
+create-db:
+	@echo ">>> 创建数据库 $(DB_NAME)"
+	@sudo -u postgres createdb $(DB_NAME) || echo "数据库已存在，跳过"
+	@sudo -u postgres psql -d $(DB_NAME) -c "CREATE EXTENSION IF NOT EXISTS vector;"
+	@sudo -u postgres psql -d $(DB_NAME) -c "CREATE EXTENSION IF NOT EXISTS zhparser;"
+	@sudo -u postgres psql -d $(DB_NAME) -c "\dx"
+
 init-db:
+	@echo ">>> 初始化 RAG schema ($(SCHEMA_FILE))"
+	# 🧩 确保 public schema 归属正确（防止 zhparser 无法创建 TEXT SEARCH CONFIG）
+	@echo ">>> 检查并授权 public schema 所有权与 CREATE 权限"
+	@sudo -u postgres psql -d $(DB_NAME) -c "ALTER SCHEMA public OWNER TO $(DB_USER);" || true
+	@sudo -u postgres psql -d $(DB_NAME) -c "GRANT CREATE ON SCHEMA public TO $(DB_USER);" || true
 	@echo ">>> 初始化 RAG schema ($(SCHEMA_FILE))"
 	@$(PSQL) -f $(SCHEMA_FILE)
 
