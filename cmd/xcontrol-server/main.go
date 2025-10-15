@@ -16,10 +16,10 @@ import (
 	"gorm.io/gorm"
 
 	rconfig "xcontrol/internal/rag/config"
-	"xcontrol/server"
-	"xcontrol/server/api"
-	"xcontrol/server/config"
-	"xcontrol/server/proxy"
+	"xcontrol/rag-server"
+	"xcontrol/rag-server/api"
+	"xcontrol/rag-server/config"
+	"xcontrol/rag-server/proxy"
 )
 
 var (

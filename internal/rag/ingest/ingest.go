@@ -12,7 +12,7 @@ import (
 	"xcontrol/internal/rag/embed"
 	"xcontrol/internal/rag/store"
 	rsync "xcontrol/internal/rag/sync"
-	"xcontrol/server/proxy"
+	"xcontrol/rag-server/proxy"
 )
 
 // Options control ingestion behaviour.

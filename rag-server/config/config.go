@@ -175,9 +175,9 @@ type Config struct {
 }
 
 // Load reads the configuration file at the provided path. When path is empty,
-// it defaults to server/config/server.yaml.
+// it defaults to rag-server/config/server.yaml.
 func Load(path ...string) (*Config, error) {
-	p := filepath.Join("server", "config", "server.yaml")
+	p := filepath.Join("rag-server", "config", "server.yaml")
 	if len(path) > 0 && path[0] != "" {
 		p = path[0]
 	}

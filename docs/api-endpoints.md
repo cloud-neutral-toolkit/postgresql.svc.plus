@@ -180,7 +180,7 @@ Expected response on success: `{"rows":1}`. If the vector database is unavailabl
 - **Description:** Ask the AI service for an answer. The endpoint uses [LangChainGo](https://github.com/tmc/langchaingo) to communicate with the configured model provider (e.g., OpenAI-compatible services or a local Ollama instance). Ensure the server configuration includes the proper token or local server URL.
 - **Body Parameters (JSON):**
   - `question` – Question text.
-**Configuration:** In `server/config/server.yaml` the `models` section selects the LLM and embedding providers.
+**Configuration:** In `rag-server/config/server.yaml` the `models` section selects the LLM and embedding providers.
 For local debugging with HuggingFace and Ollama:
 
 ```yaml

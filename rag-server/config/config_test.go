@@ -13,7 +13,7 @@ func TestLoad(t *testing.T) {
 	if err != nil {
 		t.Fatalf("getwd: %v", err)
 	}
-	// change to repository root so Load can read server/config/server.yaml
+	// change to repository root so Load can read rag-server/config/server.yaml
 	if err := os.Chdir("../.."); err != nil {
 		t.Fatalf("chdir: %v", err)
 	}

@@ -75,7 +75,7 @@ CREATE EXTENSION IF NOT EXISTS vector;
 -- 启用中文分词扩展（可选）
 CREATE EXTENSION IF NOT EXISTS zhparser;
 
-导入初始化 SQL（例如 docs/init.sql） psql -h 127.0.0.1 -U shenlan -d shenlan -f docs/init.sql
+导入初始化 SQL（例如 rag-server/sql/schema.sql） psql -h 127.0.0.1 -U shenlan -d shenlan -f rag-server/sql/schema.sql
 验证扩展与表结构
 
 psql -h 127.0.0.1 -U shenlan -d shenlan -c "\d+ documents"
@@ -129,11 +129,11 @@ GRANT ALL PRIVILEGES ON DATABASE shenlan TO shenlan;
    ```
 6. 导入项目提供的初始化脚本
 
-项目在 `docs/init.sql` 中提供了建表及索引脚本，可通过 `psql` 导入：
+项目在 `rag-server/sql/schema.sql` 中提供了建表及索引脚本，可通过 `psql` 导入：
 ```bash
 退出再用 shenlan 用户运行 init.sql
 
-psql -h 127.0.0.1 -U shenlan -d shenlan -f docs/init.sql
+psql -h 127.0.0.1 -U shenlan -d shenlan -f rag-server/sql/schema.sql
 ```
 该脚本会：
 - 创建 `vector` 和 `zhparser` 扩展（如未启用）。
@@ -182,7 +182,7 @@ psql postgres://shenlan:<密码>@127.0.0.1:5432/mydb -c "\d+ documents"
 
 ## 6. 配置嵌入服务
 
-在 `server/config/server.yaml` 中新增 `embedding` 配置，使服务端能够对问题进行向量化检索：
+在 `rag-server/config/server.yaml` 中新增 `embedding` 配置，使服务端能够对问题进行向量化检索：
 
 ```yaml
 global:

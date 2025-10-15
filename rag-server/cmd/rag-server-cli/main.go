@@ -20,7 +20,7 @@ import (
 	"xcontrol/internal/rag/ingest"
 	"xcontrol/internal/rag/store"
 	rsync "xcontrol/internal/rag/sync"
-	"xcontrol/server/proxy"
+	"xcontrol/rag-server/proxy"
 )
 
 // main synchronizes configured repositories and ingests markdown files.

@@ -1,6 +1,6 @@
 package main
 
-import "xcontrol/server/internal/agent"
+import "xcontrol/rag-server/internal/agent"
 
 func main() {
 	agent.Run()

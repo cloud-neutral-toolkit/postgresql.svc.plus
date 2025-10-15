@@ -17,7 +17,7 @@
 接口示例：
 
 ```go
-// server/api.go
+// rag-server/api.go
 func RegisterRoutes(r *gin.Engine, db *pgx.Conn) {
     r.POST("/sync", SyncHandler)
     r.POST("/ask", AskHandler)

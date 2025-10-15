@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"xcontrol/server/internal/model"
+	"xcontrol/rag-server/internal/model"
 )
 
 func ListNodes(ctx context.Context) ([]model.Node, error) {

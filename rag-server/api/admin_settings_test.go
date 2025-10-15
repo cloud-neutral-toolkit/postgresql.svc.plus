@@ -11,8 +11,8 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
-	"xcontrol/server/internal/model"
-	"xcontrol/server/internal/service"
+	"xcontrol/rag-server/internal/model"
+	"xcontrol/rag-server/internal/service"
 )
 
 func setupAdminSettingsTestRouter(t *testing.T) *gin.Engine {

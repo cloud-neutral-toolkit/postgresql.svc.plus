@@ -7,7 +7,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	rsync "xcontrol/internal/rag/sync"
-	"xcontrol/server/proxy"
+	"xcontrol/rag-server/proxy"
 )
 
 // registerKnowledgeRoutes sets up knowledge base endpoints.

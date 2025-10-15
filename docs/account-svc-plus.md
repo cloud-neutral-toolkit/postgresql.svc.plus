@@ -27,7 +27,7 @@
 - `internal/store`: 使用 `pgx` 连接 PostgreSQL，定义用户、会话、绑定等模型。
 - `internal/cache`: 基于 `go-redis` 实现 token、会话的缓存与黑名单。
 - `api`: 提供 `/login`、`/logout`、`/userinfo` 等 REST 接口，可按需扩展 gRPC。
-- `config`: 参照 `server/config` 风格，提供 YAML/ENV 配置解析。
+- `config`: 参照 `rag-server/config` 风格，提供 YAML/ENV 配置解析。
 
 ## 3. 协议支持
 
@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS sessions (
 - 各模块以接口形式定义，新增认证协议只需实现 `auth.Provider` 接口并在配置中注册。
 - 数据库与缓存层均预留版本迁移脚本，支持通过 `migrate` 工具升级。
 - 通过 `plugins/` 目录支持业务插件，API 层暴露 Hook 以注入自定义逻辑。
-- 与现有 `xcontrol/server` 共享部分通用库（如 `config`、`logging`），保持代码风格一致。
+- 与现有 `xcontrol/rag-server` 共享部分通用库（如 `config`、`logging`），保持代码风格一致。
 
 ## 8. 代码目录规划
 

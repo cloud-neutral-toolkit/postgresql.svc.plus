@@ -8,11 +8,11 @@ import (
 
 	cfgpkg "xcontrol/internal/rag/config"
 	"xcontrol/internal/rag/ingest"
-	"xcontrol/server/proxy"
+	"xcontrol/rag-server/proxy"
 )
 
 func main() {
-	configPath := flag.String("config", "example/server/config/server.yaml", "config path")
+	configPath := flag.String("config", "rag-server/config/server.yaml", "config path")
 	onlyRepo := flag.String("only-repo", "", "only ingest repo by name")
 	dryRun := flag.Bool("dry-run", false, "dry run")
 	maxFiles := flag.Int("max-files", 0, "limit number of files")

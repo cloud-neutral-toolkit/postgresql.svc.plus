@@ -80,7 +80,7 @@ endif
 # Database initialization
 # -----------------------------------------------------------------------------
 init-db:
-	@psql $(PG_DSN) -f docs/init.sql
+        @psql $(PG_DSN) -f rag-server/sql/schema.sql
 
 # -----------------------------------------------------------------------------
 # Build targets
@@ -89,10 +89,10 @@ init-db:
 build: update-homepage-manifests build-cli build-server build-homepage
 
 build-cli:
-	$(MAKE) -C client build
+        $(MAKE) -C rag-server/cmd/rag-server-cli build
 
 build-server:
-	$(MAKE) -C server build
+        $(MAKE) -C rag-server build
 
 build-homepage:
 	$(MAKE) -C ui/homepage build SKIP_SYNC=1
@@ -107,7 +107,7 @@ update-homepage-manifests:
 start: start-openresty start-server start-homepage start-dl start-docs
 
 start-server:
-	$(MAKE) -C server start
+        $(MAKE) -C rag-server start
 
 start-homepage:
 	$(MAKE) -C ui/homepage start
@@ -116,7 +116,7 @@ start-homepage:
 stop: stop-server stop-homepage stop-openresty
 
 stop-server:
-	$(MAKE) -C server stop
+        $(MAKE) -C rag-server stop
 
 stop-homepage:
 	$(MAKE) -C ui/homepage stop

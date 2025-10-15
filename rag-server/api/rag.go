@@ -12,7 +12,7 @@ import (
 	rconfig "xcontrol/internal/rag/config"
 	ragembed "xcontrol/internal/rag/embed"
 	"xcontrol/internal/rag/store"
-	"xcontrol/server/proxy"
+	"xcontrol/rag-server/proxy"
 )
 
 // ragService defines methods used by the RAG API. It allows tests to supply a

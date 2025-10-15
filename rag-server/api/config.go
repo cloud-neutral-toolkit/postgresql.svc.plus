@@ -3,7 +3,7 @@ package api
 import (
 	"gorm.io/gorm"
 
-	"xcontrol/server/internal/service"
+	"xcontrol/rag-server/internal/service"
 )
 
 // ConfigureServiceDB configures the internal service database connection.
