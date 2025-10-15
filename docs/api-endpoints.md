@@ -105,12 +105,16 @@ Gateway-managed session cookies (`xc_session`) and MFA challenge cookies (`xc_mf
 
 > **TLS note:** Deploy the frontend behind HTTPS so that `Secure` cookies are accepted by browsers. When testing with curl, add `-k` only if using a self-signed development certificate.
 
+> Unless otherwise noted, the examples below target the RAG server listening on
+> `127.0.0.1:8090`. The default base URL for local testing is
+> `http://localhost:8090`.
+
 ## GET /api/users
 - **Description:** Return all users.
 - **Parameters:** None.
 - **Test:**
   ```bash
-  curl -s http://localhost:8080/api/users
+  curl -s http://localhost:8090/api/users
   ```
 
 ## GET /api/nodes
@@ -118,7 +122,7 @@ Gateway-managed session cookies (`xc_session`) and MFA challenge cookies (`xc_mf
 - **Parameters:** None.
 - **Test:**
   ```bash
-  curl -s http://localhost:8080/api/nodes
+  curl -s http://localhost:8090/api/nodes
   ```
 
 ## POST /api/sync
@@ -128,7 +132,7 @@ Gateway-managed session cookies (`xc_session`) and MFA challenge cookies (`xc_mf
   - `local_path` – Destination directory on the server.
 - **Test:**
   ```bash
-  curl -X POST http://localhost:8080/api/sync \
+  curl -X POST http://localhost:8090/api/sync \
     -H "Content-Type: application/json" \
     -d '{"repo_url": "https://github.com/example/repo.git", "local_path": "/tmp/repo"}'
   ```
@@ -139,7 +143,7 @@ Gateway-managed session cookies (`xc_session`) and MFA challenge cookies (`xc_mf
 - **Parameters:** None.
 - **Test:**
   ```bash
-  curl -N -X POST http://localhost:8080/api/rag/sync
+  curl -N -X POST http://localhost:8090/api/rag/sync
   ```
 - **Notes:** A future evolution could expose this operation via a gRPC
   streaming RPC. That approach would allow high-speed synchronization, rate
@@ -152,7 +156,7 @@ Gateway-managed session cookies (`xc_session`) and MFA challenge cookies (`xc_mf
   - `docs` – Array of documents each containing `repo`, `path`, `chunk_id`, `content`, `embedding`, `metadata`, and `content_sha`.
 - **Test:**
 
-curl -X POST http://localhost:8080/api/rag/upsert \
+curl -X POST http://localhost:8090/api/rag/upsert \
      -H "Content-Type: application/json" --data-binary @/Users/shenlan/workspaces/XControl/docs/upsert_1024.json
   ```bash
 Expected response on success: `{"rows":1}`. If the vector database is unavailable, the endpoint returns `{"rows":0,"error":"..."}`.
@@ -163,7 +167,7 @@ Expected response on success: `{"rows":1}`. If the vector database is unavailabl
   - `question` – Query text.
 - **Test:**
   ```bash
-  curl -X POST http://localhost:8080/api/rag/query \
+  curl -X POST http://localhost:8090/api/rag/query \
     -H "Content-Type: application/json" \
     -d '{"question": "What is XControl?"}'
   ```
@@ -173,7 +177,7 @@ Expected response on success: `{"rows":1}`. If the vector database is unavailabl
   single line without the backslashes:
 
   ```bash
-  curl -X POST http://localhost:8080/api/rag/query -H "Content-Type: application/json" -d '{"question": "What is XControl?"}'
+  curl -X POST http://localhost:8090/api/rag/query -H "Content-Type: application/json" -d '{"question": "What is XControl?"}'
   ```
 
 ## POST /api/askai
@@ -220,7 +224,7 @@ api:
 
 - **Test:**
   ```bash
-  curl -X POST http://localhost:8080/api/askai \
+  curl -X POST http://localhost:8090/api/askai \
     -H "Content-Type: application/json" \
     -d '{"question": "Hello"}'
   ```

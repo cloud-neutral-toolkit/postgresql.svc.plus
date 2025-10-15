@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -49,6 +51,11 @@ func (o *OpenAI) Embed(ctx context.Context, inputs []string) ([][]float32, int, 
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode >= 300 {
+		body, _ := io.ReadAll(resp.Body)
+		msg := strings.TrimSpace(string(body))
+		if msg != "" {
+			return nil, 0, &HTTPError{Code: resp.StatusCode, Status: fmt.Sprintf("embed failed: %s: %s", resp.Status, msg)}
+		}
 		return nil, 0, &HTTPError{Code: resp.StatusCode, Status: fmt.Sprintf("embed failed: %s", resp.Status)}
 	}
 	var out struct {

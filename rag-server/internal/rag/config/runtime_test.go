@@ -47,6 +47,39 @@ func TestResolveChunking(t *testing.T) {
 	}
 }
 
+func TestResolveServerURL(t *testing.T) {
+	cfg := &Config{}
+	if got := cfg.ResolveServerURL(); got != "" {
+		t.Fatalf("expected empty url, got %q", got)
+	}
+
+	cfg.Server.BaseURL = "https://example.com/rag/"
+	if got := cfg.ResolveServerURL(); got != "https://example.com/rag" {
+		t.Fatalf("unexpected base url %q", got)
+	}
+
+	cfg.Server.BaseURL = ""
+	cfg.Server.Addr = ":8090"
+	if got := cfg.ResolveServerURL(); got != "http://localhost:8090" {
+		t.Fatalf("unexpected addr conversion %q", got)
+	}
+
+	cfg.Server.Addr = "0.0.0.0:9000"
+	if got := cfg.ResolveServerURL(); got != "http://localhost:9000" {
+		t.Fatalf("unexpected wildcard conversion %q", got)
+	}
+
+	cfg.Server.Addr = "127.0.0.1:8090"
+	if got := cfg.ResolveServerURL(); got != "http://localhost:8090" {
+		t.Fatalf("expected loopback to map to localhost, got %q", got)
+	}
+
+	cfg.Server.Addr = "http://0.0.0.0:7000/path"
+	if got := cfg.ResolveServerURL(); got != "http://0.0.0.0:7000" {
+		t.Fatalf("unexpected parsed url %q", got)
+	}
+}
+
 func TestRuntimeToConfigEmbedding(t *testing.T) {
 	rt := &Runtime{}
 	rt.Embedding.Endpoint = "http://localhost:8080"

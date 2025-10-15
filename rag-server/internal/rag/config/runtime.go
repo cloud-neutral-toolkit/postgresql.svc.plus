@@ -1,6 +1,8 @@
 package config
 
 import (
+	"net"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -53,6 +55,63 @@ func (c *Config) ResolveChunking() ChunkingCfg {
 		ch.IgnoreDirs = []string{".git", "node_modules", "dist", "build"}
 	}
 	return ch
+}
+
+// ResolveServerURL determines the base URL for talking to the rag-server API.
+// When SERVER_URL is not provided via environment variables, the CLI falls
+// back to this value. Preference is given to an explicit base URL, otherwise
+// the listener address is converted into an HTTP URL pointing to localhost.
+func (c *Config) ResolveServerURL() string {
+	if c == nil {
+		return ""
+	}
+	base := strings.TrimSpace(c.Server.BaseURL)
+	if base != "" {
+		if !strings.HasPrefix(base, "http://") && !strings.HasPrefix(base, "https://") {
+			base = "http://" + base
+		}
+		return strings.TrimRight(base, "/")
+	}
+	addr := strings.TrimSpace(c.Server.Addr)
+	if addr == "" {
+		return ""
+	}
+	if strings.Contains(addr, "://") {
+		if u, err := url.Parse(addr); err == nil {
+			u.Path = ""
+			u.RawQuery = ""
+			u.Fragment = ""
+			return strings.TrimRight(u.String(), "/")
+		}
+		return strings.TrimRight(addr, "/")
+	}
+	host := addr
+	port := ""
+
+	if strings.HasPrefix(host, ":") {
+		port = strings.TrimPrefix(host, ":")
+		host = ""
+	} else if h, p, err := net.SplitHostPort(host); err == nil {
+		host = h
+		port = p
+	} else if strings.Count(host, ":") == 1 {
+		parts := strings.SplitN(host, ":", 2)
+		host = parts[0]
+		port = parts[1]
+	}
+
+	host = strings.TrimSpace(host)
+	port = strings.TrimSpace(port)
+
+	if port == "" {
+		port = "8090"
+	}
+
+	if host == "" || host == "0.0.0.0" || host == "127.0.0.1" {
+		host = "localhost"
+	}
+
+	return "http://" + strings.TrimRight(net.JoinHostPort(host, port), "/")
 }
 
 // Runtime holds runtime configuration for RAG features.

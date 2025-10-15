@@ -120,6 +120,12 @@ type ChunkingCfg struct {
 type Config struct {
 	Global Global `yaml:"global"`
 	Sync   Sync   `yaml:"sync"`
+	Server struct {
+		Addr         string `yaml:"addr"`
+		BaseURL      string `yaml:"baseurl"`
+		ReadTimeout  string `yaml:"readTimeout"`
+		WriteTimeout string `yaml:"writeTimeout"`
+	} `yaml:"server"`
 	Models struct {
 		Embedder  ModelCfg `yaml:"embedder"`
 		Generator ModelCfg `yaml:"generator"`

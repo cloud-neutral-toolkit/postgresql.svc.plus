@@ -82,9 +82,13 @@ var rootCmd = &cobra.Command{
 			}
 		}
 
-		baseURL := os.Getenv("SERVER_URL")
+		baseURL := strings.TrimRight(os.Getenv("SERVER_URL"), "/")
 		if baseURL == "" {
-			baseURL = "http://localhost:8080"
+			if resolved := cfg.ResolveServerURL(); resolved != "" {
+				baseURL = resolved
+			} else {
+				baseURL = "http://localhost:8090"
+			}
 		}
 
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Minute)

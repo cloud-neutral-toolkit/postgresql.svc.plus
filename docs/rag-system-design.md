@@ -138,8 +138,11 @@ datasources:
 
 在同步流程之外，也可以通过 `curl` 手动向 `/api/rag/upsert` 写入一条记录：
 
+> 默认情况下，RAG 服务监听 `127.0.0.1:8090`，因此以下示例均以
+> `http://localhost:8090` 为基础地址。
+
 ```bash
-curl -X POST http://localhost:8080/api/rag/upsert \
+curl -X POST http://localhost:8090/api/rag/upsert \
   -H "Content-Type: application/json" \
   -d '{"docs":[{"repo":"example","path":"doc.md","chunk_id":1,"content":"hello","embedding":[0.1,0.2],"metadata":{},"content_sha":"abc"}]}'
 ```
@@ -151,7 +154,7 @@ curl -X POST http://localhost:8080/api/rag/upsert \
 同步完成后，可通过 curl 测试 `/api/rag/query`：
 
 ```bash
-curl -X POST http://localhost:8080/api/rag/query \
+curl -X POST http://localhost:8090/api/rag/query \
   -H "Content-Type: application/json" \
   -d '{"question": "What is XControl?"}'
 ```
