@@ -57,7 +57,12 @@ export function AskAIDialog({
   ) {
     abortRef.current?.abort()
     const controller = new AbortController()
-    const timer = setTimeout(() => controller.abort(), timeout)
+    let timer: NodeJS.Timeout | null = null
+    const scheduleAbort = () => {
+      if (timer) clearTimeout(timer)
+      timer = setTimeout(() => controller.abort(), timeout)
+    }
+    scheduleAbort()
     abortRef.current = controller
 
     try {
@@ -92,6 +97,7 @@ export function AskAIDialog({
         const { value, done } = await reader.read()
         if (done) break
 
+        scheduleAbort()
         buffer += decoder.decode(value, { stream: true })
         const parts = buffer.split('\n\n')
         buffer = parts.pop() || ''
@@ -121,7 +127,7 @@ export function AskAIDialog({
       update(answer, retrieved)
       return { answer, retrieved }
     } finally {
-      clearTimeout(timer)
+      if (timer) clearTimeout(timer)
       if (abortRef.current === controller) abortRef.current = null
     }
   }
