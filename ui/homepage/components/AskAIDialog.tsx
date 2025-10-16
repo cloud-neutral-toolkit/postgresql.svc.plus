@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import { ChatBubble } from './ChatBubble'
@@ -9,14 +9,35 @@ import { SourceHint } from './SourceHint'
 const MAX_MESSAGES = 20
 const MAX_CACHE_SIZE = 50
 
+function normalizeInput(text: string) {
+  return text
+    .trim()
+    .replace(/[\s.,!?;:，。！？；：]+$/u, '')
+    .replace(/```[\s\S]*?```/g, '')
+}
+
+function renderMarkdown(text: string) {
+  // marked.parse has a return type of string | Promise<string>
+  // but in our usage it executes synchronously. Cast to string to
+  // satisfy the DOMPurify.sanitize type expectations.
+  return DOMPurify.sanitize(marked.parse(text) as string)
+}
+
+type InitialQuestionPayload = {
+  key: number
+  text: string
+}
+
 export function AskAIDialog({
   open,
   onMinimize,
-  onEnd
+  onEnd,
+  initialQuestion
 }: {
   open: boolean
   onMinimize: () => void
   onEnd: () => void
+  initialQuestion?: InitialQuestionPayload
 }) {
   const [question, setQuestion] = useState('')
   const [messages, setMessages] = useState<{ sender: 'user' | 'ai'; text: string }[]>([])
@@ -27,6 +48,7 @@ export function AskAIDialog({
     new Map<string, { answer: string; sources: any[]; timestamp: number }>()
   )
   const requestIdRef = useRef(0)
+  const processedInitialRef = useRef<number | null>(null)
 
   useEffect(() => {
     return () => {
@@ -35,26 +57,12 @@ export function AskAIDialog({
     }
   }, [])
 
-  function normalizeInput(text: string) {
-    return text
-      .trim()
-      .replace(/[\s.,!?;:，。！？；：]+$/u, '')
-      .replace(/```[\s\S]*?```/g, '')
-  }
-
-  function renderMarkdown(text: string) {
-    // marked.parse has a return type of string | Promise<string>
-    // but in our usage it executes synchronously. Cast to string to
-    // satisfy the DOMPurify.sanitize type expectations.
-    return DOMPurify.sanitize(marked.parse(text) as string)
-  }
-
-  async function streamChat(
+  const streamChat = useCallback(async (
     url: string,
     body: any,
     update: (text: string, src?: any[]) => void,
     timeout = 15000
-  ) {
+  ) => {
     abortRef.current?.abort()
     const controller = new AbortController()
     let timer: NodeJS.Timeout | null = null
@@ -130,10 +138,11 @@ export function AskAIDialog({
       if (timer) clearTimeout(timer)
       if (abortRef.current === controller) abortRef.current = null
     }
-  }
+  }, [])
 
-  async function performAsk() {
-    const normalized = normalizeInput(question)
+  const performAsk = useCallback(async (override?: string) => {
+    const inputValue = override ?? question
+    const normalized = normalizeInput(inputValue)
     if (!normalized) return
     const now = Date.now()
     const cached = cacheRef.current.get(normalized)
@@ -262,20 +271,35 @@ export function AskAIDialog({
       else if (err.message) message = err.message
       updateAI(message)
     }
-  }
+  }, [messages, question, streamChat])
 
   function handleAsk() {
     abortRef.current?.abort()
     if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(performAsk, 300)
+    debounceRef.current = setTimeout(() => performAsk(), 300)
   }
 
   function handleEnd() {
     setMessages([])
     setQuestion('')
     setSources([])
+    processedInitialRef.current = null
     onEnd()
   }
+
+  useEffect(() => {
+    if (!open) {
+      processedInitialRef.current = null
+      return
+    }
+    if (!initialQuestion) return
+    if (processedInitialRef.current === initialQuestion.key) return
+    const normalizedInitial = normalizeInput(initialQuestion.text)
+    if (!normalizedInitial) return
+    processedInitialRef.current = initialQuestion.key
+    setQuestion(normalizedInitial)
+    performAsk(normalizedInitial)
+  }, [initialQuestion, open, performAsk])
 
   if (!open) return null
 

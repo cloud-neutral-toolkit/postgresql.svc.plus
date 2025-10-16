@@ -1,12 +1,15 @@
 'use client'
+import Link from 'next/link'
 import Image from 'next/image'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react'
+import { Search } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageProvider'
 import { translations } from '../i18n/translations'
 import LanguageToggle from './LanguageToggle'
 import ReleaseChannelSelector, { ReleaseChannel } from './ReleaseChannelSelector'
 import { getFeatureToggleInfo } from '@lib/featureToggles'
 import { useUser } from '@lib/userStore'
+import { AskAIDialog } from './AskAIDialog'
 
 const CHANNEL_ORDER: ReleaseChannel[] = ['stable', 'beta', 'develop']
 const DEFAULT_CHANNELS: ReleaseChannel[] = ['stable']
@@ -21,17 +24,9 @@ type NavSubItem = {
   enabled?: boolean
 }
 
-type NavItem = {
-  key: string
-  label: string
-  children: NavSubItem[]
-}
-
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
-  const [openSection, setOpenSection] = useState<string | null>(null)
-  const [activeMenu, setActiveMenu] = useState<string | null>(null)
-  const [activeItem, setActiveItem] = useState<string | null>(null)
+  const [mobileServicesOpen, setMobileServicesOpen] = useState(false)
   const [selectedChannels, setSelectedChannels] = useState<ReleaseChannel[]>(['stable'])
   const { language } = useLanguage()
   const { user } = useUser()
@@ -145,100 +140,61 @@ export default function Navbar() {
 
   const accountLabel = nav.account.title
 
-  const navItems: NavItem[] = [
-    {
-      key: 'openSource',
-      label: nav.openSource.title,
-      children: [
-        {
-          key: 'features',
-          label: nav.openSource.features,
-          href: '#features',
-        },
-        {
-          key: 'projects',
-          label: nav.openSource.projects,
-          href: '#open-sources',
-        },
-        {
-          key: 'download',
-          label: nav.openSource.download,
-          href: '#download',
-        },
-      ],
-    },
-    {
-      key: 'services',
-      label: nav.services.title,
-      children: [
-        {
-          key: 'artifact',
-          label: nav.services.artifact,
-          href: '/download',
-          togglePath: '/download',
-        },
-        {
-          key: 'cloudIac',
-          label: nav.services.cloudIac,
-          href: '/cloud_iac',
-          togglePath: '/cloud_iac',
-        },
-        {
-          key: 'insight',
-          label: nav.services.insight,
-          href: '/insight',
-          togglePath: '/insight',
-        },
-        {
-          key: 'docs',
-          label: nav.services.docs,
-          href: '/docs',
-          togglePath: '/docs',
-        },
-      ],
-    },
-    ...(!user
-      ? [
-          {
-            key: 'account',
-            label: accountLabel,
-            children: accountChildren,
-          },
-        ]
-      : []),
-  ]
+  const serviceItems: NavSubItem[] = useMemo(() => {
+    const rawItems: NavSubItem[] = [
+      {
+        key: 'artifact',
+        label: nav.services.artifact,
+        href: '/download',
+        togglePath: '/download',
+      },
+      {
+        key: 'cloudIac',
+        label: nav.services.cloudIac,
+        href: '/cloud_iac',
+        togglePath: '/cloud_iac',
+      },
+      {
+        key: 'insight',
+        label: nav.services.insight,
+        href: '/insight',
+        togglePath: '/insight',
+      },
+      {
+        key: 'docs',
+        label: nav.services.docs,
+        href: '/docs',
+        togglePath: '/docs',
+      },
+    ]
 
-  const visibleNavItems: NavItem[] = navItems
-    .map((item) => ({
-      ...item,
-      children: item.children
-        .map((child) => {
-          if (!child.togglePath) {
-            return { ...child, enabled: true }
-          }
+    return rawItems
+      .map((child) => {
+        if (!child.togglePath) {
+          return { ...child, enabled: true }
+        }
 
-          const { enabled, channel } = getFeatureToggleInfo('globalNavigation', child.togglePath)
-          const derivedChannels = child.channels ?? (channel ? [channel] : undefined)
+        const { enabled, channel } = getFeatureToggleInfo('globalNavigation', child.togglePath)
+        const derivedChannels = child.channels ?? (channel ? [channel] : undefined)
 
-          return {
-            ...child,
-            enabled,
-            channels: derivedChannels,
-          }
-        })
-        .filter((child) => {
-          if (child.enabled === false) {
-            return false
-          }
+        return {
+          ...child,
+          enabled,
+          channels: derivedChannels,
+        }
+      })
+      .filter((child) => {
+        if (child.enabled === false) {
+          return false
+        }
 
-          const childChannels: ReleaseChannel[] = child.channels?.length
-            ? child.channels
-            : DEFAULT_CHANNELS
-          return childChannels.some((channel) => selectedChannelSet.has(channel))
-        })
-        .map(({ enabled: _enabled, ...child }) => child),
-    }))
-    .filter((item) => item.children.length > 0)
+        const childChannels: ReleaseChannel[] = child.channels?.length
+          ? child.channels
+          : DEFAULT_CHANNELS
+        return childChannels.some((channel) => selectedChannelSet.has(channel))
+      })
+      .map(({ enabled: _enabled, ...child }) => child)
+  }, [nav.services.artifact, nav.services.cloudIac, nav.services.docs, nav.services.insight, selectedChannelSet])
 
   const toggleChannel = (channel: ReleaseChannel) => {
     if (channel === 'stable') return
@@ -264,227 +220,346 @@ export default function Navbar() {
     )
   }
 
-  const toggleSection = (section: string) => {
-    setOpenSection((prev) => (prev === section ? null : section))
+  const isChinese = language === 'zh'
+  const labels = {
+    home: isChinese ? '首页' : 'Home',
+    docs: isChinese ? '文档' : 'Docs',
+    download: isChinese ? '下载' : 'Download',
+    moreServices: isChinese ? '更多服务' : 'More services',
+    searchPlaceholder: isChinese ? '请输入关键字搜索内容' : 'Ask anything about your docs',
+  }
+
+  const [searchValue, setSearchValue] = useState('')
+  const [askDialogOpen, setAskDialogOpen] = useState(false)
+  const [pendingQuestion, setPendingQuestion] = useState<{ key: number; text: string } | null>(null)
+
+  const mainLinks = [
+    { key: 'home', label: labels.home, href: '/' },
+    { key: 'docs', label: labels.docs, href: '/docs' },
+    { key: 'download', label: labels.download, href: '/download' },
+  ]
+
+  const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const trimmed = searchValue.trim()
+    if (!trimmed) return
+    setPendingQuestion({ key: Date.now(), text: trimmed })
+    setAskDialogOpen(true)
+    setSearchValue('')
   }
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-white/70 backdrop-blur border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-        <a href="#" className="text-xl font-bold text-gray-900 flex items-center gap-2">
-          <Image
-            src="/icons/cloudnative_32.png"
-            alt="logo"
-            width={24}
-            height={24}
-            className="h-6 w-6"
-            unoptimized
-          />
-          CloudNative Suite
-        </a>
+    <>
+      <nav className="fixed top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl flex-col px-4">
+          <div className="flex items-center gap-6 py-4">
+            <div className="flex flex-1 items-center gap-8">
+              <Link href="/" className="flex items-center gap-2 text-xl font-semibold text-gray-900">
+                <Image
+                  src="/icons/cloudnative_32.png"
+                  alt="logo"
+                  width={24}
+                  height={24}
+                  className="h-6 w-6"
+                  unoptimized
+                />
+                CloudNative Suite
+              </Link>
+              <div className="hidden lg:flex items-center gap-6 text-sm font-medium text-gray-700">
+                {mainLinks.map((link) => (
+                  <Link key={link.key} href={link.href} className="transition hover:text-purple-600">
+                    {link.label}
+                  </Link>
+                ))}
+                {serviceItems.length > 0 ? (
+                  <div className="group relative">
+                    <button className="flex items-center gap-1 transition hover:text-purple-600">
+                      <span>{labels.moreServices}</span>
+                      <svg
+                        className="h-4 w-4 text-gray-500 transition group-hover:text-purple-600"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    <div className="pointer-events-none absolute left-0 top-full hidden min-w-[200px] translate-y-1 rounded-lg border border-gray-200 bg-white py-2 text-sm text-gray-700 opacity-0 shadow-lg transition-all duration-200 group-hover:pointer-events-auto group-hover:block group-hover:translate-y-2 group-hover:opacity-100">
+                      {serviceItems.map((child) => {
+                        const isExternal = child.href.startsWith('http')
+                        if (isExternal) {
+                          return (
+                            <a
+                              key={child.key}
+                              href={child.href}
+                              className="flex items-center justify-between gap-2 px-4 py-2 transition hover:bg-gray-100 hover:text-purple-600"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <span>{child.label}</span>
+                              {getPreviewBadge(child.channels)}
+                            </a>
+                          )
+                        }
 
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-6 text-sm text-gray-900">
-          {visibleNavItems.map((item) => {
-            const dropdownPosition = item.key === 'account' ? 'right-0' : 'left-0'
-            return (
-              <div key={item.key} className="relative group">
-                <button
-                  className={`hover:text-purple-600 ${
-                    activeMenu === item.key ? 'text-purple-600' : ''
-                  }`}
-                >
-                  {item.label}
-                </button>
-                <div
-                  className={`absolute ${dropdownPosition} top-full pt-2 opacity-0 translate-y-1 transform transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto`}
-                >
-                  <div className="bg-white rounded-md shadow-lg border border-gray-200 py-2">
-                    {item.children.map((child) => {
-                      const isExternal = child.href.startsWith('http')
-                      return (
-                        <a
-                          key={child.key}
-                          href={child.href}
-                          className={`block px-4 py-2 hover:bg-gray-100 whitespace-nowrap ${
-                            activeItem === child.key ? 'text-purple-600' : ''
-                          }`}
-                          onClick={() => {
-                            setActiveMenu(item.key)
-                            setActiveItem(child.key)
-                          }}
-                          target={isExternal ? '_blank' : undefined}
-                          rel={isExternal ? 'noopener noreferrer' : undefined}
-                        >
-                          <span className="flex items-center gap-2">
+                        return (
+                          <Link
+                            key={child.key}
+                            href={child.href}
+                            className="flex items-center justify-between gap-2 px-4 py-2 transition hover:bg-gray-100 hover:text-purple-600"
+                          >
                             <span>{child.label}</span>
                             {getPreviewBadge(child.channels)}
-                          </span>
-                        </a>
-                      )
-                    })}
+                          </Link>
+                        )
+                      })}
+                    </div>
                   </div>
-                </div>
+                ) : null}
               </div>
-            )
-          })}
-          {user ? (
-            <div className="relative" ref={accountMenuRef}>
-              <button
-                type="button"
-                onClick={() => setAccountMenuOpen((prev) => !prev)}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-600 text-sm font-semibold text-white shadow-sm transition hover:bg-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200 focus:ring-offset-2"
-                aria-haspopup="menu"
-                aria-expanded={accountMenuOpen}
-              >
-                {accountInitial}
-              </button>
-              {accountMenuOpen ? (
-                <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
-                  <div className="border-b border-gray-100 bg-purple-50/60 px-4 py-3">
-                    <p className="text-sm font-semibold text-gray-900">{user.username}</p>
-                    <p className="text-xs text-gray-500">{user.email}</p>
-                  </div>
-                  <div className="py-1 text-sm text-gray-700">
-                    <a
-                      href="/panel"
-                      className="block px-4 py-2 hover:bg-gray-100"
-                      onClick={() => setAccountMenuOpen(false)}
-                    >
-                      {accountCopy.userCenter}
-                    </a>
-                    <a
-                      href="/logout"
-                      className="flex w-full items-center px-4 py-2 text-left text-red-600 hover:bg-red-50"
-                      onClick={() => setAccountMenuOpen(false)}
-                    >
-                      {accountCopy.logout}
-                    </a>
-                  </div>
-                </div>
-              ) : null}
             </div>
-          ) : null}
-          <div className="flex items-center gap-3">
-            <LanguageToggle />
-            <ReleaseChannelSelector
-              selected={selectedChannels}
-              onToggle={toggleChannel}
-              variant="icon"
-            />
-          </div>
-        </div>
 
-        {/* Mobile Hamburger Button */}
-        <button
-          className="md:hidden flex items-center text-gray-900 focus:outline-none"
-          onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Toggle menu"
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            {menuOpen ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            )}
-          </svg>
-        </button>
-      </div>
-
-      {/* Mobile Menu */}
-      {menuOpen && (
-        <div className="md:hidden bg-white/95 backdrop-blur border-t border-gray-200 px-4 pb-4">
-          {visibleNavItems.map((item) => (
-            <div key={item.key}>
-              <button
-                onClick={() => toggleSection(item.key)}
-                className={`w-full flex justify-between items-center py-2 text-gray-900 ${
-                  openSection === item.key || activeMenu === item.key ? 'text-purple-600' : ''
-                }`}
-              >
-                <span>{item.label}</span>
-                <svg
-                  className={`w-4 h-4 transform transition-transform ${
-                    openSection === item.key ? 'rotate-180' : ''
-                  }`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
+            <div className="hidden flex-1 items-center justify-end gap-4 lg:flex">
+              <form onSubmit={handleSearchSubmit} className="relative w-full max-w-xs">
+                <input
+                  type="search"
+                  value={searchValue}
+                  onChange={(event) => setSearchValue(event.target.value)}
+                  placeholder={labels.searchPlaceholder}
+                  className="w-full rounded-full border border-gray-200 bg-gray-50 py-2 pl-4 pr-10 text-sm text-gray-900 transition focus:border-purple-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-100"
+                />
+                <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-purple-600 text-white transition hover:bg-purple-500"
+                  aria-label="Ask AI"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              {openSection === item.key && (
-                <div className="pl-4">
-                  {item.children.map((child) => {
-                    const isExternal = child.href.startsWith('http')
-                    return (
-                      <a
-                        key={child.key}
-                        href={child.href}
-                        onClick={() => {
-                          setMenuOpen(false)
-                          setActiveMenu(item.key)
-                          setActiveItem(child.key)
-                        }}
-                        className={`block py-1 text-gray-900 hover:text-purple-600 ${
-                          activeItem === child.key ? 'text-purple-600' : ''
-                        }`}
-                        target={isExternal ? '_blank' : undefined}
-                        rel={isExternal ? 'noopener noreferrer' : undefined}
-                      >
-                        <span className="flex items-center gap-2">
-                          <span>{child.label}</span>
-                          {getPreviewBadge(child.channels)}
-                        </span>
-                      </a>
-                    )
-                  })}
-              </div>
-            )}
-          </div>
-        ))}
-          {user ? (
-            <div className="mt-4 rounded-xl bg-purple-50 p-4 text-purple-700">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-600 text-sm font-semibold text-white">
-                  {accountInitial}
-                </span>
-                <div>
-                  <p className="text-sm font-semibold">{user.username}</p>
-                  <p className="text-xs text-purple-300">{user.email}</p>
+                  <Search className="h-4 w-4" />
+                </button>
+              </form>
+              {user ? (
+                <div className="relative" ref={accountMenuRef}>
+                  <button
+                    type="button"
+                    onClick={() => setAccountMenuOpen((prev) => !prev)}
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-600 text-sm font-semibold text-white shadow-sm transition hover:bg-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200 focus:ring-offset-2"
+                    aria-haspopup="menu"
+                    aria-expanded={accountMenuOpen}
+                  >
+                    {accountInitial}
+                  </button>
+                  {accountMenuOpen ? (
+                    <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
+                      <div className="border-b border-gray-100 bg-purple-50/60 px-4 py-3">
+                        <p className="text-sm font-semibold text-gray-900">{user.username}</p>
+                        <p className="text-xs text-gray-500">{user.email}</p>
+                      </div>
+                      <div className="py-1 text-sm text-gray-700">
+                        <Link
+                          href="/panel"
+                          className="block px-4 py-2 hover:bg-gray-100"
+                          onClick={() => setAccountMenuOpen(false)}
+                        >
+                          {accountCopy.userCenter}
+                        </Link>
+                        <Link
+                          href="/logout"
+                          className="flex w-full items-center px-4 py-2 text-left text-red-600 hover:bg-red-50"
+                          onClick={() => setAccountMenuOpen(false)}
+                        >
+                          {accountCopy.logout}
+                        </Link>
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
+              ) : (
+                <div className="flex items-center gap-3 text-sm font-medium text-gray-700">
+                  <Link href="/login" className="transition hover:text-purple-600">
+                    {nav.account.login}
+                  </Link>
+                  <span className="h-3 w-px bg-gray-300" aria-hidden="true" />
+                  <Link
+                    href="/register"
+                    className="rounded-full border border-purple-100 px-4 py-1.5 text-purple-600 transition hover:border-purple-200 hover:bg-purple-50"
+                  >
+                    {nav.account.register}
+                  </Link>
+                </div>
+              )}
+              <LanguageToggle />
+              <ReleaseChannelSelector
+                selected={selectedChannels}
+                onToggle={toggleChannel}
+                variant="icon"
+              />
+            </div>
+
+            <button
+              className="flex items-center text-gray-900 focus:outline-none lg:hidden"
+              onClick={() => setMenuOpen((prev) => !prev)}
+              aria-label="Toggle menu"
+            >
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                {menuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </div>
+
+          {menuOpen ? (
+            <div className="flex flex-col gap-4 border-t border-gray-200 py-4 lg:hidden">
+              <form onSubmit={handleSearchSubmit} className="relative">
+                <input
+                  type="search"
+                  value={searchValue}
+                  onChange={(event) => setSearchValue(event.target.value)}
+                  placeholder={labels.searchPlaceholder}
+                  className="w-full rounded-full border border-gray-200 bg-gray-50 py-2 pl-4 pr-10 text-sm text-gray-900 transition focus:border-purple-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-100"
+                />
+                <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-purple-600 text-white transition hover:bg-purple-500"
+                  aria-label="Ask AI"
+                >
+                  <Search className="h-4 w-4" />
+                </button>
+              </form>
+              <div className="flex flex-col gap-2 text-sm font-medium text-gray-700">
+                {mainLinks.map((link) => (
+                  <Link key={link.key} href={link.href} className="py-2" onClick={() => setMenuOpen(false)}>
+                    {link.label}
+                  </Link>
+                ))}
+                {serviceItems.length > 0 ? (
+                  <div>
+                    <button
+                      className="flex w-full items-center justify-between py-2"
+                      onClick={() => setMobileServicesOpen((prev) => !prev)}
+                    >
+                      <span>{labels.moreServices}</span>
+                      <svg
+                        className={`h-4 w-4 transform transition ${mobileServicesOpen ? 'rotate-180' : ''}`}
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    {mobileServicesOpen ? (
+                      <div className="pl-4 text-sm text-gray-600">
+                        {serviceItems.map((child) => {
+                          const isExternal = child.href.startsWith('http')
+                          if (isExternal) {
+                            return (
+                              <a
+                                key={child.key}
+                                href={child.href}
+                                className="block py-1.5"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={() => setMenuOpen(false)}
+                              >
+                                <span className="flex items-center gap-2">
+                                  <span>{child.label}</span>
+                                  {getPreviewBadge(child.channels)}
+                                </span>
+                              </a>
+                            )
+                          }
+
+                          return (
+                            <Link
+                              key={child.key}
+                              href={child.href}
+                              className="block py-1.5"
+                              onClick={() => setMenuOpen(false)}
+                            >
+                              <span className="flex items-center gap-2">
+                                <span>{child.label}</span>
+                                {getPreviewBadge(child.channels)}
+                              </span>
+                            </Link>
+                          )
+                        })}
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
-              <a
-                href="/panel"
-                className="mt-3 inline-flex items-center justify-center rounded-lg bg-white/80 px-3 py-1.5 text-xs font-semibold text-purple-600 transition hover:bg-white"
-                onClick={() => setMenuOpen(false)}
-              >
-                {accountCopy.userCenter}
-              </a>
-              <a
-                href="/logout"
-                className="mt-3 inline-flex items-center justify-center rounded-lg border border-purple-200 px-3 py-1.5 text-xs font-semibold text-purple-600 transition hover:border-purple-300 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-200 focus:ring-offset-2"
-                onClick={() => setMenuOpen(false)}
-              >
-                {accountCopy.logout}
-              </a>
+              {user ? (
+                <div className="rounded-xl bg-purple-50 p-4 text-purple-700">
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-600 text-sm font-semibold text-white">
+                      {accountInitial}
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold">{user.username}</p>
+                      <p className="text-xs text-purple-300">{user.email}</p>
+                    </div>
+                  </div>
+                  <Link
+                    href="/panel"
+                    className="mt-3 inline-flex items-center justify-center rounded-lg bg-white/80 px-3 py-1.5 text-xs font-semibold text-purple-600 transition hover:bg-white"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {accountCopy.userCenter}
+                  </Link>
+                  <Link
+                    href="/logout"
+                    className="mt-3 inline-flex items-center justify-center rounded-lg border border-purple-200 px-3 py-1.5 text-xs font-semibold text-purple-600 transition hover:border-purple-300 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-200 focus:ring-offset-2"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {accountCopy.logout}
+                  </Link>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3 text-sm font-medium text-gray-700">
+                  <Link href="/login" className="py-2" onClick={() => setMenuOpen(false)}>
+                    {nav.account.login}
+                  </Link>
+                  <span className="h-3 w-px bg-gray-300" aria-hidden="true" />
+                  <Link
+                    href="/register"
+                    className="rounded-full border border-purple-100 px-4 py-1.5 text-purple-600 transition hover:border-purple-200 hover:bg-purple-50"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {nav.account.register}
+                  </Link>
+                </div>
+              )}
+              <div className="flex flex-col gap-2">
+                <ReleaseChannelSelector selected={selectedChannels} onToggle={toggleChannel} />
+                <LanguageToggle />
+              </div>
             </div>
           ) : null}
-          <div className="pt-2 flex flex-col gap-2">
-            <ReleaseChannelSelector selected={selectedChannels} onToggle={toggleChannel} />
-            <LanguageToggle />
-          </div>
         </div>
-      )}
-    </nav>
+      </nav>
+
+      <AskAIDialog
+        open={askDialogOpen}
+        onMinimize={() => setAskDialogOpen(false)}
+        onEnd={() => {
+          setAskDialogOpen(false)
+          setPendingQuestion(null)
+        }}
+        initialQuestion={pendingQuestion ?? undefined}
+      />
+    </>
   )
 }
 
