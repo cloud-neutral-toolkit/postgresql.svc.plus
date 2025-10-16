@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { NextRequest, NextResponse } from 'next/server'
 
 import { getAccountServiceBaseUrl } from '@lib/serviceConfig'
@@ -20,7 +22,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json<MetricsErrorPayload>({ error: 'unauthenticated' }, { status: 401 })
   }
 
-  if (!userHasRole(user, ALLOWED_ROLES)) {
+  if (!(await userHasRole(user, ALLOWED_ROLES))) {
     return NextResponse.json<MetricsErrorPayload>({ error: 'forbidden' }, { status: 403 })
   }
 

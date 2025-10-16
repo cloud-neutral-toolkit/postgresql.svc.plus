@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { NextRequest, NextResponse } from 'next/server'
 
 import { getAccountServiceBaseUrl } from '@lib/serviceConfig'
@@ -49,7 +51,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json<ErrorPayload>({ error: 'unauthenticated' }, { status: 401 })
   }
 
-  if (!userHasRole(user, READ_ROLES)) {
+  if (!(await userHasRole(user, READ_ROLES))) {
     return NextResponse.json<ErrorPayload>({ error: 'forbidden' }, { status: 403 })
   }
 
@@ -64,7 +66,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json<ErrorPayload>({ error: 'unauthenticated' }, { status: 401 })
   }
 
-  if (!userHasRole(user, WRITE_ROLES)) {
+  if (!(await userHasRole(user, WRITE_ROLES))) {
     return NextResponse.json<ErrorPayload>({ error: 'forbidden' }, { status: 403 })
   }
 

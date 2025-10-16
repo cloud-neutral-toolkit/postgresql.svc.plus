@@ -205,7 +205,10 @@ function resolveTokenFromRequest(request?: NextRequest): string | undefined {
   return undefined
 }
 
-export function userHasRole(user: AccountSessionUser | null, roles: AccountUserRole[]): boolean {
+export async function userHasRole(
+  user: AccountSessionUser | null,
+  roles: AccountUserRole[]
+): Promise<boolean> {
   if (!user || roles.length === 0) {
     return false
   }
