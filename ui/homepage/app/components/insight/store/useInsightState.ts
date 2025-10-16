@@ -108,6 +108,7 @@ export function useInsightState() {
   }, [])
 
   const serializedState = useMemo(() => serializeInsightState(state), [state])
+  const [shareableLink, setShareableLink] = useState('')
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -132,20 +133,18 @@ export function useInsightState() {
     if (nextUrl !== window.location.href) {
       window.history.replaceState({}, '', nextUrl)
     }
+
+    const baseUrl = resolveBaseUrl()
+    if (!baseUrl) {
+      setShareableLink(encoded || '')
+      return
+    }
+    setShareableLink(encoded ? `${baseUrl}?share=${encoded}` : baseUrl)
   }, [serializedState])
 
   const updateState = useCallback((partial: Partial<InsightState>) => {
     setState(prev => ({ ...prev, ...partial }))
   }, [])
-
-  const shareableLink = useMemo(() => {
-    const encoded = encodeStateId(serializedState)
-    const baseUrl = resolveBaseUrl()
-    if (!baseUrl) {
-      return encoded || ''
-    }
-    return encoded ? `${baseUrl}?share=${encoded}` : baseUrl
-  }, [serializedState])
 
   return { state, updateState, shareableLink }
 }

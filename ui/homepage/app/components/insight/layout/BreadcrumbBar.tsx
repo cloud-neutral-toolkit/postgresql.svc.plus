@@ -17,8 +17,12 @@ const regions = ['us-west-2', 'eu-central-1', 'ap-southeast-1']
 
 export function BreadcrumbBar({ state, updateState, shareableLink }: BreadcrumbBarProps) {
   const [copied, setCopied] = useState(false)
+  const canCopy = Boolean(shareableLink)
 
   async function handleCopy() {
+    if (!canCopy) {
+      return
+    }
     try {
       await navigator.clipboard.writeText(shareableLink)
       setCopied(true)
@@ -41,9 +45,13 @@ export function BreadcrumbBar({ state, updateState, shareableLink }: BreadcrumbB
       <TimeRangePicker state={state} updateState={updateState} />
       <button
         onClick={handleCopy}
-        className="ml-auto flex items-center gap-2 rounded-xl border border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:bg-slate-800"
+        disabled={!canCopy}
+        className={`ml-auto flex items-center gap-2 rounded-xl border border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-200 transition ${
+          canCopy ? 'hover:bg-slate-800' : 'opacity-60 cursor-not-allowed'
+        }`}
+        aria-disabled={!canCopy}
       >
-        {copied ? 'Link copied!' : 'Copy share link'}
+        {copied ? 'Link copied!' : canCopy ? 'Copy share link' : 'Generating share link...'}
       </button>
     </div>
   )
