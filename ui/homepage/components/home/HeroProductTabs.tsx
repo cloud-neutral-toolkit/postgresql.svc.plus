@@ -147,6 +147,7 @@ export default function HeroProductTabs({ items }: HeroProductTabsProps) {
           <div className="mt-6 flex flex-wrap gap-3">
             {activeItem.primaryCtaLabel && activeItem.primaryCtaHref ? (
               <Link
+                prefetch={false}
                 href={activeItem.primaryCtaHref}
                 className="inline-flex items-center justify-center rounded-full bg-sky-400 px-5 py-2 text-sm font-semibold text-slate-950 shadow-lg transition hover:bg-sky-300"
               >
@@ -155,6 +156,7 @@ export default function HeroProductTabs({ items }: HeroProductTabsProps) {
             ) : null}
             {activeItem.secondaryCtaLabel && activeItem.secondaryCtaHref ? (
               <Link
+                prefetch={false}
                 href={activeItem.secondaryCtaHref}
                 className="inline-flex items-center justify-center rounded-full border border-white/40 px-5 py-2 text-sm font-semibold text-white transition hover:border-white"
               >

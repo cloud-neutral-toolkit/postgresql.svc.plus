@@ -49,6 +49,7 @@ export default async function HeroBanner() {
           <div className="flex flex-wrap items-center gap-3 pt-2">
             {hero.primaryCtaLabel && hero.primaryCtaHref ? (
               <Link
+                prefetch={false}
                 href={hero.primaryCtaHref}
                 className="inline-flex items-center justify-center rounded-full bg-sky-400 px-5 py-2 text-sm font-semibold text-slate-950 shadow-lg transition hover:bg-sky-300"
               >
@@ -57,6 +58,7 @@ export default async function HeroBanner() {
             ) : null}
             {hero.secondaryCtaLabel && hero.secondaryCtaHref ? (
               <Link
+                prefetch={false}
                 href={hero.secondaryCtaHref}
                 className="inline-flex items-center justify-center rounded-full border border-white/40 px-5 py-2 text-sm font-semibold text-white transition hover:border-white"
               >
