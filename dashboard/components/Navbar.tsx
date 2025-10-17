@@ -28,6 +28,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false)
   const [selectedChannels, setSelectedChannels] = useState<ReleaseChannel[]>(['stable'])
+  const navRef = useRef<HTMLElement | null>(null)
   const { language } = useLanguage()
   const { user } = useUser()
   const nav = translations[language].nav
@@ -233,6 +234,36 @@ export default function Navbar() {
   const [askDialogOpen, setAskDialogOpen] = useState(false)
   const [pendingQuestion, setPendingQuestion] = useState<{ key: number; text: string } | null>(null)
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    const element = navRef.current
+    if (!element) {
+      return
+    }
+
+    const updateOffset = () => {
+      const height = element.getBoundingClientRect().height
+      document.documentElement.style.setProperty('--app-shell-nav-offset', `${height}px`)
+    }
+
+    updateOffset()
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateOffset()
+    })
+
+    resizeObserver.observe(element)
+    window.addEventListener('resize', updateOffset)
+
+    return () => {
+      window.removeEventListener('resize', updateOffset)
+      resizeObserver.disconnect()
+    }
+  }, [])
+
   const mainLinks = [
     { key: 'home', label: labels.home, href: '/' },
     { key: 'docs', label: labels.docs, href: '/docs' },
@@ -250,7 +281,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur">
+      <nav ref={navRef} className="fixed top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-col px-4">
           <div className="flex items-center gap-6 py-4">
             <div className="flex flex-1 items-center gap-8">

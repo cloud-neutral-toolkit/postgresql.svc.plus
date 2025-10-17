@@ -13,7 +13,7 @@ export default async function ProductMatrix() {
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)] lg:items-start">
       <ProductMatrixClient solutions={solutions} />
-      <ContactPanel className="lg:sticky lg:top-24" />
+      <ContactPanel className="lg:sticky lg:top-[calc(var(--app-shell-nav-offset)+1.5rem)]" />
     </div>
   )
 }
