@@ -4,7 +4,7 @@ YARN := $(shell command -v yarn 2>/dev/null)
 MAGICK := $(shell command -v magick 2>/dev/null || command -v convert 2>/dev/null)
 OS := $(shell uname -s)
 
-.PHONY: init dev build export clean info icon start stop restart test sync-dl-index
+.PHONY: init ensure-deps dev build export clean info icon start stop restart test sync-dl-index
 
 icon:
 	@echo "🎨 Generating favicon and icon images..."
@@ -20,8 +20,8 @@ icon:
 		exit 1; \
 	fi
 	@mkdir -p public/icons
-    @$(MAGICK) ../ui/logo.png -resize 32x32 public/icons/cloudnative_32.png
-    @$(MAGICK) ../ui/logo.png -resize 64x64 -background none -define icon:auto-resize=64,48,32,16 public/favicon.ico
+	@$(MAGICK) ../ui/logo.png -resize 32x32 public/icons/cloudnative_32.png
+	@$(MAGICK) ../ui/logo.png -resize 64x64 -background none -define icon:auto-resize=64,48,32,16 public/favicon.ico
 	@echo "✅ Icons generated successfully."
 
 init:
@@ -47,7 +47,13 @@ init:
 	fi
 	yarn install
 
-dev:
+ensure-deps:
+	@if [ ! -f .yarn/install-state.gz ] || [ ! -d node_modules ] || [ ! -d node_modules/sanitize-html ]; then \
+		echo "📦 Installing dependencies..."; \
+		yarn install; \
+	fi
+
+dev: ensure-deps
 	@echo "🚀 Starting Next.js dev server (dashboard)..."
 	yarn dev -p 3001
 
