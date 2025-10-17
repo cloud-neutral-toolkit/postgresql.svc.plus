@@ -174,7 +174,7 @@ export default function ContactPanelClient({ panel, className }: ContactPanelCli
           </button>
         </div>
       ) : (
-        <section className="relative flex max-h-full min-h-0 flex-col overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-lg shadow-slate-200/40">
+        <section className="relative flex max-h-full min-h-0 flex-col overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-b from-white via-white to-slate-50 shadow-xl shadow-slate-200/40">
           <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-sky-400 via-cyan-400 to-indigo-400" aria-hidden />
           <div className="flex items-start justify-between gap-3 px-5 pt-5">
             <div>
