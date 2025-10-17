@@ -23,7 +23,7 @@
       "@lib/*": ["lib/*"],
       "@types/*": ["types/*"],
       "@server/*": ["server/*"],
-      "@theme/*": ["src/theme/*"]
+      "@theme/*": ["src/theme/*"],
       "@templates/*": ["src/templates/*"],
       "@src/*": ["src/*"]
     },
