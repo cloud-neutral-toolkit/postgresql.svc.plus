@@ -6,6 +6,10 @@ out/
 # Dependencies
 node_modules/
 
+# Playwright artifacts
+playwright-report/
+test-results/
+
 # Logs
 *.log
 

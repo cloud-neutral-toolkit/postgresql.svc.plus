@@ -13,7 +13,9 @@
     "export": "node ./node_modules/next/dist/bin/next build",
     "start": "node ./node_modules/next/dist/bin/next start",
     "lint": "next lint",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "dompurify": "^3.2.6",
@@ -35,6 +37,7 @@
     "zustand": "^4.5.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.49.1",
     "@tailwindcss/typography": "^0.5.19",
     "@testing-library/dom": "^9.3.1",
     "@testing-library/jest-dom": "^6.4.6",

@@ -37,6 +37,7 @@
     "components",
     "i18n",
     "lib",
+    "ui",
     "src",
     "server",
     "src",

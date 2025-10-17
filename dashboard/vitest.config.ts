@@ -12,6 +12,8 @@ export default defineConfig({
       'app/**/__tests__/**/*.{ts,tsx}',
       'src/**/*.test.{ts,tsx}',
       'src/**/__tests__/**/*.{ts,tsx}',
+      'ui/**/*.test.{ts,tsx}',
+      'ui/**/__tests__/**/*.{ts,tsx}',
     ],
     environmentOptions: {
       jsdom: {
