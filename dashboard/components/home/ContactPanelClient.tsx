@@ -160,7 +160,7 @@ export default function ContactPanelClient({ panel, className }: ContactPanelCli
   }
 
   return (
-    <div className={clsx('w-full', className)}>
+    <div className={clsx('w-full lg:h-full lg:min-h-0', className)}>
       {collapsed ? (
         <div className="flex justify-end">
           <button
@@ -174,7 +174,7 @@ export default function ContactPanelClient({ panel, className }: ContactPanelCli
           </button>
         </div>
       ) : (
-        <section className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-lg shadow-slate-200/40">
+        <section className="relative flex max-h-full min-h-0 flex-col overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-lg shadow-slate-200/40">
           <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-sky-400 via-cyan-400 to-indigo-400" aria-hidden />
           <div className="flex items-start justify-between gap-3 px-5 pt-5">
             <div>
@@ -190,27 +190,29 @@ export default function ContactPanelClient({ panel, className }: ContactPanelCli
               <X className="h-4 w-4" aria-hidden />
             </button>
           </div>
-          {panel.bodyHtml ? (
-            <div
-              className="prose prose-sm px-5 pt-3 text-slate-600"
-              dangerouslySetInnerHTML={{ __html: panel.bodyHtml }}
-            />
-          ) : null}
-          <div className="grid gap-4 px-5 pb-5 pt-4 sm:grid-cols-2">
-            {panel.items.map((item) => {
-              if (item.type === 'qr') {
+          <div className="flex-1 overflow-y-auto">
+            {panel.bodyHtml ? (
+              <div
+                className="prose prose-sm px-5 pt-3 text-slate-600"
+                dangerouslySetInnerHTML={{ __html: panel.bodyHtml }}
+              />
+            ) : null}
+            <div className="grid gap-4 px-5 pb-5 pt-4 sm:grid-cols-2">
+              {panel.items.map((item) => {
+                if (item.type === 'qr') {
+                  return (
+                    <div key={item.slug} className="sm:flex sm:flex-col">
+                      <QrPreview item={item} />
+                    </div>
+                  )
+                }
                 return (
-                  <div key={item.slug} className="sm:flex sm:flex-col">
-                    <QrPreview item={item} />
+                  <div key={item.slug} className="sm:col-span-2">
+                    <InfoCard item={item} />
                   </div>
                 )
-              }
-              return (
-                <div key={item.slug} className="sm:col-span-2">
-                  <InfoCard item={item} />
-                </div>
-              )
-            })}
+              })}
+            </div>
           </div>
         </section>
       )}
