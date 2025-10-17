@@ -10,8 +10,10 @@ function AppShellLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <Navbar />
-      {children}
-      <Footer />
+      <div className="pt-[var(--app-shell-nav-offset)]">
+        {children}
+        <Footer />
+      </div>
       <AskAIButton />
     </>
   )

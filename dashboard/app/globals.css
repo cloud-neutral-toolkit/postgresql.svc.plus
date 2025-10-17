@@ -8,6 +8,7 @@
 :root {
   --font-geist-sans: 'Geist', sans-serif;
   --font-geist-mono: 'Geist Mono', monospace;
+  --app-shell-nav-offset: 5.5rem;
 
   /* Light theme defaults */
   --color-background: #f8fafc;
