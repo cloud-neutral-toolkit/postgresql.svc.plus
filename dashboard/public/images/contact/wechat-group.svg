@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-labelledby="title desc">
+  <title id="title">微信群二维码占位图</title>
+  <desc id="desc">用于自定义替换的微信群二维码占位图片</desc>
+  <defs>
+    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <rect width="20" height="20" fill="#f8fafc" />
+      <path d="M0 0H20V20H0V0Z" fill="none" stroke="#e2e8f0" stroke-width="1" />
+    </pattern>
+  </defs>
+  <rect width="400" height="400" fill="#fff" />
+  <rect x="20" y="20" width="360" height="360" fill="url(#grid)" stroke="#94a3b8" stroke-width="2" rx="24" />
+  <g fill="#0f172a">
+    <text x="200" y="170" text-anchor="middle" font-family="'Noto Sans SC', 'Helvetica Neue', Arial, sans-serif" font-size="32" font-weight="600">微信群二维码</text>
+    <text x="200" y="215" text-anchor="middle" font-family="'Noto Sans SC', 'Helvetica Neue', Arial, sans-serif" font-size="20" fill="#334155">请在此处替换为真实二维码</text>
+    <text x="200" y="260" text-anchor="middle" font-family="'Noto Sans SC', 'Helvetica Neue', Arial, sans-serif" font-size="18" fill="#64748b">/dashboard/public/images/contact/wechat-group.svg</text>
+  </g>
+</svg>

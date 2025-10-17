@@ -61,6 +61,7 @@ export interface ContactItemContent {
   description?: string
   bodyHtml: string
   qrValue?: string
+  qrImage?: string
   icon?: string
   ctaLabel?: string
   ctaHref?: string
@@ -306,6 +307,7 @@ export async function getContactPanelContent(): Promise<ContactPanelContent | un
       description: ensureString(file.metadata.description),
       bodyHtml: file.html,
       qrValue: ensureString(file.metadata.qrValue),
+      qrImage: ensureString(file.metadata.qrImage),
       icon: ensureString(file.metadata.icon),
       ctaLabel: ensureString(file.metadata.ctaLabel),
       ctaHref: ensureString(file.metadata.ctaHref),

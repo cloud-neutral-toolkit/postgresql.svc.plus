@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import {
   ChevronLeft,
@@ -91,29 +92,39 @@ type QrPreviewProps = {
 }
 
 function QrPreview({ item }: QrPreviewProps) {
-  const pattern = useMemo(() => createPseudoQrPattern(item.qrValue ?? item.slug), [item.qrValue, item.slug])
-  const size = pattern.length
+  const pattern = useMemo(
+    () => (item.qrImage ? undefined : createPseudoQrPattern(item.qrValue ?? item.slug)),
+    [item.qrImage, item.qrValue, item.slug],
+  )
+  const size = pattern?.length ?? QR_GRID_SIZE
 
   return (
     <div className="flex flex-col gap-3">
-      <div
-        className="relative overflow-hidden rounded-2xl border border-blue-100 bg-white p-3 shadow-inner shadow-blue-100/60"
-        aria-hidden
-      >
-        <div
-          className="grid aspect-square w-full"
-          style={{
-            gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))`,
-            gridTemplateRows: `repeat(${size}, minmax(0, 1fr))`,
-            gap: '1px',
-          }}
-        >
-          {pattern.flat().map((isFilled, index) => (
-            <span
-              key={`${item.slug}-${index}`}
-              className={`block ${isFilled ? 'bg-slate-900' : 'bg-slate-50'}`}
+      <div className="relative overflow-hidden rounded-2xl border border-blue-100 bg-white p-3 shadow-inner shadow-blue-100/60">
+        <div className="relative aspect-square w-full">
+          {item.qrImage ? (
+            <Image
+              src={item.qrImage}
+              alt={`${item.title}二维码`}
+              fill
+              sizes="(min-width: 640px) 240px, 70vw"
+              className="object-contain"
             />
-          ))}
+          ) : (
+            <div
+              className="grid h-full w-full"
+              style={{
+                gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))`,
+                gridTemplateRows: `repeat(${size}, minmax(0, 1fr))`,
+                gap: '1px',
+              }}
+              aria-hidden
+            >
+              {pattern!.flat().map((isFilled, index) => (
+                <span key={`${item.slug}-${index}`} className={`block ${isFilled ? 'bg-slate-900' : 'bg-slate-50'}`} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
       <div className="space-y-1">
