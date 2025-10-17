@@ -143,7 +143,8 @@ export default function HeroProductTabs({ items }: HeroProductTabsProps) {
           />
         ) : null}
         {(activeItem.primaryCtaLabel && activeItem.primaryCtaHref) ||
-        (activeItem.secondaryCtaLabel && activeItem.secondaryCtaHref) ? (
+        (activeItem.secondaryCtaLabel && activeItem.secondaryCtaHref) ||
+        (activeItem.tertiaryCtaLabel && activeItem.tertiaryCtaHref) ? (
           <div className="mt-6 flex flex-wrap gap-3">
             {activeItem.primaryCtaLabel && activeItem.primaryCtaHref ? (
               <Link
@@ -161,6 +162,15 @@ export default function HeroProductTabs({ items }: HeroProductTabsProps) {
                 className="inline-flex items-center justify-center rounded-full border border-white/40 px-5 py-2 text-sm font-semibold text-white transition hover:border-white"
               >
                 {activeItem.secondaryCtaLabel}
+              </Link>
+            ) : null}
+            {activeItem.tertiaryCtaLabel && activeItem.tertiaryCtaHref ? (
+              <Link
+                prefetch={false}
+                href={activeItem.tertiaryCtaHref}
+                className="inline-flex items-center justify-center rounded-full border border-white/10 px-5 py-2 text-sm font-semibold text-slate-100 transition hover:border-white/40"
+              >
+                {activeItem.tertiaryCtaLabel}
               </Link>
             ) : null}
           </div>

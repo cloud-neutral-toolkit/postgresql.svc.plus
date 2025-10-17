@@ -10,12 +10,10 @@ import {
   X,
   type LucideIcon,
 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import clsx from 'clsx'
 
 import type { ContactPanelContent, ContactItemContent } from '@lib/homepageContent'
-
-const STORAGE_KEY = 'xcontrol-homepage-contact-collapsed'
 
 const iconMap: Record<string, LucideIcon> = {
   mail: Mail,
@@ -156,17 +154,6 @@ function InfoCard({ item }: { item: ContactItemContent }) {
 
 export default function ContactPanelClient({ panel, className }: ContactPanelClientProps) {
   const [collapsed, setCollapsed] = useState(false)
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY)
-    if (stored === 'true') {
-      setCollapsed(true)
-    }
-  }, [])
-
-  useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, collapsed ? 'true' : 'false')
-  }, [collapsed])
 
   if (!panel.items.length) {
     return null

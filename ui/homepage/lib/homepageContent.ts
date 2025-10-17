@@ -26,6 +26,8 @@ export interface HeroSolution {
   primaryCtaHref?: string
   secondaryCtaLabel?: string
   secondaryCtaHref?: string
+  tertiaryCtaLabel?: string
+  tertiaryCtaHref?: string
 }
 
 export interface HomepagePost {
@@ -153,6 +155,8 @@ export async function getHeroSolutions(): Promise<HeroSolution[]> {
       primaryCtaHref: ensureString(file.metadata.primaryCtaHref),
       secondaryCtaLabel: ensureString(file.metadata.secondaryCtaLabel),
       secondaryCtaHref: ensureString(file.metadata.secondaryCtaHref),
+      tertiaryCtaLabel: ensureString(file.metadata.tertiaryCtaLabel),
+      tertiaryCtaHref: ensureString(file.metadata.tertiaryCtaHref),
       order: ensureNumber(file.metadata.order),
     }))
   } catch (error) {

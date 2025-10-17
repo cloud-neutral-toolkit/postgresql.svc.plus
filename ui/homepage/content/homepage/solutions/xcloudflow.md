@@ -3,10 +3,12 @@ title: XCloudFlow
 tagline: 多云 IaC
 order: 1
 description: 通过声明式模型统一编排多云基础设施，自动化落地资源策略与合规标准。
-primaryCtaLabel: 了解 XCloudFlow
-primaryCtaHref: /products/xcloudflow
-secondaryCtaLabel: 产品文档
-secondaryCtaHref: /docs/xcloudflow
+primaryCtaLabel: 立刻体验
+primaryCtaHref: /demo?product=xcloudflow
+secondaryCtaLabel: 下载链接
+secondaryCtaHref: /download?product=xcloudflow
+tertiaryCtaLabel: 文档链接
+tertiaryCtaHref: /docs/xcloudflow
 features:
   - 跨云资源蓝图与参数化交付
   - GitOps 工作流驱动基础设施变更
