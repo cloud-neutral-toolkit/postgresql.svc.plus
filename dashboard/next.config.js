@@ -3,6 +3,8 @@
  * - children 支持精确路径、动态段([param])、以及通配符(*)。
  * - 当某个节点 enabled 为 false 时，其所有子级都会默认关闭。
  */
+const path = require('path')
+
 const featureToggles = require('./config/feature-toggles.json')
 
 const normalizeSegments = (pathname = '') =>
@@ -55,6 +57,19 @@ const nextConfig = {
       test: /\.ya?ml$/i,
       type: 'asset/source',
     })
+
+    config.resolve.alias = {
+      ...(config.resolve.alias ?? {}),
+      '@cms': path.join(__dirname, 'cms'),
+      '@components': path.join(__dirname, 'components'),
+      '@i18n': path.join(__dirname, 'i18n'),
+      '@lib': path.join(__dirname, 'lib'),
+      '@types': path.join(__dirname, 'types'),
+      '@server': path.join(__dirname, 'server'),
+      '@theme': path.join(__dirname, 'src', 'theme'),
+      '@templates': path.join(__dirname, 'src', 'templates'),
+      '@src': path.join(__dirname, 'src'),
+    }
     return config
   },
 }
