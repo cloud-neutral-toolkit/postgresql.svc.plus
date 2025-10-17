@@ -17,6 +17,8 @@ export interface HomePageTemplateSlots extends TemplateSlots {
   Sidebar: ComponentType
 }
 
+export type HomePageSlotKey = 'ProductMatrix' | 'ArticleFeed' | 'Sidebar'
+
 export type HomePageTemplateProps = TemplateRenderProps<HomePageTemplateSlots>
 
 export interface TemplateDefinition {
