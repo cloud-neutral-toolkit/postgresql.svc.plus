@@ -21,7 +21,7 @@ function DefaultHomePageTemplate({ slots }: HomePageTemplateProps) {
       <section className="bg-slate-50 pb-16 pt-20">
         <div className="px-4">
           <div className="mx-auto max-w-6xl">
-            <div className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+            <div className="grid gap-8 lg:grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)] lg:items-start">
               <ArticleFeedComponent />
               <SidebarComponent />
             </div>
