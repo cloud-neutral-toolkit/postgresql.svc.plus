@@ -80,7 +80,7 @@ endif
 # Database initialization
 # -----------------------------------------------------------------------------
 init-db:
-        @psql $(PG_DSN) -f rag-server/sql/schema.sql
+	@psql $(PG_DSN) -f rag-server/sql/schema.sql
 
 # -----------------------------------------------------------------------------
 # Build targets
@@ -89,16 +89,16 @@ init-db:
 build: update-dashboard-manifests build-cli build-server build-dashboard
 
 build-cli:
-        $(MAKE) -C rag-server/cmd/rag-server-cli build
+	$(MAKE) -C rag-server/cmd/rag-server-cli build
 
 build-server:
-        $(MAKE) -C rag-server build
+	$(MAKE) -C rag-server build
 
 build-dashboard:
-$(MAKE) -C dashboard build SKIP_SYNC=1
+	$(MAKE) -C dashboard build SKIP_SYNC=1
 
 update-dashboard-manifests:
-$(MAKE) -C dashboard sync-dl-index
+	$(MAKE) -C dashboard sync-dl-index
 
 # -----------------------------------------------------------------------------
 # Run targets
@@ -107,19 +107,19 @@ $(MAKE) -C dashboard sync-dl-index
 start: start-openresty start-server start-dashboard start-dl start-docs
 
 start-server:
-        $(MAKE) -C rag-server start
+	$(MAKE) -C rag-server start
 
 start-dashboard:
-$(MAKE) -C dashboard start
+	$(MAKE) -C dashboard start
 
 
 stop: stop-server stop-dashboard stop-openresty
 
 stop-server:
-        $(MAKE) -C rag-server stop
+	$(MAKE) -C rag-server stop
 
 stop-dashboard:
-$(MAKE) -C dashboard stop
+	$(MAKE) -C dashboard stop
 
 start-openresty:
 ifeq ($(OS),Darwin)
@@ -152,3 +152,10 @@ else
 endif
 
 restart: stop start
+
+# -----------------------------------------------------------------------------
+# CMS configuration validation
+# -----------------------------------------------------------------------------
+.PHONY: lint-cms
+lint-cms:
+	python3 scripts/validate_cms_config.py

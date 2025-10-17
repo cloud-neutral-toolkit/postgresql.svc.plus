@@ -37,6 +37,13 @@ XControl 通过 LangChainGo 统一接入多种大模型，并为 AskAI、CLI 与
 - **Memory 与历史追踪**：支持 Conversation Buffer 等对话记忆机制，增强交互体验。
 
 
+## CMS configuration
+
+A unified CMS setup is defined in [`config/cms.json`](config/cms.json). The schema at [`config/cms.schema.json`](config/cms.schema.json) ensures templates, themes, extensions and content sources stay in sync across deployments.
+
+- Refer to [`docs/cms/README.md`](docs/cms/README.md) for usage instructions, extension development notes and theme customization guidelines.
+- Follow the migration playbook in [`docs/cms/migration-guide.md`](docs/cms/migration-guide.md) when switching existing sites to the CMS architecture.
+
 ## Supported Platforms
 
 Tested on **Ubuntu 22.04 x64** and **macOS 26 arm64**.
