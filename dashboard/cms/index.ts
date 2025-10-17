@@ -1,15 +1,16 @@
 import { ComponentType, createElement, type ReactNode } from 'react'
 
-import { cmsConfig, type ExtensionName, type TemplateName, type ThemeName } from './config'
+import { cmsConfig, type ExtensionName, type ThemeName } from './config'
 import type { CmsExtension, CmsTemplate, CmsTheme } from './types'
 import { appShellExtension } from './extensions/appShell'
 import { markdownSyncExtension } from './extensions/markdownSync'
-import defaultTemplate from './templates/default'
 import defaultTheme from './themes/default'
-
-const templateRegistry: Record<TemplateName, CmsTemplate> = {
-  default: defaultTemplate,
-}
+import {
+  getActiveTemplate as getActiveTemplateFromRegistry,
+  listRegisteredTemplateNames,
+  registerTemplate,
+  registerTemplateLoader,
+} from '../src/templateRegistry'
 
 const themeRegistry: Record<ThemeName, CmsTheme> = {
   default: defaultTheme,
@@ -20,8 +21,10 @@ const extensionRegistry: Record<ExtensionName, CmsExtension> = {
   'markdown-sync': markdownSyncExtension,
 }
 
+export { listRegisteredTemplateNames, registerTemplate, registerTemplateLoader }
+
 export function getActiveTemplate(): CmsTemplate {
-  return templateRegistry[cmsConfig.template]
+  return getActiveTemplateFromRegistry()
 }
 
 export function getActiveTheme(): CmsTheme {

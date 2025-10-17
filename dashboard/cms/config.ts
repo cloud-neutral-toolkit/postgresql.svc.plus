@@ -1,4 +1,4 @@
-export type TemplateName = 'default'
+export type TemplateName = 'default' | (string & {})
 export type ThemeName = 'default'
 export type ExtensionName = 'app-shell' | 'markdown-sync'
 

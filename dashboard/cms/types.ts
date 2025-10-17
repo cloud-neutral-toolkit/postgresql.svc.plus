@@ -1,10 +1,12 @@
-import type { ReactNode } from 'react'
+import type { ComponentType, ReactNode } from 'react'
+
+import type { HomePageTemplateSlots, TemplateRenderProps } from '../src/templates/types'
 
 export interface CmsTemplate {
   name: string
   pages: {
-    home: React.ComponentType
-    [key: string]: React.ComponentType | undefined
+    home: ComponentType<TemplateRenderProps<HomePageTemplateSlots>>
+    [key: string]: ComponentType<any> | undefined
   }
 }
 
@@ -12,11 +14,11 @@ export interface CmsTheme {
   name: string
   htmlAttributes?: Record<string, string>
   bodyClassName?: string
-  Provider?: React.ComponentType<{ children: ReactNode }>
+  Provider?: ComponentType<{ children: ReactNode }>
 }
 
 export interface CmsExtension {
   name: string
-  providers?: React.ComponentType<{ children: ReactNode }>[]
-  Layout?: React.ComponentType<{ children: ReactNode }>
+  providers?: ComponentType<{ children: ReactNode }>[]
+  Layout?: ComponentType<{ children: ReactNode }>
 }
