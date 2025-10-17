@@ -96,28 +96,28 @@ export default function UserOverview() {
   }, [logout, router])
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-[var(--color-text)] transition-colors">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">{copy.heading}</h1>
-        <p className="mt-2 text-sm text-gray-600">
+        <h1 className="text-3xl font-bold text-[var(--color-heading)]">{copy.heading}</h1>
+        <p className="mt-2 text-sm text-[var(--color-text-subtle)]">
           {isLoading
             ? copy.loading
             : user
               ? copy.welcome.replace('{name}', displayName)
               : copy.guest}
         </p>
-        <p className="mt-1 text-xs text-gray-500">{copy.uuidNote}</p>
+        <p className="mt-1 text-xs text-[var(--color-text-subtle)] opacity-80">{copy.uuidNote}</p>
       </div>
 
       {requiresSetup ? (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+        <div className="rounded-[var(--radius-xl)] border border-[color:var(--color-warning-muted)] bg-[var(--color-warning-muted)] p-4 text-sm text-[var(--color-warning-foreground)] transition-colors">
           <p className="text-base font-semibold">{copy.lockBanner.title}</p>
           <p className="mt-1 text-sm">{copy.lockBanner.body}</p>
           <div className="mt-3 flex flex-wrap gap-2 text-xs">
             <button
               type="button"
               onClick={handleGoToSetup}
-              className="inline-flex items-center justify-center rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-purple-500"
+              className="inline-flex items-center justify-center rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-foreground)] shadow-[var(--shadow-sm)] transition-colors hover:bg-[var(--color-primary-hover)]"
             >
               {copy.lockBanner.action}
             </button>
@@ -125,14 +125,14 @@ export default function UserOverview() {
               href={docsUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center justify-center rounded-md border border-purple-200 px-4 py-2 text-sm font-medium text-purple-600 transition hover:border-purple-300 hover:bg-purple-50"
+              className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-primary-border)] px-4 py-2 text-sm font-medium text-[var(--color-primary)] transition-colors hover:border-[color:var(--color-primary)] hover:bg-[var(--color-primary-muted)]"
             >
               {copy.lockBanner.docs}
             </a>
             <button
               type="button"
               onClick={handleLogout}
-              className="inline-flex items-center justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-amber-800 transition hover:bg-amber-100"
+              className="inline-flex items-center justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-[var(--color-warning-foreground)] transition-colors hover:bg-[var(--color-warning-muted)]"
             >
               {copy.lockBanner.logout}
             </button>
@@ -144,45 +144,45 @@ export default function UserOverview() {
         <Card>
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">{copy.cards.uuid.label}</p>
-              <p className="mt-1 break-all text-base font-medium text-gray-900">{uuid}</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-primary)]">{copy.cards.uuid.label}</p>
+              <p className="mt-1 break-all text-base font-medium text-[var(--color-text)]">{uuid}</p>
             </div>
             <button
               type="button"
               onClick={handleCopy}
               disabled={!user?.id}
-              className="inline-flex items-center gap-2 rounded-full border border-gray-300 px-3 py-1 text-xs font-medium text-gray-700 transition hover:border-purple-400 hover:text-purple-600 disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400"
+              className="inline-flex items-center gap-2 rounded-full border border-[color:var(--color-surface-border)] px-3 py-1 text-xs font-medium text-[var(--color-text-subtle)] transition-colors hover:border-[color:var(--color-primary-border)] hover:text-[var(--color-primary)] disabled:cursor-not-allowed disabled:border-[color:var(--color-surface-border)] disabled:text-[var(--color-text-subtle)] opacity-100 disabled:opacity-60"
               aria-label={copy.cards.uuid.copy}
             >
               <Copy className="h-3.5 w-3.5" />
               {copied ? copy.cards.uuid.copied : copy.cards.uuid.copy}
             </button>
           </div>
-          <p className="mt-3 text-xs text-gray-500">{copy.cards.uuid.description}</p>
+          <p className="mt-3 text-xs text-[var(--color-text-subtle)]">{copy.cards.uuid.description}</p>
         </Card>
 
         <Card>
-          <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">{copy.cards.username.label}</p>
-          <p className="mt-1 text-base font-medium text-gray-900">{username}</p>
-          <p className="mt-3 text-xs text-gray-500">{copy.cards.username.description}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-primary)]">{copy.cards.username.label}</p>
+          <p className="mt-1 text-base font-medium text-[var(--color-text)]">{username}</p>
+          <p className="mt-3 text-xs text-[var(--color-text-subtle)]">{copy.cards.username.description}</p>
         </Card>
 
         <Card>
-          <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">{copy.cards.email.label}</p>
-          <p className="mt-1 break-all text-base font-medium text-gray-900">{email}</p>
-          <p className="mt-3 text-xs text-gray-500">{copy.cards.email.description}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-primary)]">{copy.cards.email.label}</p>
+          <p className="mt-1 break-all text-base font-medium text-[var(--color-text)]">{email}</p>
+          <p className="mt-3 text-xs text-[var(--color-text-subtle)]">{copy.cards.email.description}</p>
         </Card>
 
         <Card>
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">{copy.cards.mfa.label}</p>
-              <p className="mt-1 text-base font-medium text-gray-900">{mfaStatusLabel}</p>
-              <p className="mt-3 text-xs text-gray-500">{copy.cards.mfa.description}</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-primary)]">{copy.cards.mfa.label}</p>
+              <p className="mt-1 text-base font-medium text-[var(--color-text)]">{mfaStatusLabel}</p>
+              <p className="mt-3 text-xs text-[var(--color-text-subtle)]">{copy.cards.mfa.description}</p>
             </div>
             <Link
               href="/panel/account?setupMfa=1"
-              className="inline-flex items-center justify-center rounded-full border border-purple-200 px-3 py-1 text-xs font-medium text-purple-600 transition hover:border-purple-300 hover:bg-purple-50"
+              className="inline-flex items-center justify-center rounded-full border border-[color:var(--color-primary-border)] px-3 py-1 text-xs font-medium text-[var(--color-primary)] transition-colors hover:border-[color:var(--color-primary)] hover:bg-[var(--color-primary-muted)]"
             >
               {copy.cards.mfa.action}
             </Link>

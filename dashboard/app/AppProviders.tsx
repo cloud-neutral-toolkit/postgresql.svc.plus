@@ -5,6 +5,7 @@ import type { ReactNode } from 'react'
 import { collectExtensionProviders } from '@cms'
 import { LanguageProvider } from '@i18n/LanguageProvider'
 import { UserProvider } from '@lib/userStore'
+import { ThemeProvider } from '@theme'
 
 const extensionProviders = collectExtensionProviders()
 
@@ -19,5 +20,5 @@ export function AppProviders({ children }: { children: ReactNode }) {
     tree = <Provider>{tree}</Provider>
   }
 
-  return tree
+  return <ThemeProvider>{tree}</ThemeProvider>
 }

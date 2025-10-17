@@ -76,18 +76,21 @@ export default function Features() {
   const t = translations[language]
 
   return (
-    <section id="features" className="py-20 bg-gray-50 text-gray-900">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="text-center mb-12">
+    <section id="features" className="bg-[var(--color-background)] py-20 text-[var(--color-text)] transition-colors">
+      <div className="mx-auto max-w-7xl px-4">
+        <div className="mb-12 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-2">{t.featuresTitle}</h2>
-          <p className="text-gray-600">{t.featuresSubtitle}</p>
+          <p className="text-[var(--color-text-subtle)]">{t.featuresSubtitle}</p>
         </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {features.map((f, i) => (
-            <div key={i} className="bg-white rounded-xl p-6 hover:bg-gray-100 transition">
-              <div className="text-4xl mb-4">{f.icon}</div>
-              <h3 className="text-xl font-semibold mb-2">{f.title[language]}</h3>
-              <p className="text-gray-600">{f.desc[language]}</p>
+            <div
+              key={i}
+              className="rounded-[var(--radius-xl)] border border-[color:var(--color-surface-border)] bg-[var(--color-surface)] p-6 text-left transition-colors hover:border-[color:var(--color-primary-border)] hover:bg-[var(--color-surface-muted)]"
+            >
+              <div className="mb-4 text-4xl">{f.icon}</div>
+              <h3 className="mb-2 text-xl font-semibold text-[var(--color-text)]">{f.title[language]}</h3>
+              <p className="text-[var(--color-text-subtle)]">{f.desc[language]}</p>
             </div>
           ))}
         </div>

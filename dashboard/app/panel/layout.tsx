@@ -83,7 +83,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="relative flex min-h-screen bg-gradient-to-br from-gray-100 via-purple-50 to-blue-50 text-gray-900">
+    <div className="relative flex min-h-screen bg-gradient-to-br from-[var(--gradient-app-from)] via-[var(--gradient-app-via)] to-[var(--gradient-app-to)] text-[var(--color-text)]">
       <Sidebar
         className={`fixed inset-y-0 left-0 z-40 transform transition-transform duration-200 ease-in-out md:static md:translate-x-0 ${
           open ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
@@ -93,23 +93,23 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
 
       {open && (
         <div
-          className="fixed inset-0 z-30 bg-gray-900/40 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-30 bg-[var(--color-overlay)] backdrop-blur-sm md:hidden"
           onClick={() => setOpen(false)}
         />
       )}
 
       <div className="flex min-h-screen flex-1 flex-col">
         <Header onMenu={() => setOpen((prev) => !prev)} />
-        <main className="flex flex-1 flex-col space-y-6 bg-white/60 px-3 py-5 sm:px-4 md:px-6 lg:px-8">
+        <main className="flex flex-1 flex-col space-y-6 bg-[var(--color-surface-translucent)] px-3 py-5 text-[var(--color-text)] transition-colors sm:px-4 md:px-6 lg:px-8">
           {requiresSetup ? (
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+            <div className="rounded-[var(--radius-lg)] border border-[color:var(--color-warning-muted)] bg-[var(--color-warning-muted)] p-4 text-sm text-[var(--color-warning-foreground)] transition-colors">
               <p className="font-semibold">{copy.pendingHint}</p>
               <p className="mt-1 text-sm">{copy.lockedMessage}</p>
               <div className="mt-3 flex flex-wrap gap-2 text-xs">
                 <button
                   type="button"
                   onClick={() => router.replace('/panel/account?setupMfa=1')}
-                  className="inline-flex items-center justify-center rounded-md bg-purple-600 px-3 py-1.5 text-sm font-medium text-white shadow transition hover:bg-purple-500"
+                  className="inline-flex items-center justify-center rounded-md bg-[var(--color-primary)] px-3 py-1.5 text-sm font-medium text-[var(--color-primary-foreground)] shadow-[var(--shadow-sm)] transition-colors hover:bg-[var(--color-primary-hover)]"
                 >
                   {copy.actions.setup}
                 </button>
@@ -117,26 +117,26 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
                   href={copy.actions.docsUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center justify-center rounded-md border border-purple-200 px-3 py-1.5 text-sm font-medium text-purple-600 transition hover:border-purple-300 hover:bg-purple-50"
+                  className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-primary-border)] px-3 py-1.5 text-sm font-medium text-[var(--color-primary)] transition-colors hover:border-[color:var(--color-primary)] hover:bg-[var(--color-primary-muted)]"
                 >
                   {copy.actions.docs}
                 </a>
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="inline-flex items-center justify-center rounded-md border border-transparent px-3 py-1.5 text-sm font-medium text-amber-800 transition hover:bg-amber-100"
+                  className="inline-flex items-center justify-center rounded-md border border-transparent px-3 py-1.5 text-sm font-medium text-[var(--color-warning-foreground)] transition-colors hover:bg-[var(--color-warning-muted)]"
                 >
                   {copy.actions.logout}
                 </button>
                 {isLoading ? (
-                  <span className="inline-flex items-center rounded-md border border-amber-100 bg-amber-100 px-3 py-1.5 text-xs text-amber-700">
+                  <span className="inline-flex items-center rounded-md border border-[color:var(--color-warning-muted)] bg-[var(--color-warning-muted)] px-3 py-1.5 text-xs text-[var(--color-warning-foreground)]">
                     …
                   </span>
                 ) : null}
               </div>
             </div>
           ) : null}
-          <div className="flex w-full flex-1 flex-col gap-5 md:gap-6">{children}</div>
+          <div className="flex w-full flex-1 flex-col gap-5 text-[var(--color-text)] transition-colors md:gap-6">{children}</div>
         </main>
       </div>
     </div>

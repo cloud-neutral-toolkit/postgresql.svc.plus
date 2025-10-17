@@ -8,8 +8,67 @@
 :root {
   --font-geist-sans: 'Geist', sans-serif;
   --font-geist-mono: 'Geist Mono', monospace;
+
+  /* Light theme defaults */
+  --color-background: #f8fafc;
+  --color-background-muted: #f1f5f9;
+  --color-surface: #ffffff;
+  --color-surface-elevated: rgba(255, 255, 255, 0.92);
+  --color-surface-translucent: rgba(255, 255, 255, 0.85);
+  --color-surface-muted: #f1f5f9;
+  --color-surface-hover: #f3f4f6;
+  --color-surface-border: #e2e8f0;
+  --color-surface-border-strong: #cbd5e1;
+  --color-text: #111827;
+  --color-heading: #0f172a;
+  --color-text-muted: #4b5563;
+  --color-text-subtle: #6b7280;
+  --color-text-inverse: #f8fafc;
+  --color-primary: #7c3aed;
+  --color-primary-hover: #6d28d9;
+  --color-primary-muted: #ede9fe;
+  --color-primary-border: #c4b5fd;
+  --color-primary-foreground: #f9fafb;
+  --color-accent: #6366f1;
+  --color-accent-muted: #e0e7ff;
+  --color-accent-foreground: #312e81;
+  --color-success: #16a34a;
+  --color-success-muted: #dcfce7;
+  --color-success-foreground: #166534;
+  --color-warning: #f59e0b;
+  --color-warning-muted: #fef3c7;
+  --color-warning-foreground: #92400e;
+  --color-danger: #ef4444;
+  --color-danger-muted: #fee2e2;
+  --color-danger-foreground: #7f1d1d;
+  --color-info: #2563eb;
+  --color-info-muted: #dbeafe;
+  --color-info-foreground: #1d4ed8;
+  --color-overlay: rgba(15, 23, 42, 0.45);
+  --color-ring: #c4b5fd;
+  --color-focus: rgba(124, 58, 237, 0.35);
+  --color-divider: rgba(15, 23, 42, 0.08);
+  --color-badge-surface: #e5e7eb;
+  --color-badge-muted: #f3f4f6;
+  --color-badge-foreground: #1f2937;
+
+  --gradient-app-from: #ede9fe;
+  --gradient-app-via: #f5f3ff;
+  --gradient-app-to: #e0f2fe;
+  --gradient-primary-from: #7c3aed;
+  --gradient-primary-to: #4c1d95;
+
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 12px 32px rgba(15, 23, 42, 0.12);
+
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-pill: 999px;
 }
 
 body {
   font-family: var(--font-geist-sans);
+  background-color: var(--color-background);
+  color: var(--color-text);
+  transition: background-color 150ms ease, color 150ms ease;
 }

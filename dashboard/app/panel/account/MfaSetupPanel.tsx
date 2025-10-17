@@ -410,8 +410,8 @@ export default function MfaSetupPanel() {
   if (!user) {
     return (
       <Card>
-        <h2 className="text-xl font-semibold text-gray-900">{copy.title}</h2>
-        <p className="mt-2 text-sm text-gray-600">{copy.pendingHint}</p>
+        <h2 className="text-xl font-semibold text-[var(--color-text)]">{copy.title}</h2>
+        <p className="mt-2 text-sm text-[var(--color-text-subtle)]">{copy.pendingHint}</p>
       </Card>
     )
   }
@@ -428,20 +428,20 @@ export default function MfaSetupPanel() {
         <div className="space-y-6">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">{copy.title}</h2>
-              <p className="mt-1 text-sm text-gray-600">{copy.summary.description}</p>
-              <dl className="mt-4 grid gap-4 text-xs text-gray-600 sm:grid-cols-2">
+              <h2 className="text-xl font-semibold text-[var(--color-text)]">{copy.title}</h2>
+              <p className="mt-1 text-sm text-[var(--color-text-subtle)]">{copy.summary.description}</p>
+              <dl className="mt-4 grid gap-4 text-xs text-[var(--color-text-subtle)] sm:grid-cols-2">
                 <div>
-                  <dt className="font-semibold uppercase tracking-wide text-purple-600">{copy.summary.statusLabel}</dt>
-                  <dd className="mt-1 text-sm text-gray-900">{statusLabel}</dd>
+                  <dt className="font-semibold uppercase tracking-wide text-[var(--color-primary)]">{copy.summary.statusLabel}</dt>
+                  <dd className="mt-1 text-sm text-[var(--color-text)]">{statusLabel}</dd>
                 </div>
                 <div>
-                  <dt className="font-semibold uppercase tracking-wide text-purple-600">{copy.status.issuedAt}</dt>
-                  <dd className="mt-1 text-sm text-gray-900">{formatTimestamp(displayStatus?.totpSecretIssuedAt)}</dd>
+                  <dt className="font-semibold uppercase tracking-wide text-[var(--color-primary)]">{copy.status.issuedAt}</dt>
+                  <dd className="mt-1 text-sm text-[var(--color-text)]">{formatTimestamp(displayStatus?.totpSecretIssuedAt)}</dd>
                 </div>
                 <div>
-                  <dt className="font-semibold uppercase tracking-wide text-purple-600">{copy.status.confirmedAt}</dt>
-                  <dd className="mt-1 text-sm text-gray-900">{formatTimestamp(displayStatus?.totpConfirmedAt)}</dd>
+                  <dt className="font-semibold uppercase tracking-wide text-[var(--color-primary)]">{copy.status.confirmedAt}</dt>
+                  <dd className="mt-1 text-sm text-[var(--color-text)]">{formatTimestamp(displayStatus?.totpConfirmedAt)}</dd>
                 </div>
               </dl>
             </div>
@@ -449,12 +449,12 @@ export default function MfaSetupPanel() {
               <button
                 type="button"
                 onClick={openDialog}
-                className="inline-flex items-center justify-center rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-purple-500"
+                className="inline-flex items-center justify-center rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-foreground)] shadow-[var(--shadow-sm)] transition hover:bg-[var(--color-primary-hover)]"
               >
                 {displayStatus?.totpEnabled ? copy.summary.manage : copy.summary.bind}
               </button>
               {requiresSetup ? (
-                <p className="text-xs text-amber-600">{copy.pendingHint}</p>
+                <p className="text-xs text-[var(--color-warning-foreground)]">{copy.pendingHint}</p>
               ) : null}
             </div>
           </div>
@@ -463,36 +463,36 @@ export default function MfaSetupPanel() {
 
       {isDialogOpen ? (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 px-4 py-10"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-overlay)] px-4 py-10"
           onClick={closeDialog}
           role="dialog"
           aria-modal="true"
         >
           <div
-            className="relative w-full max-w-3xl overflow-hidden rounded-2xl bg-white shadow-xl"
+            className="relative w-full max-w-3xl overflow-hidden rounded-2xl bg-[var(--color-surface)] shadow-[var(--shadow-md)]"
             onClick={(event) => event.stopPropagation()}
           >
             <button
               type="button"
               onClick={closeDialog}
-              className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-xl text-gray-500 transition hover:border-gray-300 hover:text-gray-700"
+              className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-[color:var(--color-surface-border)] bg-[var(--color-surface)] text-xl text-[var(--color-text-subtle)] opacity-80 transition hover:border-[color:var(--color-surface-border)] hover:text-[var(--color-text-subtle)]"
             >
               <span className="sr-only">{copy.modal.close}</span>
               ×
             </button>
             <div className="max-h-[85vh] overflow-y-auto p-6 sm:p-8">
-              <h3 className="text-xl font-semibold text-gray-900">{copy.modal.title}</h3>
-              <p className="mt-1 text-sm text-gray-600">
+              <h3 className="text-xl font-semibold text-[var(--color-text)]">{copy.modal.title}</h3>
+              <p className="mt-1 text-sm text-[var(--color-text-subtle)]">
                 {displayStatus?.totpEnabled ? copy.enabledHint : copy.subtitle}
               </p>
 
               <div className="mt-6 space-y-6">
                 {displayStatus?.totpEnabled ? (
                   <div className="space-y-5">
-                    <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800">
+                    <div className="rounded-lg border border-[color:var(--color-success-muted)] bg-[var(--color-success-muted)] p-4 text-sm text-[var(--color-success-foreground)]">
                       <p className="font-medium">{copy.successTitle}</p>
                       <p className="mt-1">{copy.successBody}</p>
-                      <dl className="mt-3 grid gap-2 text-xs text-green-700 sm:grid-cols-2">
+                      <dl className="mt-3 grid gap-2 text-xs text-[var(--color-success-foreground)] sm:grid-cols-2">
                         <div>
                           <dt className="font-semibold uppercase tracking-wide">{copy.status.issuedAt}</dt>
                           <dd>{formatTimestamp(displayStatus?.totpSecretIssuedAt)}</dd>
@@ -504,56 +504,56 @@ export default function MfaSetupPanel() {
                       </dl>
                     </div>
 
-                    <div className="space-y-3 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                    <div className="space-y-3 rounded-lg border border-[color:var(--color-danger-muted)] bg-[var(--color-danger-muted)] p-4 text-sm text-[var(--color-danger-foreground)]">
                       <div>
-                        <p className="font-semibold text-red-800">{copy.disable.title}</p>
-                        <p className="mt-1 text-red-700">{copy.disable.description}</p>
+                        <p className="font-semibold text-[var(--color-danger-foreground)]">{copy.disable.title}</p>
+                        <p className="mt-1 text-[var(--color-danger-foreground)]">{copy.disable.description}</p>
                       </div>
                       <button
                         type="button"
                         onClick={handleDisable}
                         disabled={isDisabling}
-                        className="inline-flex items-center justify-center rounded-md border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-700 transition hover:border-red-400 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-70"
+                        className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-danger-muted)] bg-[var(--color-surface)] px-4 py-2 text-sm font-medium text-[var(--color-danger-foreground)] transition hover:border-[color:var(--color-danger)] hover:bg-[var(--color-danger-muted)] disabled:cursor-not-allowed disabled:opacity-70"
                       >
                         {isDisabling ? copy.disable.confirming : copy.disable.action}
                       </button>
                     </div>
 
-                    {error ? <p className="text-sm text-red-600">{error}</p> : null}
+                    {error ? <p className="text-sm text-[var(--color-danger)]">{error}</p> : null}
                   </div>
                 ) : (
                   <div className="space-y-5">
-                    <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+                    <p className="rounded-lg border border-[color:var(--color-warning-muted)] bg-[var(--color-warning-muted)] p-3 text-sm text-[var(--color-warning-foreground)]">
                       {hasPendingMfa ? copy.pendingHint : copy.subtitle}
                     </p>
 
                     {lockoutActive ? (
-                      <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                      <p className="rounded-lg border border-[color:var(--color-danger-muted)] bg-[var(--color-danger-muted)] p-3 text-sm text-[var(--color-danger-foreground)]">
                         {copy.errors.locked}
                         {lockoutLabel ? (
-                          <span className="mt-1 block text-xs text-red-600">{lockoutLabel}</span>
+                          <span className="mt-1 block text-xs text-[var(--color-danger)]">{lockoutLabel}</span>
                         ) : null}
                       </p>
                     ) : null}
 
                     <ol className="space-y-4">
-                      <li className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-                        <h4 className="text-sm font-semibold text-gray-900">{copy.guide.step1Title}</h4>
-                        <p className="mt-2 text-sm text-gray-600">{copy.guide.step1Description}</p>
-                        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-gray-600">
+                      <li className="rounded-2xl border border-[color:var(--color-surface-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-sm)]">
+                        <h4 className="text-sm font-semibold text-[var(--color-text)]">{copy.guide.step1Title}</h4>
+                        <p className="mt-2 text-sm text-[var(--color-text-subtle)]">{copy.guide.step1Description}</p>
+                        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-[var(--color-text-subtle)]">
                           <li>{copy.guide.step1Ios}</li>
                           <li>{copy.guide.step1Android}</li>
                         </ul>
                       </li>
 
-                      <li className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-                        <h4 className="text-sm font-semibold text-gray-900">{copy.guide.step2Title}</h4>
-                        <p className="mt-2 text-sm text-gray-600">{copy.guide.step2Description}</p>
+                      <li className="rounded-2xl border border-[color:var(--color-surface-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-sm)]">
+                        <h4 className="text-sm font-semibold text-[var(--color-text)]">{copy.guide.step2Title}</h4>
+                        <p className="mt-2 text-sm text-[var(--color-text-subtle)]">{copy.guide.step2Description}</p>
                         <div className="mt-4 flex flex-col gap-6 lg:flex-row lg:items-start">
                           {qrCodeDataUrl ? (
                             <div className="flex justify-center lg:w-60 lg:justify-start">
-                              <div className="rounded-xl border border-purple-100 bg-purple-50 p-3">
-                                <div className="flex items-center justify-center rounded-lg border border-purple-200 bg-white p-2 shadow-sm">
+                              <div className="rounded-xl border border-[color:var(--color-primary-border)] bg-[var(--color-primary-muted)] p-3">
+                                <div className="flex items-center justify-center rounded-lg border border-[color:var(--color-primary-border)] bg-[var(--color-surface)] p-2 shadow-[var(--shadow-sm)]">
                                   <Image
                                     src={qrCodeDataUrl}
                                     alt={copy.qrLabel}
@@ -568,27 +568,27 @@ export default function MfaSetupPanel() {
                           ) : null}
                           <div className="flex-1 space-y-3">
                             <div>
-                              <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">{copy.secretLabel}</p>
-                              <code className="mt-1 block break-all rounded bg-purple-50 px-3 py-2 text-sm text-purple-700">{secret}</code>
+                              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-primary)]">{copy.secretLabel}</p>
+                              <code className="mt-1 block break-all rounded bg-[var(--color-primary-muted)] px-3 py-2 text-sm text-[var(--color-primary)]">{secret}</code>
                             </div>
                             {issuer ? (
                               <div>
-                                <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">{copy.issuerLabel}</p>
-                                <p className="mt-1 break-all text-sm text-gray-700">{issuer}</p>
+                                <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-primary)]">{copy.issuerLabel}</p>
+                                <p className="mt-1 break-all text-sm text-[var(--color-text-subtle)]">{issuer}</p>
                               </div>
                             ) : null}
                             {accountLabel ? (
                               <div>
-                                <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">{copy.accountLabel}</p>
-                                <p className="mt-1 break-all text-sm text-gray-700">{accountLabel}</p>
+                                <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-primary)]">{copy.accountLabel}</p>
+                                <p className="mt-1 break-all text-sm text-[var(--color-text-subtle)]">{accountLabel}</p>
                               </div>
                             ) : null}
                             {uri ? (
                               <div>
-                                <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">{copy.uriLabel}</p>
+                                <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-primary)]">{copy.uriLabel}</p>
                                 <a
                                   href={uri}
-                                  className="mt-1 block break-all text-sm text-purple-600 underline"
+                                  className="mt-1 block break-all text-sm text-[var(--color-primary)] underline"
                                   target="_blank"
                                   rel="noreferrer"
                                 >
@@ -596,12 +596,12 @@ export default function MfaSetupPanel() {
                                 </a>
                               </div>
                             ) : null}
-                            <p className="text-xs text-gray-500">{copy.manualHint}</p>
+                            <p className="text-xs text-[var(--color-text-subtle)] opacity-80">{copy.manualHint}</p>
                             <button
                               type="button"
                               onClick={handleProvision}
                               disabled={isProvisioning}
-                              className="inline-flex items-center justify-center rounded-md border border-purple-200 px-3 py-2 text-xs font-medium text-purple-600 transition hover:border-purple-300 hover:bg-purple-50 disabled:cursor-not-allowed disabled:opacity-70"
+                              className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-primary-border)] px-3 py-2 text-xs font-medium text-[var(--color-primary)] transition hover:border-[color:var(--color-primary)] hover:bg-[var(--color-primary-muted)] disabled:cursor-not-allowed disabled:opacity-70"
                             >
                               {isProvisioning ? `${copy.regenerate}…` : copy.regenerate}
                             </button>
@@ -609,15 +609,15 @@ export default function MfaSetupPanel() {
                         </div>
                       </li>
 
-                      <li className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-                        <h4 className="text-sm font-semibold text-gray-900">{copy.guide.step3Title}</h4>
-                        <p className="mt-2 text-sm text-gray-600">{copy.guide.step3Description}</p>
+                      <li className="rounded-2xl border border-[color:var(--color-surface-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-sm)]">
+                        <h4 className="text-sm font-semibold text-[var(--color-text)]">{copy.guide.step3Title}</h4>
+                        <p className="mt-2 text-sm text-[var(--color-text-subtle)]">{copy.guide.step3Description}</p>
                         <form
                           onSubmit={handleVerify}
                           className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4"
                         >
                           <div className="flex-1">
-                            <label className="block text-sm font-medium text-gray-700" htmlFor="mfa-code">
+                            <label className="block text-sm font-medium text-[var(--color-text-subtle)]" htmlFor="mfa-code">
                               {copy.codeLabel}
                             </label>
                             <input
@@ -634,13 +634,13 @@ export default function MfaSetupPanel() {
                                 setCode(digitsOnly)
                               }}
                               placeholder={copy.codePlaceholder}
-                              className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-3 text-center text-2xl font-mono tracking-[0.6em] text-gray-900 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
+                              className="mt-2 w-full rounded-lg border border-[color:var(--color-surface-border)] px-4 py-3 text-center text-2xl font-mono tracking-[0.6em] text-[var(--color-text)] shadow-[var(--shadow-sm)] focus:border-[color:var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-muted)]"
                             />
                           </div>
                           <button
                             type="submit"
                             disabled={isVerifying}
-                            className="inline-flex items-center justify-center rounded-md bg-purple-600 px-5 py-2.5 text-sm font-medium text-white shadow transition hover:bg-purple-500 disabled:cursor-not-allowed disabled:opacity-70"
+                            className="inline-flex items-center justify-center rounded-md bg-[var(--color-primary)] px-5 py-2.5 text-sm font-medium text-[var(--color-primary-foreground)] shadow-[var(--shadow-sm)] transition hover:bg-[var(--color-primary-hover)] disabled:cursor-not-allowed disabled:opacity-70"
                           >
                             {isVerifying ? copy.verifying : copy.verify}
                           </button>
@@ -648,18 +648,18 @@ export default function MfaSetupPanel() {
                       </li>
                     </ol>
 
-                    {error ? <p className="text-sm text-red-600">{error}</p> : null}
+                    {error ? <p className="text-sm text-[var(--color-danger)]">{error}</p> : null}
                   </div>
                 )}
 
-                <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-xs text-gray-600">
-                  <p className="font-semibold text-gray-700">{copy.actions.help}</p>
-                  <p className="mt-1 text-gray-600">{copy.actions.description}</p>
+                <div className="rounded-lg border border-[color:var(--color-surface-border)] bg-[var(--color-surface-muted)] p-4 text-xs text-[var(--color-text-subtle)]">
+                  <p className="font-semibold text-[var(--color-text-subtle)]">{copy.actions.help}</p>
+                  <p className="mt-1 text-[var(--color-text-subtle)]">{copy.actions.description}</p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     <button
                       type="button"
                       onClick={handleLogoutClick}
-                      className="inline-flex items-center justify-center rounded-md border border-purple-200 px-3 py-2 text-xs font-medium text-purple-600 transition hover:border-purple-300 hover:bg-purple-50"
+                      className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-primary-border)] px-3 py-2 text-xs font-medium text-[var(--color-primary)] transition hover:border-[color:var(--color-primary)] hover:bg-[var(--color-primary-muted)]"
                     >
                       {copy.actions.logout}
                     </button>
@@ -667,7 +667,7 @@ export default function MfaSetupPanel() {
                       href={copy.actions.docsUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center justify-center rounded-md border border-transparent bg-purple-600 px-3 py-2 text-xs font-medium text-white transition hover:bg-purple-500"
+                      className="inline-flex items-center justify-center rounded-md border border-transparent bg-[var(--color-primary)] px-3 py-2 text-xs font-medium text-[var(--color-primary-foreground)] transition hover:bg-[var(--color-primary-hover)]"
                     >
                       {copy.actions.docs}
                     </a>

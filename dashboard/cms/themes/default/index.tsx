@@ -9,7 +9,7 @@ const defaultTheme: CmsTheme = {
   htmlAttributes: {
     lang: 'en',
   },
-  bodyClassName: 'bg-gray-50 text-gray-900',
+  bodyClassName: 'bg-[var(--color-background)] text-[var(--color-text)]',
   Provider: PassthroughThemeProvider,
 }
 

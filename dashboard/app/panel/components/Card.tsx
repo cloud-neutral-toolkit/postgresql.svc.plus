@@ -1,8 +1,15 @@
 import type { ReactNode } from 'react'
 
-export default function Card({ children }: { children: ReactNode }) {
+interface CardProps {
+  children: ReactNode
+  className?: string
+}
+
+export default function Card({ children, className = '' }: CardProps) {
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white/90 p-6 shadow-sm backdrop-blur">
+    <section
+      className={`rounded-[var(--radius-xl)] border border-[color:var(--color-surface-border)] bg-[var(--color-surface-elevated)] p-6 shadow-[var(--shadow-sm)] backdrop-blur transition-colors ${className}`.trim()}
+    >
       {children}
     </section>
   )

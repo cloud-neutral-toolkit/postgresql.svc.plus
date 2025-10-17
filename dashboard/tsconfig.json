@@ -23,6 +23,7 @@
       "@lib/*": ["lib/*"],
       "@types/*": ["types/*"],
       "@server/*": ["server/*"],
+      "@theme/*": ["src/theme/*"]
       "@templates/*": ["src/templates/*"],
       "@src/*": ["src/*"]
     },
@@ -35,6 +36,7 @@
     "components",
     "i18n",
     "lib",
+    "src",
     "server",
     "src",
     "types",

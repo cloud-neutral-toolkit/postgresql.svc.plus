@@ -125,23 +125,23 @@ export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
 
   return (
     <aside
-      className={`flex h-full w-64 flex-col gap-6 border-r border-gray-200 bg-white/90 p-6 shadow-lg backdrop-blur ${className}`}
+      className={`flex h-full w-64 flex-col gap-6 border-r border-[color:var(--color-surface-border)] bg-[var(--color-surface-elevated)] p-6 text-[var(--color-text)] shadow-[var(--shadow-md)] backdrop-blur transition-colors ${className}`}
     >
-      <div className="space-y-1">
-        <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">XControl</p>
-        <h2 className="text-lg font-bold text-gray-900">User Center</h2>
-        <p className="text-sm text-gray-500">在同一处掌控权限与功能特性。</p>
+      <div className="space-y-1 text-[var(--color-text)] transition-colors">
+        <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-primary)]">XControl</p>
+        <h2 className="text-lg font-bold text-[var(--color-heading)]">User Center</h2>
+        <p className="text-sm text-[var(--color-text-subtle)]">在同一处掌控权限与功能特性。</p>
       </div>
 
       {requiresSetup ? (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+        <div className="rounded-[var(--radius-lg)] border border-[color:var(--color-warning-muted)] bg-[var(--color-warning-muted)] p-3 text-xs text-[var(--color-warning-foreground)] transition-colors">
           <p className="font-semibold">{copy.pendingHint}</p>
           <p className="mt-1">{copy.lockedMessage}</p>
           <div className="mt-2 flex flex-wrap gap-2">
             <Link
               href="/panel/account?setupMfa=1"
               onClick={onNavigate}
-              className="inline-flex items-center justify-center rounded-md bg-purple-600 px-3 py-1.5 text-xs font-medium text-white shadow transition hover:bg-purple-500"
+              className="inline-flex items-center justify-center rounded-md bg-[var(--color-primary)] px-3 py-1.5 text-xs font-medium text-[var(--color-primary-foreground)] shadow-[var(--shadow-sm)] transition-colors hover:bg-[var(--color-primary-hover)]"
             >
               {copy.actions.setup}
             </Link>
@@ -149,7 +149,7 @@ export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
               href={copy.actions.docsUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center justify-center rounded-md border border-purple-200 px-3 py-1.5 text-xs font-medium text-purple-600 transition hover:border-purple-300 hover:bg-purple-50"
+              className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-primary-border)] px-3 py-1.5 text-xs font-medium text-[var(--color-primary)] transition-colors hover:border-[color:var(--color-primary)] hover:bg-[var(--color-primary-muted)]"
             >
               {copy.actions.docs}
             </a>
@@ -167,7 +167,9 @@ export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
             <div key={section.title} className="space-y-3">
               <p
                 className={`text-xs font-semibold uppercase tracking-wide ${
-                  sectionDisabled ? 'text-gray-400' : 'text-gray-500'
+                  sectionDisabled
+                    ? 'text-[var(--color-text-subtle)] opacity-60'
+                    : 'text-[var(--color-text-subtle)]'
                 }`}
               >
                 {section.title}
@@ -178,40 +180,50 @@ export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
                   const Icon = item.icon
                   const disabled = item.disabled || (requiresSetup && item.href !== '/panel/account')
 
+                  const baseClasses = [
+                    'group flex items-center gap-3 rounded-[var(--radius-xl)] border px-3 py-3 text-sm transition-colors',
+                  ]
+                  if (disabled) {
+                    baseClasses.push(
+                      'cursor-not-allowed border-dashed border-[color:var(--color-surface-border)] text-[var(--color-text-subtle)] opacity-60',
+                    )
+                  } else {
+                    baseClasses.push(
+                      'border-transparent text-[var(--color-text-subtle)] hover:border-[color:var(--color-primary-border)] hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-primary)]',
+                    )
+                  }
+                  if (active) {
+                    baseClasses.push(
+                      'border-[color:var(--color-primary)] bg-[var(--color-primary-muted)] text-[var(--color-primary)] shadow-[var(--shadow-sm)]',
+                    )
+                  }
+
+                  const iconClasses = ['flex h-8 w-8 items-center justify-center rounded-xl transition-colors']
+                  if (active) {
+                    iconClasses.push('bg-[var(--color-primary)] text-[var(--color-primary-foreground)]')
+                  } else if (disabled) {
+                    iconClasses.push('bg-[var(--color-surface-muted)] text-[var(--color-text-subtle)] opacity-60')
+                  } else {
+                    iconClasses.push(
+                      'bg-[var(--color-surface-muted)] text-[var(--color-text-subtle)] group-hover:bg-[var(--color-primary-muted)] group-hover:text-[var(--color-primary)]',
+                    )
+                  }
+
+                  const descriptionClasses = [
+                    'text-xs transition-colors',
+                    disabled
+                      ? 'text-[var(--color-text-subtle)] opacity-60'
+                      : 'text-[var(--color-text-subtle)] group-hover:text-[var(--color-primary)]',
+                  ]
+
                   const content = (
-                    <div
-                      className={`group flex items-center gap-3 rounded-2xl border px-3 py-3 text-sm transition ${
-                        disabled
-                          ? 'cursor-not-allowed border-dashed border-gray-200 text-gray-400'
-                          : 'hover:border-purple-400 hover:text-purple-600'
-                      } ${
-                        active
-                          ? 'border-purple-500 bg-purple-50 text-purple-700 shadow'
-                          : !disabled
-                            ? 'border-transparent text-gray-600'
-                            : 'border-transparent'
-                      }`}
-                    >
-                      <span
-                        className={`flex h-8 w-8 items-center justify-center rounded-xl ${
-                          active
-                            ? 'bg-purple-600 text-white'
-                            : disabled
-                              ? 'bg-gray-100 text-gray-400'
-                              : 'bg-gray-100 text-gray-500 group-hover:bg-purple-100 group-hover:text-purple-600'
-                        }`}
-                      >
+                    <div className={baseClasses.join(' ')}>
+                      <span className={iconClasses.join(' ')}>
                         <Icon className="h-4 w-4" />
                       </span>
                       <span className="flex flex-col">
                         <span className="font-semibold">{item.label}</span>
-                        <span
-                          className={`text-xs ${
-                            disabled ? 'text-gray-400' : 'text-gray-500 group-hover:text-purple-500'
-                          }`}
-                        >
-                          {item.description}
-                        </span>
+                        <span className={descriptionClasses.join(' ')}>{item.description}</span>
                       </span>
                     </div>
                   )

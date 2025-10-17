@@ -14,7 +14,7 @@ export const metadata = {
 const theme = getActiveTheme()
 const ThemeProvider = theme.Provider ?? Fragment
 const htmlAttributes = theme.htmlAttributes ?? { lang: 'en' }
-const bodyClassName = theme.bodyClassName ?? 'bg-gray-50 text-gray-900'
+const bodyClassName = theme.bodyClassName ?? 'bg-[var(--color-background)] text-[var(--color-text)]'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const content = applyExtensionLayouts(children)
