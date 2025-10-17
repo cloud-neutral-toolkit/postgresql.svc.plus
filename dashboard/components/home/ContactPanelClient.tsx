@@ -7,6 +7,7 @@ import {
   LifeBuoy,
   Mail,
   MessageCircle,
+  Star,
   X,
   type LucideIcon,
 } from 'lucide-react'
@@ -18,6 +19,7 @@ import type { ContactPanelContent, ContactItemContent } from '@cms/content'
 const iconMap: Record<string, LucideIcon> = {
   mail: Mail,
   'life-buoy': LifeBuoy,
+  star: Star,
 }
 
 function getIcon(name?: string): LucideIcon {

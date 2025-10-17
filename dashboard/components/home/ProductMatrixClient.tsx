@@ -168,38 +168,6 @@ export default function ProductMatrixClient({ solutions }: ProductMatrixClientPr
           </div>
         </div>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {solutions.map((solution, index) => {
-          const isActive = index === activeIndex
-          return (
-            <button
-              key={solution.slug}
-              type="button"
-              onClick={() => setActiveIndex(index)}
-              className={clsx(
-                'relative overflow-hidden rounded-3xl border bg-white p-6 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-300',
-                isActive
-                  ? 'border-blue-400 bg-blue-100 text-slate-900 shadow-lg shadow-blue-200/60'
-                  : 'border-blue-100 text-slate-700 hover:border-blue-200 hover:bg-blue-50/70',
-              )}
-            >
-              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-blue-700/80">{solution.tagline}</p>
-              <h3 className="mt-3 text-xl font-semibold text-slate-900">{solution.title}</h3>
-              {solution.description ? (
-                <p className="mt-2 text-sm text-slate-700">{solution.description}</p>
-              ) : null}
-              <span
-                className={clsx(
-                  'mt-4 inline-flex items-center text-sm font-semibold',
-                  isActive ? 'text-blue-700' : 'text-blue-600',
-                )}
-              >
-                {isActive ? '正在专题展示' : '点击专题展示'}
-              </span>
-            </button>
-          )
-        })}
-      </div>
     </section>
   )
 }
