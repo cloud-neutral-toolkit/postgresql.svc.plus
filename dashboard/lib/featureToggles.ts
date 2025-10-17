@@ -11,6 +11,7 @@ export type FeatureToggleNode = {
 const featureToggles = featureToggleData as {
   globalNavigation: FeatureToggleNode
   appModules: FeatureToggleNode
+  cmsExperience: FeatureToggleNode
 }
 
 export type FeatureToggleSection = keyof typeof featureToggles

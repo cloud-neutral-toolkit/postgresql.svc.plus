@@ -51,5 +51,16 @@
       "insight": { "enabled": true },
       "demo": { "enabled": true }
     }
+  },
+  "cmsExperience": {
+    "enabled": true,
+    "children": {
+      "homepage": {
+        "enabled": true,
+        "children": {
+          "dynamic": { "enabled": true }
+        }
+      }
+    }
   }
 }

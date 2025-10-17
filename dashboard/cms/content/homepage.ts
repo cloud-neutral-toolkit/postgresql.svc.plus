@@ -3,6 +3,7 @@ import path from 'path'
 
 import { readMarkdownDirectory, readMarkdownFile } from '../../lib/markdown'
 import { resolveContentSource } from './source'
+import { isFeatureEnabled } from '../../lib/featureToggles'
 
 export interface HeroContent {
   eyebrow?: string
@@ -73,6 +74,15 @@ export interface ContactPanelContent {
 }
 
 const { absolutePath: HOMEPAGE_CONTENT_ROOT } = resolveContentSource('homepage')
+const CMS_HOMEPAGE_FLAG_PATH = '/homepage/dynamic'
+
+const FALLBACK_HERO: HeroContent = {
+  title: '欢迎来到 XControl',
+  highlights: [],
+  bodyHtml: '',
+}
+
+const isCmsHomepageEnabled = () => isFeatureEnabled('cmsExperience', CMS_HOMEPAGE_FLAG_PATH)
 
 function ensureString(value: unknown): string | undefined {
   if (typeof value === 'string') {
@@ -126,6 +136,10 @@ function extractExcerpt(markdown: string): string {
 }
 
 export async function getHomepageHero(): Promise<HeroContent> {
+  if (!isCmsHomepageEnabled()) {
+    return FALLBACK_HERO
+  }
+
   const hero = await readMarkdownFile('hero.md', { baseDir: HOMEPAGE_CONTENT_ROOT })
 
   return {
@@ -142,6 +156,10 @@ export async function getHomepageHero(): Promise<HeroContent> {
 }
 
 export async function getHeroSolutions(): Promise<HeroSolution[]> {
+  if (!isCmsHomepageEnabled()) {
+    return []
+  }
+
   let solutions: (HeroSolution & { order?: number })[] = []
   try {
     const files = await readMarkdownDirectory('solutions', { baseDir: HOMEPAGE_CONTENT_ROOT })
@@ -179,6 +197,10 @@ export async function getHeroSolutions(): Promise<HeroSolution[]> {
 }
 
 export async function getHomepagePosts(): Promise<HomepagePost[]> {
+  if (!isCmsHomepageEnabled()) {
+    return []
+  }
+
   const postsDir = path.join('posts')
   const posts = await readMarkdownDirectory(postsDir, { baseDir: HOMEPAGE_CONTENT_ROOT })
 
@@ -221,6 +243,10 @@ export async function getHomepagePosts(): Promise<HomepagePost[]> {
 }
 
 export async function getSidebarSections(): Promise<SidebarSection[]> {
+  if (!isCmsHomepageEnabled()) {
+    return []
+  }
+
   const sidebarDir = path.join('sidebar')
   let sections: SidebarSection[] = []
   try {
@@ -254,6 +280,10 @@ export async function getSidebarSections(): Promise<SidebarSection[]> {
 }
 
 export async function getContactPanelContent(): Promise<ContactPanelContent | undefined> {
+  if (!isCmsHomepageEnabled()) {
+    return undefined
+  }
+
   let panelFile
   try {
     panelFile = await readMarkdownFile(path.join('contact', 'panel.md'), { baseDir: HOMEPAGE_CONTENT_ROOT })
@@ -307,6 +337,10 @@ export async function getContactPanelContent(): Promise<ContactPanelContent | un
 }
 
 export async function getContentLastUpdated(): Promise<string | undefined> {
+  if (!isCmsHomepageEnabled()) {
+    return undefined
+  }
+
   try {
     const stats = await fs.stat(path.join(HOMEPAGE_CONTENT_ROOT, 'hero.md'))
     return stats.mtime.toISOString()
