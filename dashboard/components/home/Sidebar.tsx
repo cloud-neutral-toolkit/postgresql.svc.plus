@@ -5,8 +5,12 @@ import SidebarCard from './SidebarCard'
 export default async function Sidebar() {
   const sections = await getSidebarSections()
 
+  if (!sections.length) {
+    return null
+  }
+
   return (
-    <aside className="space-y-6">
+    <aside className="w-full space-y-6 rounded-3xl border border-white/20 bg-white/90 p-6 text-slate-900 shadow-xl shadow-sky-900/15 backdrop-blur lg:sticky lg:top-16 lg:h-fit lg:w-[360px]">
       {sections.map((section) => (
         <SidebarCard key={section.slug} section={section} />
       ))}
