@@ -17,13 +17,13 @@ export default function SidebarCard({ section }: SidebarCardProps) {
   const hasTagsLayout = section.layout === 'tags' && section.tags.length > 0
 
   return (
-    <section className="rounded-2xl border border-slate-200/70 bg-white/95 p-5 shadow-md shadow-sky-900/10">
+    <section className="rounded-2xl border border-blue-100 bg-white/95 p-5 shadow-md shadow-blue-200/50">
       <header className="mb-4 flex items-center justify-between gap-3">
         <h3 className="text-lg font-semibold text-slate-900">{section.title}</h3>
         {isValidCta(section) ? (
           <Link
             href={section.ctaHref}
-            className="text-sm font-semibold text-blue-600 transition hover:text-blue-700"
+            className="text-sm font-medium text-blue-600 transition hover:text-blue-700"
           >
             {section.ctaLabel}
           </Link>
@@ -34,7 +34,7 @@ export default function SidebarCard({ section }: SidebarCardProps) {
           {section.tags.map((tag) => (
             <span
               key={tag}
-              className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700"
+              className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-slate-700"
             >
               #{tag}
             </span>
@@ -42,7 +42,7 @@ export default function SidebarCard({ section }: SidebarCardProps) {
         </div>
       ) : (
         <div
-          className="prose prose-sm max-w-none text-slate-600 [&_a]:text-blue-600 [&_a]:no-underline hover:[&_a]:underline"
+          className="prose prose-sm max-w-none text-slate-700 [&_a]:text-blue-600 [&_a]:no-underline hover:[&_a]:underline"
           dangerouslySetInnerHTML={{ __html: section.bodyHtml }}
         />
       )}

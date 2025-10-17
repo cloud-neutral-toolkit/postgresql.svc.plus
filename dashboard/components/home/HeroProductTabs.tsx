@@ -63,8 +63,8 @@ export default function HeroProductTabs({ items }: HeroProductTabsProps) {
   }
 
   return (
-    <div className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 text-white shadow-xl backdrop-blur-lg sm:p-8">
-      <span className="text-xs font-semibold uppercase tracking-[0.35em] text-sky-300/90">产品矩阵</span>
+    <div className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-blue-100 bg-white p-6 text-slate-900 shadow-xl shadow-blue-200/60 sm:p-8">
+      <span className="text-xs font-semibold uppercase tracking-[0.35em] text-blue-700">产品矩阵</span>
       <div
         id={tablistId}
         role="tablist"
@@ -83,10 +83,10 @@ export default function HeroProductTabs({ items }: HeroProductTabsProps) {
               role="tab"
               aria-selected={isActive}
               aria-controls={targetPanelId}
-              className={`group flex min-w-[9rem] flex-col rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-200/80 ${
+              className={`group flex min-w-[9rem] flex-col rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-300 ${
                 isActive
-                  ? 'border-sky-300/80 bg-sky-300/90 text-slate-900 shadow-lg shadow-sky-500/30'
-                  : 'border-white/10 bg-white/5 text-slate-100 hover:border-white/30 hover:bg-white/10'
+                  ? 'border-blue-400 bg-blue-100 text-slate-900 shadow-lg shadow-blue-300/40'
+                  : 'border-blue-100 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50'
               }`}
               onClick={() => setActiveIndex(index)}
               onKeyDown={(event) => handleKeyDown(event, index)}
@@ -95,7 +95,7 @@ export default function HeroProductTabs({ items }: HeroProductTabsProps) {
               {item.tagline ? (
                 <span
                   className={`mt-1 text-xs font-medium transition ${
-                    isActive ? 'text-slate-800/80' : 'text-slate-200/70 group-hover:text-slate-100'
+                    isActive ? 'text-slate-800/80' : 'text-slate-500'
                   }`}
                 >
                   {item.tagline}
@@ -110,27 +110,27 @@ export default function HeroProductTabs({ items }: HeroProductTabsProps) {
         role="tabpanel"
         id={panelId}
         aria-labelledby={`${tablistId}-tab-${activeItem.slug}`}
-        className="mt-6 flex flex-1 flex-col rounded-2xl border border-white/10 bg-slate-950/30 p-6 shadow-inner shadow-slate-950/40 sm:p-7"
+        className="mt-6 flex flex-1 flex-col rounded-2xl border border-blue-100 bg-white/90 p-6 shadow-inner shadow-blue-100/70 sm:p-7"
       >
         <div className="flex flex-col gap-2">
           {activeItem.tagline ? (
-            <p className="text-sm font-medium uppercase tracking-[0.3em] text-sky-200/80">
+            <p className="text-sm font-medium uppercase tracking-[0.3em] text-blue-700">
               {activeItem.tagline}
             </p>
           ) : null}
-          <h2 className="text-2xl font-semibold sm:text-3xl">{activeItem.title}</h2>
+          <h2 className="text-2xl font-semibold text-slate-900 sm:text-3xl">{activeItem.title}</h2>
           {activeItem.description ? (
-            <p className="text-sm text-slate-200/90 sm:text-base">{activeItem.description}</p>
+            <p className="text-sm text-slate-700 sm:text-base">{activeItem.description}</p>
           ) : null}
         </div>
         {activeItem.features.length ? (
-          <ul className="mt-5 grid gap-3 text-sm sm:grid-cols-2 sm:text-base">
+          <ul className="mt-5 grid gap-3 text-sm text-slate-700 sm:grid-cols-2 sm:text-base">
             {activeItem.features.map((feature) => (
               <li
                 key={feature}
-                className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-3 text-slate-100"
+                className="flex items-start gap-3 rounded-xl border border-blue-100 bg-blue-50/70 p-3"
               >
-                <span className="mt-1 inline-block h-2 w-2 flex-shrink-0 rounded-full bg-sky-400" aria-hidden />
+                <span className="mt-1 inline-block h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" aria-hidden />
                 <span>{feature}</span>
               </li>
             ))}
@@ -138,7 +138,7 @@ export default function HeroProductTabs({ items }: HeroProductTabsProps) {
         ) : null}
         {activeItem.bodyHtml ? (
           <div
-            className="prose prose-invert mt-5 max-w-none text-sm text-slate-200/90 [&_strong]:text-white"
+            className="prose mt-5 max-w-none text-sm text-slate-800 [&_strong]:text-slate-900"
             dangerouslySetInnerHTML={{ __html: activeItem.bodyHtml }}
           />
         ) : null}
@@ -150,7 +150,7 @@ export default function HeroProductTabs({ items }: HeroProductTabsProps) {
               <Link
                 prefetch={false}
                 href={activeItem.primaryCtaHref}
-                className="inline-flex items-center justify-center rounded-full bg-sky-400 px-5 py-2 text-sm font-semibold text-slate-950 shadow-lg transition hover:bg-sky-300"
+                className="inline-flex items-center justify-center rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-300/50 transition hover:bg-blue-700"
               >
                 {activeItem.primaryCtaLabel}
               </Link>
@@ -159,7 +159,7 @@ export default function HeroProductTabs({ items }: HeroProductTabsProps) {
               <Link
                 prefetch={false}
                 href={activeItem.secondaryCtaHref}
-                className="inline-flex items-center justify-center rounded-full border border-white/40 px-5 py-2 text-sm font-semibold text-white transition hover:border-white"
+                className="inline-flex items-center justify-center rounded-full border border-blue-200 px-5 py-2 text-sm font-semibold text-blue-700 transition hover:border-blue-300 hover:bg-blue-50"
               >
                 {activeItem.secondaryCtaLabel}
               </Link>
@@ -168,7 +168,7 @@ export default function HeroProductTabs({ items }: HeroProductTabsProps) {
               <Link
                 prefetch={false}
                 href={activeItem.tertiaryCtaHref}
-                className="inline-flex items-center justify-center rounded-full border border-white/10 px-5 py-2 text-sm font-semibold text-slate-100 transition hover:border-white/40"
+                className="inline-flex items-center justify-center rounded-full border border-blue-100 px-5 py-2 text-sm font-semibold text-slate-700 transition hover:border-blue-200 hover:bg-blue-50/70"
               >
                 {activeItem.tertiaryCtaLabel}
               </Link>
@@ -176,8 +176,6 @@ export default function HeroProductTabs({ items }: HeroProductTabsProps) {
           </div>
         ) : null}
       </div>
-
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/60 via-slate-950/0" aria-hidden />
     </div>
   )
 }

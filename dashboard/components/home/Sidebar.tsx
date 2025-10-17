@@ -10,7 +10,7 @@ export default async function Sidebar() {
   }
 
   return (
-    <aside className="w-full space-y-6 rounded-3xl border border-white/20 bg-white/90 p-6 text-slate-900 shadow-xl shadow-sky-900/15 backdrop-blur lg:sticky lg:top-16 lg:h-fit lg:w-[360px]">
+    <aside className="w-full space-y-6 rounded-3xl border border-blue-100 bg-white/95 p-6 text-slate-900 shadow-xl shadow-blue-200/60 backdrop-blur lg:sticky lg:top-16 lg:h-fit lg:w-[360px]">
       {sections.map((section) => (
         <SidebarCard key={section.slug} section={section} />
       ))}

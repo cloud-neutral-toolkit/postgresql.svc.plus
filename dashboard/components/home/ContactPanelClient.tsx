@@ -95,7 +95,7 @@ function QrPreview({ item }: QrPreviewProps) {
   return (
     <div className="flex flex-col gap-3">
       <div
-        className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white/90 p-3 shadow-inner"
+        className="relative overflow-hidden rounded-2xl border border-blue-100 bg-white p-3 shadow-inner shadow-blue-100/60"
         aria-hidden
       >
         <div
@@ -116,7 +116,7 @@ function QrPreview({ item }: QrPreviewProps) {
       </div>
       <div className="space-y-1">
         <p className="text-sm font-semibold text-slate-900">{item.title}</p>
-        {item.description ? <p className="text-xs text-slate-500">{item.description}</p> : null}
+        {item.description ? <p className="text-xs text-slate-600">{item.description}</p> : null}
       </div>
     </div>
   )
@@ -125,23 +125,23 @@ function QrPreview({ item }: QrPreviewProps) {
 function InfoCard({ item }: { item: ContactItemContent }) {
   const Icon = getIcon(item.icon)
   return (
-    <div className="flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/80 p-4">
-      <div className="mt-1 rounded-full bg-sky-500/10 p-2 text-sky-600">
+    <div className="flex items-start gap-3 rounded-2xl border border-blue-100 bg-blue-50/80 p-4">
+      <div className="mt-1 rounded-full bg-blue-100 p-2 text-blue-600">
         <Icon className="h-5 w-5" aria-hidden />
       </div>
       <div className="flex-1">
         <p className="text-sm font-semibold text-slate-900">{item.title}</p>
-        {item.description ? <p className="mt-1 text-xs text-slate-500">{item.description}</p> : null}
+        {item.description ? <p className="mt-1 text-xs text-slate-600">{item.description}</p> : null}
         {item.bodyHtml ? (
           <div
-            className="prose prose-sm mt-2 max-w-none text-slate-600"
+            className="prose prose-sm mt-2 max-w-none text-slate-700"
             dangerouslySetInnerHTML={{ __html: item.bodyHtml }}
           />
         ) : null}
         {item.ctaLabel && item.ctaHref ? (
           <Link
             href={item.ctaHref}
-            className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-sky-600 transition hover:text-sky-700"
+            className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-blue-600 transition hover:text-blue-700"
           >
             {item.ctaLabel}
             <ChevronRight className="h-4 w-4" aria-hidden />
@@ -166,7 +166,7 @@ export default function ContactPanelClient({ panel, className }: ContactPanelCli
           <button
             type="button"
             onClick={() => setCollapsed(false)}
-            className="group inline-flex items-center gap-2 rounded-full border border-sky-400/60 bg-white px-4 py-2 text-sm font-semibold text-sky-700 shadow-sm shadow-sky-200/60"
+            className="group inline-flex items-center gap-2 rounded-full border border-blue-300 bg-white px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm shadow-blue-200/70"
             aria-label="展开保持联系面板"
           >
             <span>保持联系</span>
@@ -174,17 +174,17 @@ export default function ContactPanelClient({ panel, className }: ContactPanelCli
           </button>
         </div>
       ) : (
-        <section className="relative flex max-h-full min-h-0 flex-col overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-b from-white via-white to-slate-50 shadow-xl shadow-slate-200/40">
-          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-sky-400 via-cyan-400 to-indigo-400" aria-hidden />
+        <section className="relative flex max-h-full min-h-0 flex-col overflow-hidden rounded-3xl border border-blue-100 bg-gradient-to-b from-white via-white to-blue-50 shadow-xl shadow-blue-200/60">
+          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-400 via-blue-500 to-indigo-400" aria-hidden />
           <div className="flex items-start justify-between gap-3 px-5 pt-5">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-sky-500">{panel.title}</p>
-              {panel.subtitle ? <p className="mt-1 text-xs text-slate-500">{panel.subtitle}</p> : null}
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-600">{panel.title}</p>
+              {panel.subtitle ? <p className="mt-1 text-xs text-slate-600">{panel.subtitle}</p> : null}
             </div>
             <button
               type="button"
               onClick={() => setCollapsed(true)}
-              className="rounded-full border border-slate-200 bg-white/80 p-1 text-slate-400 transition hover:text-slate-600"
+              className="rounded-full border border-blue-100 bg-white/80 p-1 text-slate-400 transition hover:text-slate-600"
               aria-label="折叠保持联系面板"
             >
               <X className="h-4 w-4" aria-hidden />
@@ -193,7 +193,7 @@ export default function ContactPanelClient({ panel, className }: ContactPanelCli
           <div className="flex-1 overflow-y-auto">
             {panel.bodyHtml ? (
               <div
-                className="prose prose-sm px-5 pt-3 text-slate-600"
+                className="prose prose-sm px-5 pt-3 text-slate-700"
                 dangerouslySetInnerHTML={{ __html: panel.bodyHtml }}
               />
             ) : null}

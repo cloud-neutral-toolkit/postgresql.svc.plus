@@ -13,7 +13,7 @@ const OVERVIEW_HIGHLIGHTS = [
 ]
 
 const heroBackgroundOverlay =
-  'absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.25),_transparent_65%)]'
+  'absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.18),_transparent_70%)]'
 
 type ProductMatrixClientProps = {
   solutions: HeroSolution[]
@@ -54,35 +54,35 @@ export default function ProductMatrixClient({ solutions }: ProductMatrixClientPr
 
   return (
     <section className="space-y-10">
-      <div className="relative overflow-hidden rounded-[2.5rem] border border-slate-800/60 bg-slate-950/90 p-8 text-slate-100 shadow-2xl shadow-sky-900/30 lg:p-12">
+      <div className="relative overflow-hidden rounded-[2.5rem] border border-blue-100 bg-white p-8 text-slate-900 shadow-2xl shadow-blue-200/60 lg:p-12">
         <div className={heroBackgroundOverlay} aria-hidden />
-        <div className="absolute inset-0 -z-10 bg-[linear-gradient(135deg,_rgba(12,18,33,0.85),_rgba(8,47,73,0.4))]" aria-hidden />
+        <div className="absolute inset-0 -z-10 bg-[linear-gradient(135deg,_rgba(234,243,255,0.95),_rgba(207,228,255,0.65))]" aria-hidden />
         <div className="relative grid gap-10 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
           <div className="space-y-6">
             <header className="space-y-3">
-              <span className="inline-flex items-center rounded-full border border-sky-400/40 bg-sky-400/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.45em] text-sky-200/90">
+              <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-4 py-1 text-xs font-semibold uppercase tracking-[0.45em] text-blue-700">
                 云原生运营中心
               </span>
-              <h1 className="text-3xl font-semibold leading-tight text-white sm:text-4xl lg:text-5xl">
+              <h1 className="text-3xl font-extrabold leading-tight text-slate-900 sm:text-4xl lg:text-5xl">
                 打造一体化的 XControl 控制平面
               </h1>
-              <p className="text-sm text-slate-300 sm:text-base lg:text-lg">
+              <p className="text-sm text-slate-700 sm:text-base lg:text-lg">
                 将资产管理、访问控制、可观测与自动化工作流整合到一个响应迅速的体验里，帮助团队高效落地治理策略。
               </p>
             </header>
-            <ul className="grid gap-3 text-sm text-slate-200 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="grid gap-3 text-sm text-slate-700 sm:grid-cols-2 lg:grid-cols-3">
               {OVERVIEW_HIGHLIGHTS.map((highlight) => (
                 <li
                   key={highlight}
-                  className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 p-3"
+                  className="flex items-start gap-3 rounded-2xl border border-blue-100 bg-blue-50/60 p-3"
                 >
-                  <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-sky-400" aria-hidden />
+                  <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" aria-hidden />
                   <span>{highlight}</span>
                 </li>
               ))}
             </ul>
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-3 sm:p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-sky-200/70">产品专题</p>
+            <div className="rounded-3xl border border-blue-100 bg-blue-50/80 p-3 sm:p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-blue-700">产品专题</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {solutions.map((solution, index) => {
                   const isActive = index === activeIndex
@@ -92,17 +92,17 @@ export default function ProductMatrixClient({ solutions }: ProductMatrixClientPr
                       type="button"
                       onClick={() => setActiveIndex(index)}
                       className={clsx(
-                        'flex min-w-[9rem] flex-1 items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-200/80',
+                        'flex min-w-[9rem] flex-1 items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-300',
                         isActive
-                          ? 'border-sky-300/80 bg-sky-300/90 text-slate-900 shadow-lg shadow-sky-500/30'
-                          : 'border-white/10 bg-white/5 text-slate-100 hover:border-white/30 hover:bg-white/10',
+                          ? 'border-blue-400 bg-blue-100 text-slate-900 shadow-lg shadow-blue-300/40'
+                          : 'border-blue-100 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50',
                       )}
                     >
                       <span className="flex-1">{solution.title}</span>
                       <span
                         className={clsx(
                           'ml-2 text-xs font-medium transition',
-                          isActive ? 'text-slate-800/80' : 'text-slate-200/60',
+                          isActive ? 'text-slate-800/80' : 'text-slate-500',
                         )}
                       >
                         {solution.tagline}
@@ -113,31 +113,31 @@ export default function ProductMatrixClient({ solutions }: ProductMatrixClientPr
               </div>
             </div>
           </div>
-          <div className="flex flex-col gap-6 rounded-3xl border border-white/10 bg-slate-950/40 p-6 shadow-inner shadow-slate-950/40 backdrop-blur lg:p-8">
+          <div className="flex flex-col gap-6 rounded-3xl border border-blue-100 bg-white/90 p-6 shadow-inner shadow-blue-100/80 backdrop-blur-sm lg:p-8">
             <div className="space-y-4">
               {activeSolution.tagline ? (
-                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-sky-200/80">
+                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-blue-700">
                   {activeSolution.tagline}
                 </p>
               ) : null}
-              <h2 className="text-2xl font-semibold text-white sm:text-3xl">{activeSolution.title}</h2>
+              <h2 className="text-2xl font-semibold text-slate-900 sm:text-3xl">{activeSolution.title}</h2>
               {activeSolution.description ? (
-                <p className="text-sm text-slate-200/90 sm:text-base">{activeSolution.description}</p>
+                <p className="text-sm text-slate-700 sm:text-base">{activeSolution.description}</p>
               ) : null}
               {activeSolution.bodyHtml ? (
                 <div
-                  className="prose prose-invert max-w-none text-sm text-slate-200/90 [&_strong]:text-white"
+                  className="prose max-w-none text-sm text-slate-800 [&_strong]:text-slate-900"
                   dangerouslySetInnerHTML={{ __html: activeSolution.bodyHtml }}
                 />
               ) : null}
             </div>
             {activeSolution.features.length ? (
               <div className="space-y-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-sky-200/70">能力速览</p>
-                <ul className="grid gap-2 text-sm text-slate-100 sm:grid-cols-2">
+                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-blue-700">能力速览</p>
+                <ul className="grid gap-2 text-sm text-slate-700 sm:grid-cols-2">
                   {activeSolution.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 p-3">
-                      <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-sky-400" aria-hidden />
+                    <li key={feature} className="flex items-start gap-3 rounded-2xl border border-blue-100 bg-blue-50/60 p-3">
+                      <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-blue-500" aria-hidden />
                       <span>{feature}</span>
                     </li>
                   ))}
@@ -154,10 +154,10 @@ export default function ProductMatrixClient({ solutions }: ProductMatrixClientPr
                     className={clsx(
                       'inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold transition',
                       variant === 'primary'
-                        ? 'bg-sky-400 text-slate-950 shadow-lg shadow-sky-500/40 hover:bg-sky-300'
+                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-300/50 hover:bg-blue-700'
                         : variant === 'secondary'
-                        ? 'border border-white/40 text-white hover:border-white'
-                        : 'border border-white/10 text-slate-100 hover:border-white/40',
+                        ? 'border border-blue-200 text-blue-700 hover:border-blue-300 hover:bg-blue-50'
+                        : 'border border-blue-100 text-slate-700 hover:border-blue-200 hover:bg-blue-50/80',
                     )}
                   >
                     {label}
@@ -177,21 +177,21 @@ export default function ProductMatrixClient({ solutions }: ProductMatrixClientPr
               type="button"
               onClick={() => setActiveIndex(index)}
               className={clsx(
-                'relative overflow-hidden rounded-3xl border bg-white/5 p-6 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-200/80',
-                  isActive
-                    ? 'border-sky-400/80 bg-sky-400/15 text-white shadow-lg shadow-sky-900/40'
-                    : 'border-white/10 text-slate-200 hover:border-white/30 hover:bg-white/10',
+                'relative overflow-hidden rounded-3xl border bg-white p-6 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-300',
+                isActive
+                  ? 'border-blue-400 bg-blue-100 text-slate-900 shadow-lg shadow-blue-200/60'
+                  : 'border-blue-100 text-slate-700 hover:border-blue-200 hover:bg-blue-50/70',
               )}
             >
-              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-sky-300/80">{solution.tagline}</p>
-              <h3 className="mt-3 text-xl font-semibold text-white">{solution.title}</h3>
+              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-blue-700/80">{solution.tagline}</p>
+              <h3 className="mt-3 text-xl font-semibold text-slate-900">{solution.title}</h3>
               {solution.description ? (
-                <p className="mt-2 text-sm text-slate-200/80">{solution.description}</p>
+                <p className="mt-2 text-sm text-slate-700">{solution.description}</p>
               ) : null}
               <span
                 className={clsx(
                   'mt-4 inline-flex items-center text-sm font-semibold',
-                  isActive ? 'text-sky-200' : 'text-sky-300/90',
+                  isActive ? 'text-blue-700' : 'text-blue-600',
                 )}
               >
                 {isActive ? '正在专题展示' : '点击专题展示'}
