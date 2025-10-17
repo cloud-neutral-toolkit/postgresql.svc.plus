@@ -5,6 +5,7 @@ out/
 
 # Dependencies
 node_modules/
+.yarn/
 
 # Logs
 *.log

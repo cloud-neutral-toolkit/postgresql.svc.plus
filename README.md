@@ -55,6 +55,17 @@ configuration selects values based on `NEXT_PUBLIC_RUNTIME_ENV` (falling back to
 `defaultEnvironment`). Use `NEXT_PUBLIC_ACCOUNT_SERVICE_URL` for ad-hoc overrides, otherwise adjust the YAML file to specify
 environment-specific URLs such as `http://localhost:8080` for development/test and `https://account.svc.plus` for production.
 
+## Content operations
+
+- Markdown articles live under [`content/`](./content). Each file starts with a YAML frontmatter block that defines
+  `title`, `summary`, `version`, `updatedAt`, `tags`, `status`, `author`, and optional `links`. The [`content/README.md`](./content/README.md)
+  documents the schema in detail.
+- The dashboard exposes a `GET /api/content/<slug>` endpoint powered by `remark` that renders Markdown to HTML, collects
+  headings, and surfaces git commit metadata for version tracking. Frontend slots can consume this API via the
+  `MarkdownContentSlot` component.
+- Run [`scripts/sync-content.sh`](./scripts/sync-content.sh) with `CONTENT_REPO_URL` (and optional `CONTENT_REPO_BRANCH`,
+  `CONTENT_REPO_SUBDIR`) to push the latest content into an external documentation repository as part of your GitOps flow.
+
 ## Account service configuration
 
 `account/config/account.yaml` now accepts a `server.publicUrl` value such as `https://account.svc.plus:8443`. The account service
