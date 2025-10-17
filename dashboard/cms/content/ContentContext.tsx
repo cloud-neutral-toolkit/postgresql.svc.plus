@@ -2,7 +2,7 @@
 
 import { createContext, type ReactNode, useContext, useMemo } from 'react'
 
-import { listContentSourcesMetadata } from '..'
+import { listContentSourcesMetadata } from '../contentSources'
 
 type ContentSourceState = {
   namespace: string
