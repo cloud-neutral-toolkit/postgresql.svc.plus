@@ -1,7 +1,17 @@
 export const dynamic = 'error'
 
-import UserOverview from './components/UserOverview'
+import { redirect } from 'next/navigation'
 
-export default function PanelHome() {
-  return <UserOverview />
+import { resolveExtensionRouteComponent } from '@extensions/loader'
+
+export default async function PanelHome() {
+  try {
+    const Component = await resolveExtensionRouteComponent('/panel')
+    return <Component />
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('disabled')) {
+      redirect('/panel')
+    }
+    throw error
+  }
 }

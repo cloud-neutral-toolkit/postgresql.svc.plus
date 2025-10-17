@@ -1,42 +1,28 @@
 
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 
 import Header from './components/Header'
 import Sidebar from './components/Sidebar'
+import { getExtensionRegistry } from '@extensions/loader'
 import { useLanguage } from '@i18n/LanguageProvider'
 import { translations } from '@i18n/translations'
 import { resolveAccess, type AccessRule } from '@lib/accessControl'
 import { useUser } from '@lib/userStore'
 
+const registry = getExtensionRegistry()
+
 type RouteGuard = {
-  test: (pathname: string) => boolean
-  redirect: {
-    unauthenticated: string
+  path: string
+  match: 'exact' | 'startsWith'
+  redirect?: {
+    unauthenticated?: string
     forbidden?: string
   }
   rule: AccessRule
 }
-
-const routeGuards: RouteGuard[] = [
-  {
-    test: (pathname) => pathname.startsWith('/panel/management'),
-    redirect: {
-      unauthenticated: '/login',
-      forbidden: '/panel',
-    },
-    rule: { requireLogin: true, roles: ['admin', 'operator'] },
-  },
-  {
-    test: (pathname) => pathname.startsWith('/panel'),
-    redirect: {
-      unauthenticated: '/login',
-    },
-    rule: { requireLogin: true },
-  },
-]
 
 export default function PanelLayout({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
@@ -46,28 +32,43 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
   const copy = translations[language].userCenter.mfa
   const { user, isLoading, logout } = useUser()
   const requiresSetup = Boolean(user && (!user.mfaEnabled || user.mfaPending))
-  
+
+  const routeGuards = useMemo<RouteGuard[]>(() => {
+    return registry.routes
+      .filter((route) => route.guard)
+      .map((route) => ({
+        path: route.path,
+        match: route.match ?? 'exact',
+        redirect: route.redirect,
+        rule: route.guard!,
+      }))
+      .sort((a, b) => b.path.length - a.path.length)
+  }, [])
+
   useEffect(() => {
     if (isLoading) {
       return
     }
 
-    const guard = routeGuards.find((entry) => entry.test(pathname))
+    const guard = routeGuards.find((entry) =>
+      entry.match === 'startsWith' ? pathname.startsWith(entry.path) : pathname === entry.path,
+    )
     if (!guard) {
       return
     }
 
     const decision = resolveAccess(user, guard.rule)
     if (!decision.allowed) {
+      const redirect = guard.redirect ?? {}
       const destination =
         decision.reason === 'unauthenticated'
-          ? guard.redirect.unauthenticated
-          : guard.redirect.forbidden ?? guard.redirect.unauthenticated
+          ? redirect.unauthenticated ?? '/login'
+          : redirect.forbidden ?? redirect.unauthenticated ?? '/login'
       if (destination && destination !== pathname) {
         router.replace(destination)
       }
     }
-  }, [isLoading, pathname, router, user])
+  }, [isLoading, pathname, routeGuards, router, user])
 
   useEffect(() => {
     if (!requiresSetup || pathname.startsWith('/panel/account')) {

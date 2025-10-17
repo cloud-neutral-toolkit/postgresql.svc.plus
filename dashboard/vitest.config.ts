@@ -26,6 +26,7 @@ export default defineConfig({
       '@i18n': path.resolve(__dirname, 'i18n'),
       '@lib': path.resolve(__dirname, 'lib'),
       '@types': path.resolve(__dirname, 'types'),
+      '@extensions': path.resolve(__dirname, 'src/extensions'),
       '@templates': path.resolve(__dirname, 'src/templates'),
       '@src': path.resolve(__dirname, 'src'),
     },

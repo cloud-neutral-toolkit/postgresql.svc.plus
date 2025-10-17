@@ -1,15 +1,17 @@
 export const dynamic = 'error'
 
-import UserOverview from '../components/UserOverview'
-import MfaSetupPanel from './MfaSetupPanel'
-import ThemePreferenceCard from './ThemePreferenceCard'
+import { redirect } from 'next/navigation'
 
-export default function AccountPage() {
-  return (
-    <div className="space-y-6">
-      <UserOverview />
-      <ThemePreferenceCard />
-      <MfaSetupPanel />
-    </div>
-  )
+import { resolveExtensionRouteComponent } from '@extensions/loader'
+
+export default async function AccountPage() {
+  try {
+    const Component = await resolveExtensionRouteComponent('/panel/account')
+    return <Component />
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('disabled')) {
+      redirect('/panel')
+    }
+    throw error
+  }
 }

@@ -1,12 +1,17 @@
 export const dynamic = 'error'
 
-import Card from '../components/Card'
+import { redirect } from 'next/navigation'
 
-export default function APIPage() {
-  return (
-    <Card>
-      <h1 className="text-2xl font-semibold text-gray-900">API Status</h1>
-      <p className="mt-2 text-sm text-gray-600">View backend API health and toggle feature matrices.</p>
-    </Card>
-  )
+import { resolveExtensionRouteComponent } from '@extensions/loader'
+
+export default async function ApiPage() {
+  try {
+    const Component = await resolveExtensionRouteComponent('/panel/api')
+    return <Component />
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('disabled')) {
+      redirect('/panel')
+    }
+    throw error
+  }
 }

@@ -2,12 +2,16 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Server, Code, CreditCard, User, Shield, Settings, type LucideIcon } from 'lucide-react'
-import { useMemo } from 'react'
+import { useMemo, type ComponentType } from 'react'
 
+import { getExtensionRegistry } from '@extensions/loader'
 import { useLanguage } from '@i18n/LanguageProvider'
 import { translations } from '@i18n/translations'
+import { resolveAccess } from '@lib/accessControl'
 import { useUser } from '@lib/userStore'
+
+const registry = getExtensionRegistry()
+const PlaceholderIcon: ComponentType<{ className?: string }> = () => null
 
 export interface SidebarProps {
   className?: string
@@ -18,73 +22,14 @@ interface NavItem {
   href: string
   label: string
   description: string
-  icon: LucideIcon
-  disabled?: boolean
+  Icon: ComponentType<{ className?: string }>
+  disabled: boolean
 }
 
 interface NavSection {
   title: string
   items: NavItem[]
 }
-
-const baseNavSections: NavSection[] = [
-  {
-    title: '用户中心',
-    items: [
-      {
-        href: '/panel',
-        label: 'Dashboard',
-        description: '专属于你的信息总览',
-        icon: Home,
-      },
-    ],
-  },
-  {
-    title: '功能特性',
-    items: [
-      {
-        href: '/panel/agent',
-        label: 'Agents',
-        description: '管理运行时节点',
-        icon: Server,
-        disabled: true,
-      },
-      {
-        href: '/panel/api',
-        label: 'APIs',
-        description: '洞察后端服务',
-        icon: Code,
-        disabled: true,
-      },
-      {
-        href: '/panel/subscription',
-        label: 'Subscription',
-        description: '订阅方案与计费规则',
-        icon: CreditCard,
-        disabled: true,
-      },
-    ],
-  },
-  {
-    title: '权限设置',
-    items: [
-      {
-        href: '/panel/account',
-        label: 'Accounts',
-        description: '目录与多因素设置',
-        icon: User,
-        disabled: true,
-      },
-      {
-        href: '/panel/ldp',
-        label: 'LDP',
-        description: '低时延身份平面',
-        icon: Shield,
-        disabled: true,
-      },
-    ],
-  },
-]
 
 function isActive(pathname: string, href: string) {
   if (href === '/panel') {
@@ -100,28 +45,47 @@ export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
   const { user } = useUser()
   const requiresSetup = Boolean(user && (!user.mfaEnabled || user.mfaPending))
 
-  const navSections = useMemo(() => {
-    const sections = baseNavSections.map((section) => ({
-      ...section,
-      items: [...section.items],
-    }))
+  const navSections = useMemo<NavSection[]>(() => {
+    return registry.sidebar
+      .map((section) => {
+        const items = section.items
+          .map((item) => {
+            const { route } = item
+            const guardResult = route.guard ? resolveAccess(user, route.guard) : { allowed: true }
+            const requiresRole = Boolean(route.guard?.roles?.length)
+            if (requiresRole && !guardResult.allowed) {
+              return null
+            }
 
-    if (user?.isAdmin || user?.isOperator) {
-      sections.push({
-        title: '管理页面',
-        items: [
-          {
-            href: '/panel/management',
-            label: 'Management',
-            description: '集中化的权限矩阵与用户编排',
-            icon: Settings,
-          },
-        ],
+            const disabledByGuard = !requiresRole && !guardResult.allowed
+            const disabled =
+              item.disabled ||
+              disabledByGuard ||
+              (requiresSetup && route.path !== '/panel/account')
+
+            const Icon = route.icon ?? PlaceholderIcon
+
+            return {
+              href: route.path,
+              label: route.label,
+              description: route.description ?? '',
+              Icon,
+              disabled,
+            }
+          })
+          .filter((value): value is NavItem => Boolean(value))
+
+        if (items.length === 0) {
+          return null
+        }
+
+        return {
+          title: section.title,
+          items,
+        }
       })
-    }
-
-    return sections
-  }, [user?.isAdmin, user?.isOperator])
+      .filter((value): value is NavSection => Boolean(value))
+  }, [requiresSetup, user])
 
   return (
     <aside
@@ -159,9 +123,7 @@ export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
 
       <nav className="flex flex-1 flex-col gap-6 overflow-y-auto">
         {navSections.map((section) => {
-          const sectionDisabled = section.items.every(
-            (item) => item.disabled || (requiresSetup && item.href !== '/panel/account'),
-          )
+          const sectionDisabled = section.items.every((item) => item.disabled)
 
           return (
             <div key={section.title} className="space-y-3">
@@ -177,13 +139,12 @@ export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
               <div className={`space-y-2 ${sectionDisabled ? 'opacity-60' : ''}`}>
                 {section.items.map((item) => {
                   const active = isActive(pathname, item.href)
-                  const Icon = item.icon
-                  const disabled = item.disabled || (requiresSetup && item.href !== '/panel/account')
+                  const { Icon } = item
 
                   const baseClasses = [
                     'group flex items-center gap-3 rounded-[var(--radius-xl)] border px-3 py-3 text-sm transition-colors',
                   ]
-                  if (disabled) {
+                  if (item.disabled) {
                     baseClasses.push(
                       'cursor-not-allowed border-dashed border-[color:var(--color-surface-border)] text-[var(--color-text-subtle)] opacity-60',
                     )
@@ -201,7 +162,7 @@ export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
                   const iconClasses = ['flex h-8 w-8 items-center justify-center rounded-xl transition-colors']
                   if (active) {
                     iconClasses.push('bg-[var(--color-primary)] text-[var(--color-primary-foreground)]')
-                  } else if (disabled) {
+                  } else if (item.disabled) {
                     iconClasses.push('bg-[var(--color-surface-muted)] text-[var(--color-text-subtle)] opacity-60')
                   } else {
                     iconClasses.push(
@@ -211,7 +172,7 @@ export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
 
                   const descriptionClasses = [
                     'text-xs transition-colors',
-                    disabled
+                    item.disabled
                       ? 'text-[var(--color-text-subtle)] opacity-60'
                       : 'text-[var(--color-text-subtle)] group-hover:text-[var(--color-primary)]',
                   ]
@@ -228,7 +189,7 @@ export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
                     </div>
                   )
 
-                  if (disabled) {
+                  if (item.disabled) {
                     return (
                       <div key={item.href} aria-disabled={true} className="select-none">
                         {content}
