@@ -4,13 +4,13 @@
 
 The script scans the documentation tree (typically mounted at
 ``/data/update-server/docs``) and emits a single ``all.json`` file containing
-metadata for every HTML/PDF pair that can be presented in the homepage docs
+metadata for every HTML/PDF pair that can be presented in the dashboard docs
 portal.
 
 It infers titles, categories, versions and presentation tags from the directory
 structure and provides canonical URLs to the rendered assets. The resulting
 JSON structure is a list of ``DocResource`` dictionaries that match the shape
-consumed by the Next.js UI under ``ui/homepage/app/docs``.
+consumed by the Next.js UI under ``dashboard/app/docs``.
 
 Usage example::
 

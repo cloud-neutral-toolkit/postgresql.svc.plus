@@ -4,10 +4,10 @@ import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const PROJECT_ROOT = path.resolve(__dirname, '..')
-const HOMEPAGE_ROOT = path.join(PROJECT_ROOT, 'ui', 'homepage')
+const DASHBOARD_ROOT = path.join(PROJECT_ROOT, 'ui', 'dashboard')
 
-const CONTENT_DIR = path.join(HOMEPAGE_ROOT, 'content')
-const OUTPUT_PATH = path.join(HOMEPAGE_ROOT, 'public', '_build', 'docs_index.json')
+const CONTENT_DIR = path.join(DASHBOARD_ROOT, 'cms', 'content')
+const OUTPUT_PATH = path.join(DASHBOARD_ROOT, 'public', '_build', 'docs_index.json')
 
 type DocEntry = {
   slug: string

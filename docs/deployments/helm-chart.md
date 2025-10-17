@@ -95,7 +95,7 @@ server {
 
 ### 静态导出（无 Node 依赖）
 
-完成 `yarn build:static` 后，可直接托管 `ui/homepage/out` 目录：
+完成 `yarn build:static` 后，可直接托管 `dashboard/out` 目录：
 
 ```nginx
 server {
@@ -113,7 +113,7 @@ server {
   ssl_protocols TLSv1.2 TLSv1.3;
   ssl_ciphers HIGH:!aNULL:!MD5;
 
-  root /var/www/XControl/ui/homepage/out;
+  root /var/www/XControl/dashboard/out;
   index index.html;
 
   error_page 404 /404/index.html;

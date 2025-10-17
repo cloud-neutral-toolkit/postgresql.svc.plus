@@ -8,7 +8,7 @@
 Header 会将任意登录用户标记为 “Admin”，缺少真实的角色区分，导致权限语义与视觉提示不一致。
 
 ## 2. 目标与范围
-新增 “管理页面”（位于 ui/homepage/app/panel/management 或类似命名），仅管理员和运营者可访问；普通注册/订阅用户沿用原有个人中心。
+新增 “管理页面”（位于 dashboard/app/panel/management 或类似命名），仅管理员和运营者可访问；普通注册/订阅用户沿用原有个人中心。
 
 管理页面需提供注册用户与订阅用户数量、趋势分析等基础运营指标。
 
@@ -48,7 +48,7 @@ UserProvider/useUser() 当前只暴露基础身份信息，文档已明确后续
 
 在 Sidebar 中根据 user.role 动态拼装导航，将管理页面入口仅对 admin/operator 显示，其它角色保持现状。
 
-新建 ui/homepage/app/panel/admin/page.tsx（或 management），采用同一 PanelLayout。页面内部划分“总览”“趋势”“权限矩阵”“用户组”四个 section，对应上文信息架构。
+新建 dashboard/app/panel/admin/page.tsx（或 management），采用同一 PanelLayout。页面内部划分“总览”“趋势”“权限矩阵”“用户组”四个 section，对应上文信息架构。
 
 Header 根据角色显示真实徽章（Admin / Operator / User / Guest），并在缺少权限时展示提示或跳转入口。
 

@@ -109,41 +109,41 @@ jobs:
         with:
           node-version: 20
           cache: yarn
-          cache-dependency-path: ui/homepage/yarn.lock
+          cache-dependency-path: ui/dashboard/yarn.lock
 
-      - name: Install homepage dependencies
+        - name: Install dashboard dependencies
         if: github.ref == 'refs/heads/main'
-        working-directory: ui/homepage
+        working-directory: ui/dashboard
         run: yarn install --frozen-lockfile
 
-      - name: Run homepage export scripts
+        - name: Run dashboard export scripts
         if: github.ref == 'refs/heads/main'
-        working-directory: ui/homepage
+        working-directory: ui/dashboard
         run: yarn prebuild
 
-      - name: Build homepage static bundle
+        - name: Build dashboard static bundle
         if: github.ref == 'refs/heads/main'
-        working-directory: ui/homepage
+        working-directory: ui/dashboard
         run: yarn build:static
 
-      - name: Create homepage static archive
+        - name: Create dashboard static archive
         if: github.ref == 'refs/heads/main'
         run: |
           set -euo pipefail
           mkdir -p release-artifacts
-          src="ui/homepage/out"
+          src="ui/dashboard/out"
           if [[ ! -d "$src" ]]; then
-            echo "Homepage static export directory not found" >&2
+            echo "Dashboard static export directory not found" >&2
             exit 1
           fi
-          tar -czf release-artifacts/homepage-static-export.tar.gz -C "$src" .
+          tar -czf release-artifacts/dashboard-static-export.tar.gz -C "$src" .
 
-      - name: Upload homepage static bundle artifact
-        if: github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v4
-        with:
-          name: homepage-static-export
-          path: ui/homepage/out
+        - name: Upload dashboard static bundle artifact
+          if: github.ref == 'refs/heads/main'
+          uses: actions/upload-artifact@v4
+          with:
+            name: dashboard-static-export
+            path: ui/dashboard/out
 
       - name: Prepare release assets
         run: |
@@ -155,8 +155,8 @@ jobs:
               files+=("${file}")
             done < <(printf '%s\n' release-artifacts/xcontrol-*)
           fi
-          if [[ -f "release-artifacts/homepage-static-export.tar.gz" ]]; then
-            files+=("release-artifacts/homepage-static-export.tar.gz")
+          if [[ -f "release-artifacts/dashboard-static-export.tar.gz" ]]; then
+            files+=("release-artifacts/dashboard-static-export.tar.gz")
           fi
           if [[ ${#files[@]} -eq 0 ]]; then
             echo "No release assets were found" >&2
@@ -227,22 +227,22 @@ jobs:
           mv artifacts/bin/xcontrol-server-linux-amd64 artifacts/bin/xcontrol-server
           chmod +x artifacts/bin/xcontrol-server
 
-      - name: Download homepage static bundle
+      - name: Download dashboard static bundle
         uses: actions/download-artifact@v4
         with:
-          name: homepage-static-export
-          path: artifacts/homepage
+          name: dashboard-static-export
+          path: artifacts/dashboard
           if-no-artifact-found: ignore
 
-      - name: Check homepage static bundle availability
-        id: homepage_static_export
+      - name: Check dashboard static bundle availability
+        id: dashboard_static_export
         run: |
           set -euo pipefail
-          artifact="artifacts/homepage/homepage-static-export.tar.gz"
+          artifact="artifacts/dashboard/dashboard-static-export.tar.gz"
           if [[ -f "${artifact}" ]]; then
             echo "available=true" >> "$GITHUB_OUTPUT"
           else
-            echo "Homepage static export artifact was not downloaded; skipping sync." >&2
+            echo "Dashboard static export artifact was not downloaded; skipping sync." >&2
             echo "available=false" >> "$GITHUB_OUTPUT"
           fi
 
@@ -283,14 +283,14 @@ jobs:
             ssh "$REMOTE_HOST" "sudo install -m 755 /tmp/xcontrol-server /usr/bin/xcontrol-server"
           fi
 
-      - name: Sync homepage static export
-        if: steps.homepage_static_export.outputs.available == 'true'
+      - name: Sync dashboard static export
+        if: steps.dashboard_static_export.outputs.available == 'true'
         env:
           REMOTE_HOST: ${{ secrets.VPS_USER }}@${{ matrix.site }}
         run: |
           set -euo pipefail
-          artifact="artifacts/homepage/homepage-static-export.tar.gz"
-          dest_root="artifacts/homepage/out"
+          artifact="artifacts/dashboard/dashboard-static-export.tar.gz"
+          dest_root="artifacts/dashboard/out"
 
           rm -rf "${dest_root}"
           mkdir -p "${dest_root}"

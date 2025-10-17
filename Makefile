@@ -7,9 +7,9 @@ NODE_MAJOR ?= 22
 export PATH := $(GO_BIN):$(PATH)
 
 .PHONY: install install-openresty install-redis install-postgresql init-db \
-        build update-homepage-manifests build-server build-homepage \
-	start start-openresty start-server start-homepage \
-	stop stop-server stop-homepage stop-openresty restart
+build update-dashboard-manifests build-server build-dashboard \
+start start-openresty start-server start-dashboard \
+stop stop-server stop-dashboard stop-openresty restart
 
 # -----------------------------------------------------------------------------
 # Dependency installation
@@ -86,7 +86,7 @@ init-db:
 # Build targets
 # -----------------------------------------------------------------------------
 
-build: update-homepage-manifests build-cli build-server build-homepage
+build: update-dashboard-manifests build-cli build-server build-dashboard
 
 build-cli:
         $(MAKE) -C rag-server/cmd/rag-server-cli build
@@ -94,32 +94,32 @@ build-cli:
 build-server:
         $(MAKE) -C rag-server build
 
-build-homepage:
-	$(MAKE) -C ui/homepage build SKIP_SYNC=1
+build-dashboard:
+$(MAKE) -C dashboard build SKIP_SYNC=1
 
-update-homepage-manifests:
-	$(MAKE) -C ui/homepage sync-dl-index
+update-dashboard-manifests:
+$(MAKE) -C dashboard sync-dl-index
 
 # -----------------------------------------------------------------------------
 # Run targets
 # -----------------------------------------------------------------------------
 
-start: start-openresty start-server start-homepage start-dl start-docs
+start: start-openresty start-server start-dashboard start-dl start-docs
 
 start-server:
         $(MAKE) -C rag-server start
 
-start-homepage:
-	$(MAKE) -C ui/homepage start
+start-dashboard:
+$(MAKE) -C dashboard start
 
 
-stop: stop-server stop-homepage stop-openresty
+stop: stop-server stop-dashboard stop-openresty
 
 stop-server:
         $(MAKE) -C rag-server stop
 
-stop-homepage:
-	$(MAKE) -C ui/homepage stop
+stop-dashboard:
+$(MAKE) -C dashboard stop
 
 start-openresty:
 ifeq ($(OS),Darwin)

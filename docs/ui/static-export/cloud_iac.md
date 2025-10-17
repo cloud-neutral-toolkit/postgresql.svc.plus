@@ -6,7 +6,7 @@
 - `/cloud_iac/[provider]/[service]`
 
 ## 数据来源
-- `ui/homepage/lib/iac/catalog.ts` 提供所有 Provider 与服务分类。
+- `dashboard/lib/iac/catalog.ts` 提供所有 Provider 与服务分类。
 - `public/_build/cloud_iac_index.json` 在构建前由 `scripts/export-slugs.ts` 导出 Provider / Service 组合。
 
 ## 静态导出策略

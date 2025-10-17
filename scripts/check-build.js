@@ -1,10 +1,10 @@
 const fs = require('fs')
 const path = require('path')
 
-const HOMEPAGE_ROOT = path.resolve(__dirname, '..', 'ui', 'homepage')
+const DASHBOARD_ROOT = path.resolve(__dirname, '..', 'ui', 'dashboard')
 
 function readJson(relativePath) {
-  const fullPath = path.join(HOMEPAGE_ROOT, 'public', '_build', relativePath)
+  const fullPath = path.join(DASHBOARD_ROOT, 'public', '_build', relativePath)
   if (!fs.existsSync(fullPath)) {
     throw new Error(`Missing build artifact: ${relativePath}`)
   }

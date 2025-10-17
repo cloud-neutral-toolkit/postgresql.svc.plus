@@ -2,14 +2,14 @@ import fs from 'fs/promises'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
-import { CATALOG, PROVIDERS } from '../ui/homepage/lib/iac/catalog'
-import type { ProviderKey } from '../ui/homepage/lib/iac/types'
-import type { DirListing } from '../ui/homepage/types/download'
+import { CATALOG, PROVIDERS } from '../dashboard/lib/iac/catalog'
+import type { ProviderKey } from '../dashboard/lib/iac/types'
+import type { DirListing } from '../dashboard/types/download'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const PROJECT_ROOT = path.resolve(__dirname, '..')
-const HOMEPAGE_ROOT = path.join(PROJECT_ROOT, 'ui', 'homepage')
-const OUTPUT_DIR = path.join(HOMEPAGE_ROOT, 'public', '_build')
+const DASHBOARD_ROOT = path.join(PROJECT_ROOT, 'dashboard')
+const OUTPUT_DIR = path.join(DASHBOARD_ROOT, 'public', '_build')
 
 function unique<T>(items: Iterable<T>): T[] {
   return Array.from(new Set(items))
@@ -40,7 +40,7 @@ function buildCloudIacIndex() {
 }
 
 async function loadDownloadManifest(): Promise<DirListing[]> {
-  const manifestPath = path.join(HOMEPAGE_ROOT, 'public', 'dl-index', 'all.json')
+  const manifestPath = path.join(DASHBOARD_ROOT, 'public', 'dl-index', 'all.json')
   try {
     const raw = await fs.readFile(manifestPath, 'utf8')
     const parsed = JSON.parse(raw) as DirListing[]

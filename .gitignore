@@ -29,4 +29,4 @@ account/xcontrol-account
 account/xcontrol-account.log
 server/xcontrol-server
 server/xcontrol-server.log
-ui/homepage/.yarn/
+ui/dashboard/.yarn/

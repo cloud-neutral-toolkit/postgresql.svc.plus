@@ -109,7 +109,7 @@ server {
   ssl_protocols TLSv1.2 TLSv1.3;
   ssl_ciphers HIGH:!aNULL:!MD5;
 
-  root /var/www/XControl/ui/homepage/out;
+  root /var/www/XControl/dashboard/out;
   index index.html;
 
   error_page 404 /404/index.html;

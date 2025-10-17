@@ -5,7 +5,7 @@
 - 该静态资源返回 `400 Bad Request`（在本地复现中表现为 404），导致浏览器抛出 `ChunkLoadError: Loading chunk 11 failed`，页面白屏。
 
 ## 根因分析
-1. `app/register/page.tsx` 在最顶部声明了 `export const dynamic = 'error'`，这会强制 Next.js 在构建阶段对该路由执行静态生成（Static Generation）。【F:ui/homepage/app/register/page.tsx†L1-L21】
+1. `app/register/page.tsx` 在最顶部声明了 `export const dynamic = 'error'`，这会强制 Next.js 在构建阶段对该路由执行静态生成（Static Generation）。【F:dashboard/app/register/page.tsx†L1-L21】
 2. 对静态生成的 App Router 页面，Next.js 默认返回 `Cache-Control: s-maxage=31536000, stale-while-revalidate`。实际对 `/register/` 发起请求可看到这一响应头，意味着反向代理/CDN 会在 1 年内缓存页面 HTML。【313252†L1-L11】
 3. 页面 HTML 中引用的 `_next/static/chunks/*` 文件名包含构建时生成的哈希值，每次重新部署都会发生变化。部署新版本时，旧版本构建产物中的 `1111.c6a4667178a4976d.js` 已被删除。针对该路径重新请求会直接返回 404（或被前置 OpenResty 拦截为 400）。【db9f28†L1-L11】
 4. 由于缓存周期过长，CDN/反向代理仍在返回旧版本 HTML，客户端随之继续请求已经不存在的 chunk，从而触发 `ChunkLoadError`。

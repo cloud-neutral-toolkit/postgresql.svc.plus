@@ -5,7 +5,7 @@
 - `/docs/[name]`
 
 ## 数据来源
-- Markdown 内容位于 `ui/homepage/content/`，由 `scripts/scan-md.ts` 解析生成 `public/_build/docs_index.json`。
+- Markdown 内容位于 `dashboard/cms/content/`，由 `scripts/scan-md.ts` 解析生成 `public/_build/docs_index.json`。
 - 下载路径映射由 `public/_build/docs_paths.json` 提供。
 
 ## 静态导出策略

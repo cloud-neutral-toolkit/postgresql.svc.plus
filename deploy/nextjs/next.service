@@ -1,10 +1,10 @@
 [Unit]
-Description=Next.js (XControl homepage - DEV)
+Description=Next.js (XControl dashboard - DEV)
 After=network.target
 
 [Service]
 Environment=NODE_ENV=development
-WorkingDirectory=/var/www/XControl/ui/homepage
+WorkingDirectory=/var/www/XControl/dashboard
 
 # 使用 Yarn 启动开发模式
 ExecStart=/usr/bin/yarn next dev -p 3000

@@ -27,14 +27,14 @@
    - 注销时清理服务器 session，再执行刷新逻辑，使所有订阅者同步为匿名态。
 
 ## 实现概览
-项目已经在 `ui/homepage/lib/userStore.tsx` 中实现了上述组合：
+项目已经在 `dashboard/lib/userStore.tsx` 中实现了上述组合：
 
 - 定义 `SESSION_CACHE_KEY` 和 `fetchSessionUser()`，统一 session 拉取逻辑。
 - 通过 `useSWR` 获取 `data`、`isLoading`、`mutate`，并关闭聚焦重新验证以减少闪烁。
 - 使用 `useEffect` 在 `SWR` 数据变化时写入 Zustand store。
-- 对外暴露 `UserProvider` 和 `useUser()`，供页面和组件消费登录态。【F:ui/homepage/lib/userStore.tsx†L1-L143】
+- 对外暴露 `UserProvider` 和 `useUser()`，供页面和组件消费登录态。【F:dashboard/lib/userStore.tsx†L1-L143】
 
-在登录表单中，成功提交后执行 `await login()`（内部调用 `mutate()`），随后刷新路由即可看到用户个性化信息。【F:ui/homepage/app/login/LoginForm.tsx†L1-L104】
+在登录表单中，成功提交后执行 `await login()`（内部调用 `mutate()`），随后刷新路由即可看到用户个性化信息。【F:dashboard/app/login/LoginForm.tsx†L1-L104】
 
 ## 预期收益
 - **可靠的登录态保持**：刷新或跨页面访问时直接从 SWR 缓存中读取，无需二次登录。

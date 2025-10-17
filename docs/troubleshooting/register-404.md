@@ -15,9 +15,9 @@ variable to the API handler directly (for example,
 
 Related source files:
 
-- `ui/homepage/app/register/RegisterContent.tsx` – reads
+- `dashboard/app/register/RegisterContent.tsx` – reads
   `NEXT_PUBLIC_REGISTER_URL` and submits the form to that URL.
-- `ui/homepage/app/api/auth/register/route.ts` – handles the
+- `dashboard/app/api/auth/register/route.ts` – handles the
   `/api/auth/register` requests and forwards them to the account service.
 - `account/api/api.go` – exposes the `POST /api/auth/register` handler inside the
   account service.

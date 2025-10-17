@@ -6,7 +6,7 @@ This repository contains the API server, agent code and a Next.js-based UI.
 
 ## Components
 
-- **ui-homepage**
+- **dashboard**
 - **ui-panel**
 - **xcontrol-cli**
 - **xcontrol-server**
@@ -50,7 +50,7 @@ make init-db   # initialize database (optional)
 
 ## Frontend configuration
 
-The Next.js homepage now resolves service endpoints through `ui/homepage/config/runtime-service-config.yaml`. The runtime
+The Next.js dashboard now resolves service endpoints through `dashboard/config/runtime-service-config.yaml`. The runtime
 configuration selects values based on `NEXT_PUBLIC_RUNTIME_ENV` (falling back to `NODE_ENV` and the file's
 `defaultEnvironment`). Use `NEXT_PUBLIC_ACCOUNT_SERVICE_URL` for ad-hoc overrides, otherwise adjust the YAML file to specify
 environment-specific URLs such as `http://localhost:8080` for development/test and `https://account.svc.plus` for production.
@@ -89,7 +89,7 @@ make test
 make start
 ```
 
-This launches the server, homepage and panel. Use `make stop` to stop all components.
+This launches the server, dashboard and panel. Use `make stop` to stop all components.
 
 The API server also accepts a custom configuration file:
 
