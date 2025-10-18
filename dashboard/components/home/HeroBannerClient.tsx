@@ -53,7 +53,7 @@ export default function HeroBannerClient({ hero, solutions }: HeroBannerClientPr
         <div className="h-full w-full bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.25),_transparent_60%)]" />
       </div>
       <div className={gradientOverlay} aria-hidden="true" />
-      <div className="relative mx-auto flex max-w-6xl flex-col gap-10 px-4 py-16 text-slate-900 sm:py-20 lg:flex-row lg:items-center lg:py-24">
+      <div className="relative mx-auto flex max-w-6xl flex-col gap-10 px-4 py-16 text-slate-900 sm:py-20 lg:flex-row lg:items-start lg:py-24">
         <div className="flex-1 space-y-6">
           {heroCopy.eyebrow ? (
             <span className="inline-flex items-center rounded-full border border-blue-200/80 bg-blue-50/80 px-4 py-1 text-sm font-medium tracking-wide text-blue-700">

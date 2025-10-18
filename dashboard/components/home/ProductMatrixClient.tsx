@@ -91,14 +91,14 @@ export default function ProductMatrixClient({ solutions }: ProductMatrixClientPr
                 {productMatrix.description}
               </p>
             </header>
-            <ul className="grid gap-3 text-sm text-brand-heading/80 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="grid gap-2 text-sm text-brand-heading/80 sm:grid-cols-2 lg:grid-cols-3">
               {overviewHighlights.map((highlight) => (
                 <li
                   key={highlight}
-                  className="flex items-start gap-3 rounded-2xl border border-brand-border bg-white p-3 shadow-[0_4px_20px_rgba(0,0,0,0.04)]"
+                  className="flex items-start gap-2"
                 >
                   <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-brand" aria-hidden />
-                  <span>{highlight}</span>
+                  <span className="leading-relaxed">{highlight}</span>
                 </li>
               ))}
             </ul>
@@ -163,10 +163,10 @@ export default function ProductMatrixClient({ solutions }: ProductMatrixClientPr
                   {activeSolution.features.map((feature) => (
                     <li
                       key={feature}
-                      className="flex items-start gap-3 rounded-2xl border border-brand-border bg-white p-3 shadow-[0_4px_20px_rgba(0,0,0,0.04)]"
+                      className="flex items-start gap-2"
                     >
                       <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-brand" aria-hidden />
-                      <span>{feature}</span>
+                      <span className="leading-relaxed">{feature}</span>
                     </li>
                   ))}
                 </ul>

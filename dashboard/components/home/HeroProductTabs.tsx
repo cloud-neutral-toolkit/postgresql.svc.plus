@@ -150,14 +150,14 @@ export default function HeroProductTabs({ items }: HeroProductTabsProps) {
           ) : null}
         </div>
         {activeItem.features.length ? (
-          <ul className="mt-5 grid gap-3 text-sm text-slate-700 sm:grid-cols-2 sm:text-base">
+          <ul className="mt-5 grid gap-2 text-sm text-slate-700 sm:grid-cols-2 sm:text-base">
             {activeItem.features.map((feature) => (
               <li
                 key={feature}
-                className="flex items-start gap-3 rounded-xl border border-blue-100 bg-blue-50/70 p-3"
+                className="flex items-start gap-2"
               >
                 <span className="mt-1 inline-block h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" aria-hidden />
-                <span>{feature}</span>
+                <span className="leading-relaxed">{feature}</span>
               </li>
             ))}
           </ul>
