@@ -1,5 +1,5 @@
 ---
-eyebrow: 云原生运营中心
+eyebrow: 云原生套件
 title: 打造一体化的 XControl 控制平面
 subtitle: 将资产管理、访问控制、可观测与自动化工作流整合到一个响应迅速的体验里，帮助团队高效落地治理策略。
 primaryCtaLabel: 立即体验

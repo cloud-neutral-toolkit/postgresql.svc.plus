@@ -3,6 +3,8 @@ title: "Cloud-Native Suite"
 updated: "2025-10-18"
 ---
 
+## Build an integrated XControl control plane
+
 A unified toolkit for building and managing cloud-native environments — integrating resource orchestration, access control, observability, and automation workflows into a cohesive open-source platform.
 
 - Unified management of multi-cluster and multi-cloud resources with policy-driven automation  

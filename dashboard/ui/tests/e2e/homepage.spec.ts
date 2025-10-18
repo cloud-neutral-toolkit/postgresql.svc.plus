@@ -4,8 +4,8 @@ test.describe('Marketing homepage experience', () => {
   test('renders localized markdown content and switches language dynamically', async ({ page }) => {
     await page.goto('/')
 
-    await expect(page.getByRole('heading', { level: 1, name: '云原生运营中心' })).toBeVisible()
-    await expect(page.getByText('打造一体化的 XControl 控制平台', { exact: false })).toBeVisible()
+    await expect(page.getByRole('heading', { level: 1, name: '云原生套件' })).toBeVisible()
+    await expect(page.getByText('打造一体化的 XControl 控制平面', { exact: false })).toBeVisible()
 
     await expect(page.getByRole('heading', { level: 2, name: '产品专题' })).toBeVisible()
     await expect(page.getByRole('link', { name: '产品体验' }).first()).toHaveAttribute(
@@ -19,7 +19,7 @@ test.describe('Marketing homepage experience', () => {
     const languageToggle = page.getByRole('combobox')
     await languageToggle.selectOption('en')
 
-    await expect(page.getByRole('heading', { level: 1, name: 'Cloud-Native Operations Hub' })).toBeVisible()
+    await expect(page.getByRole('heading', { level: 1, name: 'Cloud-Native Suite' })).toBeVisible()
     await expect(page.getByRole('heading', { level: 2, name: 'Product Spotlights' })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Try the product' }).first()).toHaveAttribute(
       'href',
