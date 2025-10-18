@@ -856,7 +856,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
       home: {
         hero: {
           eyebrow: 'Cloud-Native Suite',
-          title: 'Build an integrated XControl control plane',
+          title: 'A Unified Toolkit for Cloud-Native Environments',
           subtitle:
             'Unify asset management, access control, observability, and automated runbooks in a responsive workspace.',
           highlights: [
@@ -874,7 +874,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
         tabsAriaLabel: 'XControl product suite',
         productMatrix: {
           badge: 'Cloud-Native Suite',
-          title: 'Build an integrated XControl control plane',
+          title: 'A Unified Toolkit for Cloud-Native Environments',
           description:
             'Bring asset management, access control, observability, and automated runbooks into a single, responsive experience.',
           highlights: [
@@ -1423,7 +1423,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
         tabsAriaLabel: 'XControl 产品套件',
         productMatrix: {
           badge: '云原生套件',
-          title: '打造一体化的 XControl 控制平面',
+          title: '构建一体化的云原生工具集',
           description: '将资产管理、访问控制、可观测与自动化工作流整合到一个响应迅速的体验里，帮助团队高效落地治理策略。',
           highlights: [
             '跨集群与多云环境的一体化策略治理',

@@ -5,7 +5,7 @@ test.describe('Marketing homepage experience', () => {
     await page.goto('/')
 
     await expect(page.getByRole('heading', { level: 1, name: '云原生套件' })).toBeVisible()
-    await expect(page.getByText('打造一体化的 XControl 控制平面', { exact: false })).toBeVisible()
+    await expect(page.getByText('构建一体化的云原生工具集', { exact: false })).toBeVisible()
 
     await expect(page.getByRole('heading', { level: 2, name: '产品专题' })).toBeVisible()
     await expect(page.getByRole('link', { name: '产品体验' }).first()).toHaveAttribute(
