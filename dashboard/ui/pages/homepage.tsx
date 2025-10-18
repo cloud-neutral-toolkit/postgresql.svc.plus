@@ -1,7 +1,6 @@
 'use client'
 
 import MarkdownSection from '../components/MarkdownSection'
-import Footer from '@components/Footer'
 import { useLanguage, type Language } from '../../i18n/LanguageProvider'
 
 const SECTION_PATHS: Record<Language, {
@@ -85,7 +84,6 @@ export default function MarkdownHomepage() {
           contentClassName="prose prose-slate mt-6 max-w-none text-brand-heading/80"
         />
       </section>
-      <Footer />
     </main>
   )
 }
