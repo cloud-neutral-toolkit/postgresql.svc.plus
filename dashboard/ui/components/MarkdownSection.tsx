@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import clsx from 'clsx'
 
 import type { MarkdownRenderResult } from '../../api/render-markdown'
 
@@ -9,6 +10,8 @@ type MarkdownSectionProps = {
   className?: string
   headingLevel?: keyof JSX.IntrinsicElements
   prefetched?: MarkdownRenderResult
+  headingClassName?: string
+  contentClassName?: string
   onMetaChange?: (meta: Record<string, unknown>) => void
   loadingFallback?: ReactNode
   errorFallback?: ReactNode
@@ -47,6 +50,8 @@ export default function MarkdownSection({
   className,
   headingLevel = 'h2',
   prefetched,
+  headingClassName,
+  contentClassName,
   onMetaChange,
   loadingFallback = <div className="text-sm text-slate-500">Loading content…</div>,
   errorFallback = <div className="text-sm text-red-500">Failed to load content.</div>,
@@ -104,8 +109,15 @@ export default function MarkdownSection({
 
   return (
     <section className={className} aria-label={title ?? undefined}>
-      {title ? <HeadingTag className="text-2xl font-semibold text-slate-900">{title}</HeadingTag> : null}
-      <div className="prose prose-slate mt-4 max-w-none" dangerouslySetInnerHTML={{ __html: html }} />
+      {title ? (
+        <HeadingTag className={clsx('text-2xl font-semibold text-slate-900', headingClassName)}>
+          {title}
+        </HeadingTag>
+      ) : null}
+      <div
+        className={clsx('prose prose-slate mt-4 max-w-none', contentClassName)}
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
     </section>
   )
 }
