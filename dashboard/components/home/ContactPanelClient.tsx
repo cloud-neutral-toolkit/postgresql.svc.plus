@@ -16,6 +16,8 @@ import { useMemo, useState } from 'react'
 import clsx from 'clsx'
 
 import type { ContactPanelContent, ContactItemContent } from '@cms/content'
+import { useLanguage } from '@i18n/LanguageProvider'
+import { translations } from '@i18n/translations'
 
 const iconMap: Record<string, LucideIcon> = {
   mail: Mail,
@@ -89,9 +91,10 @@ function createPseudoQrPattern(value: string): boolean[][] {
 
 type QrPreviewProps = {
   item: ContactItemContent
+  qrAltSuffix: string
 }
 
-function QrPreview({ item }: QrPreviewProps) {
+function QrPreview({ item, qrAltSuffix }: QrPreviewProps) {
   const pattern = useMemo(
     () => (item.qrImage ? undefined : createPseudoQrPattern(item.qrValue ?? item.slug)),
     [item.qrImage, item.qrValue, item.slug],
@@ -105,7 +108,7 @@ function QrPreview({ item }: QrPreviewProps) {
           {item.qrImage ? (
             <Image
               src={item.qrImage}
-              alt={`${item.title}二维码`}
+              alt={`${item.title}${qrAltSuffix}`}
               fill
               sizes="(min-width: 640px) 240px, 70vw"
               className="object-contain"
@@ -166,9 +169,35 @@ function InfoCard({ item }: { item: ContactItemContent }) {
 }
 
 export default function ContactPanelClient({ panel, className }: ContactPanelClientProps) {
+  const { language } = useLanguage()
+  const contactMarketing = translations[language].marketing.home.contactPanel
   const [collapsed, setCollapsed] = useState(false)
 
-  if (!panel.items.length) {
+  const localizedPanel = useMemo(() => {
+    const overrides = contactMarketing.items ?? {}
+    const localizedItems = panel.items.map((item) => {
+      const override = overrides[item.slug]
+      if (!override) {
+        return item
+      }
+      return {
+        ...item,
+        title: override.title ?? item.title,
+        description: override.description ?? item.description,
+        bodyHtml: override.bodyHtml ?? item.bodyHtml,
+        ctaLabel: override.ctaLabel ?? item.ctaLabel,
+      }
+    })
+
+    return {
+      ...panel,
+      title: contactMarketing.title ?? panel.title,
+      subtitle: contactMarketing.subtitle ?? panel.subtitle,
+      items: localizedItems,
+    }
+  }, [contactMarketing.items, contactMarketing.subtitle, contactMarketing.title, panel])
+
+  if (!localizedPanel.items.length) {
     return null
   }
 
@@ -180,9 +209,9 @@ export default function ContactPanelClient({ panel, className }: ContactPanelCli
             type="button"
             onClick={() => setCollapsed(false)}
             className="group inline-flex items-center gap-2 rounded-full border border-blue-300 bg-white px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm shadow-blue-200/70"
-            aria-label="展开保持联系面板"
+            aria-label={contactMarketing.expandLabel}
           >
-            <span>保持联系</span>
+            <span>{contactMarketing.buttonLabel}</span>
             <ChevronLeft className="h-4 w-4 transition group-hover:translate-x-0.5" aria-hidden />
           </button>
         </div>
@@ -191,31 +220,33 @@ export default function ContactPanelClient({ panel, className }: ContactPanelCli
           <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-400 via-blue-500 to-indigo-400" aria-hidden />
           <div className="flex items-start justify-between gap-3 px-5 pt-5">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-600">{panel.title}</p>
-              {panel.subtitle ? <p className="mt-1 text-xs text-slate-600">{panel.subtitle}</p> : null}
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-600">{localizedPanel.title}</p>
+              {localizedPanel.subtitle ? (
+                <p className="mt-1 text-xs text-slate-600">{localizedPanel.subtitle}</p>
+              ) : null}
             </div>
             <button
               type="button"
               onClick={() => setCollapsed(true)}
               className="rounded-full border border-blue-100 bg-white/80 p-1 text-slate-400 transition hover:text-slate-600"
-              aria-label="折叠保持联系面板"
+              aria-label={contactMarketing.collapseLabel}
             >
               <X className="h-4 w-4" aria-hidden />
             </button>
           </div>
           <div className="flex-1 overflow-y-auto">
-            {panel.bodyHtml ? (
+            {localizedPanel.bodyHtml ? (
               <div
                 className="prose prose-sm px-5 pt-3 text-slate-700"
-                dangerouslySetInnerHTML={{ __html: panel.bodyHtml }}
+                dangerouslySetInnerHTML={{ __html: localizedPanel.bodyHtml }}
               />
             ) : null}
             <div className="grid gap-4 px-5 pb-5 pt-4 sm:grid-cols-2">
-              {panel.items.map((item) => {
+              {localizedPanel.items.map((item) => {
                 if (item.type === 'qr') {
                   return (
                     <div key={item.slug} className="sm:flex sm:flex-col">
-                      <QrPreview item={item} />
+                      <QrPreview item={item} qrAltSuffix={contactMarketing.qrAltSuffix} />
                     </div>
                   )
                 }

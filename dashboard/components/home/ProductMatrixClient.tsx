@@ -5,12 +5,8 @@ import { useMemo, useState } from 'react'
 import clsx from 'clsx'
 
 import type { HeroSolution } from '@cms/content'
-
-const OVERVIEW_HIGHLIGHTS = [
-  '跨集群与多云环境的一体化策略治理',
-  '以策略为核心的安全与合规自动化',
-  '将标准化模板加速落地业务流程',
-]
+import { useLanguage } from '@i18n/LanguageProvider'
+import { translations } from '@i18n/translations'
 
 const heroBackgroundOverlay =
   'absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.18),_transparent_70%)]'
@@ -20,13 +16,43 @@ type ProductMatrixClientProps = {
 }
 
 export default function ProductMatrixClient({ solutions }: ProductMatrixClientProps) {
+  const { language } = useLanguage()
+  const marketing = translations[language].marketing.home
   const [activeIndex, setActiveIndex] = useState(0)
 
-  const activeSolution = useMemo(() => solutions[activeIndex] ?? solutions[0], [solutions, activeIndex])
+  const localizedSolutions = useMemo(() => {
+    const overrides = marketing.solutionOverrides ?? {}
+    return solutions.map((solution) => {
+      const override = overrides[solution.slug]
+      if (!override) {
+        return solution
+      }
+      return {
+        ...solution,
+        title: override.title ?? solution.title,
+        tagline: override.tagline ?? solution.tagline,
+        description: override.description ?? solution.description,
+        features:
+          override.features && override.features.length ? override.features : solution.features,
+        bodyHtml: override.bodyHtml ?? solution.bodyHtml,
+        primaryCtaLabel: override.primaryCtaLabel ?? solution.primaryCtaLabel,
+        secondaryCtaLabel: override.secondaryCtaLabel ?? solution.secondaryCtaLabel,
+        tertiaryCtaLabel: override.tertiaryCtaLabel ?? solution.tertiaryCtaLabel,
+      }
+    })
+  }, [marketing.solutionOverrides, solutions])
 
-  if (!solutions.length || !activeSolution) {
+  const activeSolution = useMemo(
+    () => localizedSolutions[activeIndex] ?? localizedSolutions[0],
+    [localizedSolutions, activeIndex],
+  )
+
+  if (!localizedSolutions.length || !activeSolution) {
     return null
   }
+
+  const { productMatrix } = marketing
+  const overviewHighlights = productMatrix.highlights
 
   const ctas = [
     activeSolution.primaryCtaLabel && activeSolution.primaryCtaHref
@@ -61,17 +87,17 @@ export default function ProductMatrixClient({ solutions }: ProductMatrixClientPr
           <div className="space-y-6">
             <header className="space-y-3">
               <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-4 py-1 text-xs font-semibold uppercase tracking-[0.45em] text-blue-700">
-                云原生运营中心
+                {productMatrix.badge}
               </span>
               <h1 className="text-3xl font-extrabold leading-tight text-slate-900 sm:text-4xl lg:text-5xl">
-                打造一体化的 XControl 控制平面
+                {productMatrix.title}
               </h1>
               <p className="text-sm text-slate-700 sm:text-base lg:text-lg">
-                将资产管理、访问控制、可观测与自动化工作流整合到一个响应迅速的体验里，帮助团队高效落地治理策略。
+                {productMatrix.description}
               </p>
             </header>
             <ul className="grid gap-3 text-sm text-slate-700 sm:grid-cols-2 lg:grid-cols-3">
-              {OVERVIEW_HIGHLIGHTS.map((highlight) => (
+              {overviewHighlights.map((highlight) => (
                 <li
                   key={highlight}
                   className="flex items-start gap-3 rounded-2xl border border-blue-100 bg-blue-50/60 p-3"
@@ -82,9 +108,11 @@ export default function ProductMatrixClient({ solutions }: ProductMatrixClientPr
               ))}
             </ul>
             <div className="rounded-3xl border border-blue-100 bg-blue-50/80 p-3 sm:p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-blue-700">产品专题</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-blue-700">
+                {productMatrix.topicsLabel}
+              </p>
               <div className="mt-3 flex flex-wrap gap-2">
-                {solutions.map((solution, index) => {
+                {localizedSolutions.map((solution, index) => {
                   const isActive = index === activeIndex
                   return (
                     <button
@@ -133,7 +161,9 @@ export default function ProductMatrixClient({ solutions }: ProductMatrixClientPr
             </div>
             {activeSolution.features.length ? (
               <div className="space-y-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-blue-700">能力速览</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-blue-700">
+                  {productMatrix.capabilitiesLabel}
+                </p>
                 <ul className="grid gap-2 text-sm text-slate-700 sm:grid-cols-2">
                   {activeSolution.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-3 rounded-2xl border border-blue-100 bg-blue-50/60 p-3">

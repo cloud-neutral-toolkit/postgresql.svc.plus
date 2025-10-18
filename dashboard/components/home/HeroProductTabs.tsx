@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { useEffect, useId, useMemo, useState, type KeyboardEvent } from 'react'
 
 import type { HeroSolution } from '@cms/content'
+import { useLanguage } from '@i18n/LanguageProvider'
+import { translations } from '@i18n/translations'
 
 const ROTATION_INTERVAL_MS = 8000
 
@@ -12,25 +14,49 @@ type HeroProductTabsProps = {
 }
 
 export default function HeroProductTabs({ items }: HeroProductTabsProps) {
+  const { language } = useLanguage()
+  const marketing = translations[language].marketing.home
   const [activeIndex, setActiveIndex] = useState(0)
   const tablistId = useId()
 
+  const localizedItems = useMemo(() => {
+    const overrides = marketing.solutionOverrides ?? {}
+    return items.map((item) => {
+      const override = overrides[item.slug]
+      if (!override) {
+        return item
+      }
+      return {
+        ...item,
+        title: override.title ?? item.title,
+        tagline: override.tagline ?? item.tagline,
+        description: override.description ?? item.description,
+        features:
+          override.features && override.features.length ? override.features : item.features,
+        bodyHtml: override.bodyHtml ?? item.bodyHtml,
+        primaryCtaLabel: override.primaryCtaLabel ?? item.primaryCtaLabel,
+        secondaryCtaLabel: override.secondaryCtaLabel ?? item.secondaryCtaLabel,
+        tertiaryCtaLabel: override.tertiaryCtaLabel ?? item.tertiaryCtaLabel,
+      }
+    })
+  }, [items, marketing.solutionOverrides])
+
   useEffect(() => {
-    if (items.length <= 1) {
+    if (localizedItems.length <= 1) {
       return undefined
     }
 
     const timer = window.setTimeout(() => {
       setActiveIndex((current) => {
         const nextIndex = current + 1
-        return nextIndex >= items.length ? 0 : nextIndex
+        return nextIndex >= localizedItems.length ? 0 : nextIndex
       })
     }, ROTATION_INTERVAL_MS)
 
     return () => window.clearTimeout(timer)
-  }, [activeIndex, items.length])
+  }, [activeIndex, localizedItems.length])
 
-  const activeItem = items[activeIndex] ?? items[0]
+  const activeItem = localizedItems[activeIndex] ?? localizedItems[0]
 
   const panelId = useMemo(() => {
     if (!activeItem) {
@@ -39,39 +65,39 @@ export default function HeroProductTabs({ items }: HeroProductTabsProps) {
     return `${tablistId}-panel-${activeItem.slug}`
   }, [activeItem, tablistId])
 
-  if (!items.length || !activeItem) {
+  if (!localizedItems.length || !activeItem) {
     return null
   }
 
   const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
-    if (items.length <= 1) {
+    if (localizedItems.length <= 1) {
       return
     }
     if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
       event.preventDefault()
-      setActiveIndex(index === items.length - 1 ? 0 : index + 1)
+      setActiveIndex(index === localizedItems.length - 1 ? 0 : index + 1)
     } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
       event.preventDefault()
-      setActiveIndex(index === 0 ? items.length - 1 : index - 1)
+      setActiveIndex(index === 0 ? localizedItems.length - 1 : index - 1)
     } else if (event.key === 'Home') {
       event.preventDefault()
       setActiveIndex(0)
     } else if (event.key === 'End') {
       event.preventDefault()
-      setActiveIndex(items.length - 1)
+      setActiveIndex(localizedItems.length - 1)
     }
   }
 
   return (
     <div className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-blue-100 bg-white p-6 text-slate-900 shadow-xl shadow-blue-200/60 sm:p-8">
-      <span className="text-xs font-semibold uppercase tracking-[0.35em] text-blue-700">产品矩阵</span>
+      <span className="text-xs font-semibold uppercase tracking-[0.35em] text-blue-700">{marketing.tabsLabel}</span>
       <div
         id={tablistId}
         role="tablist"
-        aria-label="XControl 产品套件"
+        aria-label={marketing.tabsAriaLabel}
         className="mt-4 flex flex-wrap gap-2"
       >
-        {items.map((item, index) => {
+        {localizedItems.map((item, index) => {
           const isActive = index === activeIndex
           const tabId = `${tablistId}-tab-${item.slug}`
           const targetPanelId = `${tablistId}-panel-${item.slug}`

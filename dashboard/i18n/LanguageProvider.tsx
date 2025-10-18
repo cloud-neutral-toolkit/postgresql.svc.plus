@@ -23,6 +23,19 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       if (stored === 'en' || stored === 'zh') {
         return stored
       }
+
+      const [primaryLocale] = window.navigator.languages && window.navigator.languages.length
+        ? window.navigator.languages
+        : [window.navigator.language]
+      if (typeof primaryLocale === 'string') {
+        const normalized = primaryLocale.toLowerCase()
+        if (normalized.startsWith('en')) {
+          return 'en'
+        }
+        if (normalized.startsWith('zh')) {
+          return 'zh'
+        }
+      }
     }
     return 'zh'
   })
