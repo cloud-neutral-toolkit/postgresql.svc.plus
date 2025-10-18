@@ -99,6 +99,22 @@ type ContactPanelItemOverride = {
   ctaLabel?: string
 }
 
+type ArticleOverride = {
+  title?: string
+  author?: string
+  readingTime?: string
+  excerpt?: string
+  tags?: string[]
+}
+
+type SidebarOverride = {
+  title?: string
+  bodyHtml?: string
+  ctaLabel?: string
+  ctaHref?: string
+  tags?: string[]
+}
+
 type MarketingHomeTranslation = {
   hero: {
     eyebrow?: string
@@ -139,6 +155,8 @@ type MarketingHomeTranslation = {
     subtitle?: string
     items?: Record<string, ContactPanelItemOverride>
   }
+  articleOverrides?: Record<string, ArticleOverride>
+  sidebarOverrides?: Record<string, SidebarOverride>
   solutionOverrides?: Record<string, SolutionOverride>
 }
 
@@ -879,6 +897,32 @@ export const translations: Record<'en' | 'zh', Translation> = {
           empty: 'No updates yet—stay tuned for the latest product and community announcements.',
           dateLocale: 'en-US',
         },
+        articleOverrides: {
+          '2024-08-15-release-notes': {
+            title: 'Release 1.8: Policy automation and observability upgrades',
+            author: 'XControl Product Team',
+            readingTime: '8 min read',
+            excerpt:
+              'A new policy chaining engine and cross-cluster metric federation deliver unified governance at scale.',
+            tags: ['Release notes', 'Policy Center', 'Observability'],
+          },
+          '2024-07-30-observability-insight': {
+            title: 'Observability as a Service: Unified insight from logs to business metrics',
+            author: 'Observability Team',
+            readingTime: '5 min read',
+            excerpt:
+              'We rebuilt metrics and log pipelines for multi-tenant environments, enabling second-level visualization and business-aware troubleshooting.',
+            tags: ['Best practices', 'Observability', 'Data analytics'],
+          },
+          '2024-07-12-community-events': {
+            title: 'Community roadshow kicks off: Hands-on sessions and product roadmap',
+            author: 'Community Team',
+            readingTime: '3 min read',
+            excerpt:
+              'Join the eight-city tour for platform engineering case studies, security automation workshops, and open Q&A on the roadmap.',
+            tags: ['Community events', 'Ecosystem'],
+          },
+        },
         contactPanel: {
           buttonLabel: 'Stay connected',
           expandLabel: 'Expand stay connected panel',
@@ -909,6 +953,29 @@ export const translations: Record<'en' | 'zh', Translation> = {
               bodyHtml:
                 'Visit the CloudNativeSuite GitHub organization, star the repositories, and keep up with project updates.',
             },
+          },
+        },
+        sidebarOverrides: {
+          community: {
+            title: 'Community highlights',
+            ctaLabel: 'Join the community',
+            bodyHtml:
+              '<ul><li><a href="#">Platform engineering book club</a> — Weekly deep dives into governance case studies.</li><li><a href="#">Slack community</a> — Chat live with 2,000+ practitioners.</li><li><a href="#">GitHub Issues</a> — Share feature requests and report bugs.</li></ul>',
+          },
+          newsletter: {
+            title: 'Subscribe to the digest',
+            ctaLabel: 'Subscribe now',
+            bodyHtml:
+              'Receive roadmap updates, best-practice articles, and event invites in your inbox once a month.',
+          },
+          resources: {
+            title: 'Recommended resources',
+            bodyHtml:
+              '<ol><li><a href="#">Launch guide</a> — Best practices for rolling out XControl in phases.</li><li><a href="#">Security policy handbook</a> — Policy templates for common compliance baselines.</li><li><a href="#">Observability whitepaper</a> — Build a unified view of metrics and logs.</li></ol>',
+          },
+          tags: {
+            title: 'Popular topics',
+            tags: ['Policy-driven', 'Cloud-native security', 'Platform engineering', 'Observability insights', 'Cost governance', 'Best practices'],
           },
         },
         solutionOverrides: {

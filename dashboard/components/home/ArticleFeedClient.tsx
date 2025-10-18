@@ -28,14 +28,23 @@ export default function ArticleFeedClient({ posts }: ArticleFeedClientProps) {
   const { language } = useLanguage()
   const marketing = translations[language].marketing.home
   const { articleFeed } = marketing
+  const articleOverrides = marketing.articleOverrides
 
   const mappedPosts = useMemo(
     () =>
-      posts.map((post) => ({
-        ...post,
-        formattedDate: formatDate(post.date, articleFeed.dateLocale),
-      })),
-    [posts, articleFeed.dateLocale],
+      posts.map((post) => {
+        const override = articleOverrides?.[post.slug]
+        return {
+          ...post,
+          title: override?.title ?? post.title,
+          author: override?.author ?? post.author,
+          readingTime: override?.readingTime ?? post.readingTime,
+          excerpt: override?.excerpt ?? post.excerpt,
+          tags: override?.tags ?? post.tags,
+          formattedDate: formatDate(post.date, articleFeed.dateLocale),
+        }
+      }),
+    [articleFeed.dateLocale, articleOverrides, posts],
   )
 
   return (
