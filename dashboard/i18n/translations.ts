@@ -452,6 +452,9 @@ export type Translation = {
   termsTitle: string
   termsPoints: string[]
   contactTitle: string
+  contactDescription?: string
+  contactEmailLabel?: string
+  contactEmail?: string
   download: DownloadTranslation
   auth: AuthTranslation
   userCenter: UserCenterTranslation
@@ -545,6 +548,10 @@ export const translations: Record<'en' | 'zh', Translation> = {
       'A future SaaS version for users who want one-click deployment with no setup required',
     ],
     contactTitle: 'Contact Us',
+    contactDescription:
+      'Share your feedback or feature ideas and we will respond as soon as possible. For technical help, reach us via email.',
+    contactEmailLabel: 'Technical support email',
+    contactEmail: 'manbuzhe2008@gmail.com',
     download: {
       home: {
         title: 'Download Center',
@@ -943,9 +950,10 @@ export const translations: Record<'en' | 'zh', Translation> = {
             },
             support: {
               title: 'Get support',
-              description: 'Explore commercial solutions and professional services.',
+              description: 'Share feedback and tap into community support.',
               ctaLabel: 'Contact us',
-              bodyHtml: 'Share your enterprise requirements and our experts will respond within one business day.',
+              bodyHtml:
+                'Send us your feedback or feature suggestions and we will respond as quickly as possible.<br />For technical help, contact <strong>manbuzhe2008@gmail.com</strong>.',
             },
             'github-star': {
               title: 'Show your support',
@@ -1128,6 +1136,9 @@ export const translations: Record<'en' | 'zh', Translation> = {
       '未来将推出无需设置、一键部署的 SaaS 版本',
     ],
     contactTitle: '联系我们',
+    contactDescription: '欢迎提交使用反馈或功能建议，我们会尽快回复。如需技术协助，请通过下方邮箱联系我们。',
+    contactEmailLabel: '技术支持邮箱',
+    contactEmail: 'manbuzhe2008@gmail.com',
     download: {
       home: {
         title: '下载中心',
