@@ -46,8 +46,8 @@ export default function Footer() {
             </div>
             <div className="space-y-2">
               <p className="text-sm font-semibold text-white">Contact</p>
-              <a href="mailto:contact@cloudnativesuite.io" className="text-white/80 transition hover:text-brand-light">
-                contact@cloudnativesuite.io
+              <a href="mailto:manbuzhe2008@gmail.com" className="text-white/80 transition hover:text-brand-light">
+                manbuzhe2008@gmail.com
               </a>
             </div>
           </div>
