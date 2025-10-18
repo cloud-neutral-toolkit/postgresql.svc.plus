@@ -11,9 +11,9 @@ export default async function ProductMatrix() {
   }
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-12">
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-12">
       <ProductMatrixClient solutions={solutions} />
-      <ContactPanel className="w-full lg:sticky lg:top-16 lg:h-fit lg:w-[360px] lg:self-start" />
+      <ContactPanel className="w-full lg:sticky lg:top-0 lg:h-fit lg:w-[360px] lg:self-start" />
     </div>
   )
 }

@@ -6,6 +6,7 @@ import type { DocCollection } from './types'
 import { getDocResources } from './resources.server'
 import { isFeatureEnabled } from '@lib/featureToggles'
 import DocCollectionCard from './DocCollectionCard'
+import Footer from '@components/Footer'
 
 function formatMeta(resource: DocCollection) {
   const parts: string[] = []
@@ -36,20 +37,20 @@ export default async function DocsHome() {
   })
 
   return (
-    <main className="px-4 py-8 md:px-8">
-      <div className="mx-auto flex max-w-6xl flex-col gap-8">
-        <header className="space-y-3">
-          <p className="text-sm font-semibold uppercase tracking-wide text-purple-600">Knowledge Base</p>
-          <h1 className="text-3xl font-bold md:text-4xl">Documentation Library</h1>
-          <p className="max-w-3xl text-sm text-gray-600 md:text-base">
-            Browse curated implementation guides, architecture notes, and runbooks from dl.svc.plus. Select a resource to
-            open the focused reading workspace.
+    <main className="bg-brand-surface px-6 py-12 sm:px-8">
+      <div className="mx-auto flex max-w-6xl flex-col gap-10">
+        <header className="space-y-4 text-brand-heading">
+          <p className="text-xs font-semibold uppercase tracking-[0.32em] text-brand">Knowledge Base</p>
+          <h1 className="text-[32px] font-bold text-brand md:text-[36px]">Documentation Library</h1>
+          <p className="max-w-3xl text-sm text-brand-heading/80 md:text-base">
+            Browse curated implementation guides, architecture notes, and runbooks from dl.svc.plus. Select a resource to open
+            the focused reading workspace.
           </p>
         </header>
 
         <section>
           {resources.length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-gray-300 bg-white/70 p-10 text-center text-sm text-gray-500">
+            <div className="rounded-2xl border border-dashed border-brand-border bg-white p-10 text-center text-sm text-brand-heading/70">
               Documentation resources are not available at the moment. Please check back later.
             </div>
           ) : (
@@ -62,6 +63,7 @@ export default async function DocsHome() {
           )}
         </section>
       </div>
+      <Footer />
     </main>
   )
 }

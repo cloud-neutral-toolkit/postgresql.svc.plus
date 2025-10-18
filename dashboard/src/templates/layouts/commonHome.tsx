@@ -1,4 +1,5 @@
 import { Fragment, type ComponentType } from 'react'
+import Footer from '@components/Footer'
 import clsx from 'clsx'
 
 import type { HomePageSlotKey, HomePageTemplateSlots, TemplateComponent } from '../types'
@@ -103,6 +104,7 @@ export function createCommonHomeTemplate(
             </div>
           </div>
         </section>
+        <Footer />
       </main>
     )
   }

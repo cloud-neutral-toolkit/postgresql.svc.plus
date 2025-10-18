@@ -8,9 +8,6 @@ import type { HeroSolution } from '@cms/content'
 import { useLanguage } from '@i18n/LanguageProvider'
 import { translations } from '@i18n/translations'
 
-const heroBackgroundOverlay =
-  'absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.18),_transparent_70%)]'
-
 type ProductMatrixClientProps = {
   solutions: HeroSolution[]
 }
@@ -79,39 +76,37 @@ export default function ProductMatrixClient({ solutions }: ProductMatrixClientPr
   ].filter(Boolean) as Array<{ label: string; href: string; variant: 'primary' | 'secondary' | 'ghost' }>
 
   return (
-    <section className="space-y-10">
-      <div className="relative overflow-hidden rounded-[2.5rem] border border-blue-100 bg-white p-8 text-slate-900 shadow-2xl shadow-blue-200/60 lg:p-12">
-        <div className={heroBackgroundOverlay} aria-hidden />
-        <div className="absolute inset-0 -z-10 bg-[linear-gradient(135deg,_rgba(234,243,255,0.95),_rgba(207,228,255,0.65))]" aria-hidden />
-        <div className="relative grid gap-10 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
-          <div className="space-y-6">
-            <header className="space-y-3">
-              <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-4 py-1 text-xs font-semibold uppercase tracking-[0.45em] text-blue-700">
+    <section className="space-y-8">
+      <div className="rounded-2xl border border-brand-border bg-white p-8 text-brand-heading shadow-[0_4px_20px_rgba(0,0,0,0.04)] sm:p-10 lg:p-12">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:gap-10">
+          <div className="space-y-8">
+            <header className="space-y-4">
+              <span className="inline-flex items-center rounded-full border border-brand-border bg-brand-surface px-4 py-1 text-xs font-semibold uppercase tracking-[0.4em] text-brand">
                 {productMatrix.badge}
               </span>
-              <h1 className="text-3xl font-extrabold leading-tight text-slate-900 sm:text-4xl lg:text-5xl">
+              <h1 className="text-[30px] font-bold leading-tight text-brand sm:text-[34px] md:text-[36px]">
                 {productMatrix.title}
               </h1>
-              <p className="text-sm text-slate-700 sm:text-base lg:text-lg">
+              <p className="text-sm text-brand-heading/80 sm:text-base lg:text-lg">
                 {productMatrix.description}
               </p>
             </header>
-            <ul className="grid gap-3 text-sm text-slate-700 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="grid gap-3 text-sm text-brand-heading/80 sm:grid-cols-2 lg:grid-cols-3">
               {overviewHighlights.map((highlight) => (
                 <li
                   key={highlight}
-                  className="flex items-start gap-3 rounded-2xl border border-blue-100 bg-blue-50/60 p-3"
+                  className="flex items-start gap-3 rounded-2xl border border-brand-border bg-white p-3 shadow-[0_4px_20px_rgba(0,0,0,0.04)]"
                 >
-                  <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" aria-hidden />
+                  <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-brand" aria-hidden />
                   <span>{highlight}</span>
                 </li>
               ))}
             </ul>
-            <div className="rounded-3xl border border-blue-100 bg-blue-50/80 p-3 sm:p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-blue-700">
+            <div className="rounded-2xl border border-brand-border bg-brand-surface p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand">
                 {productMatrix.topicsLabel}
               </p>
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="mt-4 flex flex-wrap gap-3">
                 {localizedSolutions.map((solution, index) => {
                   const isActive = index === activeIndex
                   return (
@@ -120,17 +115,17 @@ export default function ProductMatrixClient({ solutions }: ProductMatrixClientPr
                       type="button"
                       onClick={() => setActiveIndex(index)}
                       className={clsx(
-                        'flex min-w-[9rem] flex-1 items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-300',
+                        'flex min-w-[9rem] flex-1 items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand/40',
                         isActive
-                          ? 'border-blue-400 bg-blue-100 text-slate-900 shadow-lg shadow-blue-300/40'
-                          : 'border-blue-100 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50',
+                          ? 'border-brand bg-brand/10 text-brand-heading shadow-[0_4px_20px_rgba(0,0,0,0.04)]'
+                          : 'border-brand-border bg-white text-brand-heading/80 hover:border-brand hover:bg-brand-surface',
                       )}
                     >
-                      <span className="flex-1">{solution.title}</span>
+                      <span className="flex-1 text-brand-heading">{solution.title}</span>
                       <span
                         className={clsx(
                           'ml-2 text-xs font-medium transition',
-                          isActive ? 'text-slate-800/80' : 'text-slate-500',
+                          isActive ? 'text-brand-heading/70' : 'text-brand-heading/60',
                         )}
                       >
                         {solution.tagline}
@@ -141,33 +136,36 @@ export default function ProductMatrixClient({ solutions }: ProductMatrixClientPr
               </div>
             </div>
           </div>
-          <div className="flex flex-col gap-6 rounded-3xl border border-blue-100 bg-white/90 p-6 shadow-inner shadow-blue-100/80 backdrop-blur-sm lg:p-8">
+          <div className="flex flex-col gap-6 rounded-2xl border border-brand-border bg-white p-6 shadow-[0_4px_20px_rgba(0,0,0,0.04)] lg:p-8">
             <div className="space-y-4">
               {activeSolution.tagline ? (
-                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-blue-700">
+                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-brand">
                   {activeSolution.tagline}
                 </p>
               ) : null}
-              <h2 className="text-2xl font-semibold text-slate-900 sm:text-3xl">{activeSolution.title}</h2>
+              <h2 className="text-2xl font-semibold text-brand-navy sm:text-[26px]">{activeSolution.title}</h2>
               {activeSolution.description ? (
-                <p className="text-sm text-slate-700 sm:text-base">{activeSolution.description}</p>
+                <p className="text-sm text-brand-heading/80 sm:text-base">{activeSolution.description}</p>
               ) : null}
               {activeSolution.bodyHtml ? (
                 <div
-                  className="prose max-w-none text-sm text-slate-800 [&_strong]:text-slate-900"
+                  className="prose max-w-none text-sm text-brand-heading/90 [&_strong]:text-brand-navy"
                   dangerouslySetInnerHTML={{ __html: activeSolution.bodyHtml }}
                 />
               ) : null}
             </div>
             {activeSolution.features.length ? (
               <div className="space-y-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-blue-700">
+                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-brand">
                   {productMatrix.capabilitiesLabel}
                 </p>
-                <ul className="grid gap-2 text-sm text-slate-700 sm:grid-cols-2">
+                <ul className="grid gap-2 text-sm text-brand-heading/80 sm:grid-cols-2">
                   {activeSolution.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-3 rounded-2xl border border-blue-100 bg-blue-50/60 p-3">
-                      <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-blue-500" aria-hidden />
+                    <li
+                      key={feature}
+                      className="flex items-start gap-3 rounded-2xl border border-brand-border bg-white p-3 shadow-[0_4px_20px_rgba(0,0,0,0.04)]"
+                    >
+                      <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-brand" aria-hidden />
                       <span>{feature}</span>
                     </li>
                   ))}
@@ -182,12 +180,12 @@ export default function ProductMatrixClient({ solutions }: ProductMatrixClientPr
                     prefetch={false}
                     href={href}
                     className={clsx(
-                      'inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold transition',
+                      'inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand/30',
                       variant === 'primary'
-                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-300/50 hover:bg-blue-700'
+                        ? 'bg-brand text-white shadow-[0_4px_20px_rgba(51,102,255,0.25)] hover:bg-brand-light'
                         : variant === 'secondary'
-                        ? 'border border-blue-200 text-blue-700 hover:border-blue-300 hover:bg-blue-50'
-                        : 'border border-blue-100 text-slate-700 hover:border-blue-200 hover:bg-blue-50/80',
+                        ? 'border border-brand-border text-brand hover:border-brand hover:bg-brand-surface'
+                        : 'border border-brand-border text-brand-heading/80 hover:border-brand hover:bg-brand-surface',
                     )}
                   >
                     {label}

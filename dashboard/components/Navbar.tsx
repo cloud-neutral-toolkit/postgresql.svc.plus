@@ -215,7 +215,7 @@ export default function Navbar() {
     }
 
     return (
-      <span className="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium uppercase text-purple-600">
+      <span className="rounded-full bg-brand-surface px-2 py-0.5 text-xs font-medium uppercase text-brand">
         {channelLabels.badges[previewChannel]}
       </span>
     )
@@ -281,8 +281,8 @@ export default function Navbar() {
 
   return (
     <>
-      <nav ref={navRef} className="fixed top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl flex-col px-4">
+      <nav ref={navRef} className="fixed top-0 z-50 w-full border-b border-brand-border/60 bg-white/85 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl flex-col px-6 sm:px-8">
           <div className="flex items-center gap-6 py-4">
             <div className="flex flex-1 items-center gap-8">
               <Link href="/" className="flex items-center gap-2 text-xl font-semibold text-gray-900">
@@ -296,18 +296,18 @@ export default function Navbar() {
                 />
                 CloudNative Suite
               </Link>
-              <div className="hidden lg:flex items-center gap-6 text-sm font-medium text-gray-700">
+              <div className="hidden lg:flex items-center gap-6 text-sm font-medium text-brand-heading">
                 {mainLinks.map((link) => (
-                  <Link key={link.key} href={link.href} className="transition hover:text-purple-600">
+                  <Link key={link.key} href={link.href} className="transition hover:text-brand">
                     {link.label}
                   </Link>
                 ))}
                 {serviceItems.length > 0 ? (
                   <div className="group relative">
-                    <button className="flex items-center gap-1 transition hover:text-purple-600">
+                    <button className="flex items-center gap-1 transition hover:text-brand">
                       <span>{labels.moreServices}</span>
                       <svg
-                        className="h-4 w-4 text-gray-500 transition group-hover:text-purple-600"
+                        className="h-4 w-4 text-brand-heading/60 transition group-hover:text-brand"
                         fill="none"
                         stroke="currentColor"
                         strokeWidth={2}
@@ -317,7 +317,7 @@ export default function Navbar() {
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>
-                    <div className="pointer-events-none absolute left-0 top-full hidden min-w-[200px] translate-y-1 rounded-lg border border-gray-200 bg-white py-2 text-sm text-gray-700 opacity-0 shadow-lg transition-all duration-200 group-hover:pointer-events-auto group-hover:block group-hover:translate-y-2 group-hover:opacity-100">
+                    <div className="pointer-events-none absolute left-0 top-full hidden min-w-[200px] translate-y-1 rounded-lg border border-brand-border bg-white py-2 text-sm text-brand-heading opacity-0 shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-all duration-200 group-hover:pointer-events-auto group-hover:block group-hover:translate-y-2 group-hover:opacity-100">
                       {serviceItems.map((child) => {
                         const isExternal = child.href.startsWith('http')
                         if (isExternal) {
@@ -325,7 +325,7 @@ export default function Navbar() {
                             <a
                               key={child.key}
                               href={child.href}
-                              className="flex items-center justify-between gap-2 px-4 py-2 transition hover:bg-gray-100 hover:text-purple-600"
+                              className="flex items-center justify-between gap-2 px-4 py-2 transition hover:bg-brand-surface hover:text-brand"
                               target="_blank"
                               rel="noopener noreferrer"
                             >
@@ -339,7 +339,7 @@ export default function Navbar() {
                           <Link
                             key={child.key}
                             href={child.href}
-                            className="flex items-center justify-between gap-2 px-4 py-2 transition hover:bg-gray-100 hover:text-purple-600"
+                            className="flex items-center justify-between gap-2 px-4 py-2 transition hover:bg-brand-surface hover:text-brand"
                           >
                             <span>{child.label}</span>
                             {getPreviewBadge(child.channels)}
@@ -359,11 +359,11 @@ export default function Navbar() {
                   value={searchValue}
                   onChange={(event) => setSearchValue(event.target.value)}
                   placeholder={labels.searchPlaceholder}
-                  className="w-full rounded-full border border-gray-200 bg-gray-50 py-2 pl-4 pr-10 text-sm text-gray-900 transition focus:border-purple-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-100"
+                  className="w-full rounded-full border border-brand-border bg-brand-surface/60 py-2 pl-4 pr-10 text-sm text-brand-heading transition focus:border-brand focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/20"
                 />
                 <button
                   type="submit"
-                  className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-purple-600 text-white transition hover:bg-purple-500"
+                  className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-brand text-white transition hover:bg-brand-light"
                   aria-label="Ask AI"
                 >
                   <Search className="h-4 w-4" />
@@ -374,22 +374,22 @@ export default function Navbar() {
                   <button
                     type="button"
                     onClick={() => setAccountMenuOpen((prev) => !prev)}
-                    className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-600 text-sm font-semibold text-white shadow-sm transition hover:bg-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200 focus:ring-offset-2"
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-brand text-sm font-semibold text-white shadow-[0_4px_12px_rgba(51,102,255,0.3)] transition hover:bg-brand-light focus:outline-none focus:ring-2 focus:ring-brand/30 focus:ring-offset-2"
                     aria-haspopup="menu"
                     aria-expanded={accountMenuOpen}
                   >
                     {accountInitial}
                   </button>
                   {accountMenuOpen ? (
-                    <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
-                      <div className="border-b border-gray-100 bg-purple-50/60 px-4 py-3">
-                        <p className="text-sm font-semibold text-gray-900">{user.username}</p>
-                        <p className="text-xs text-gray-500">{user.email}</p>
+                    <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-xl border border-brand-border bg-white shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
+                      <div className="border-b border-brand-border/60 bg-brand-surface px-4 py-3">
+                        <p className="text-sm font-semibold text-brand-heading">{user.username}</p>
+                        <p className="text-xs text-brand-heading/70">{user.email}</p>
                       </div>
-                      <div className="py-1 text-sm text-gray-700">
+                      <div className="py-1 text-sm text-brand-heading">
                         <Link
                           href="/panel"
-                          className="block px-4 py-2 hover:bg-gray-100"
+                          className="block px-4 py-2 transition hover:bg-brand-surface"
                           onClick={() => setAccountMenuOpen(false)}
                         >
                           {accountCopy.userCenter}
@@ -406,14 +406,14 @@ export default function Navbar() {
                   ) : null}
                 </div>
               ) : (
-                <div className="flex items-center gap-3 text-sm font-medium text-gray-700">
-                  <Link href="/login" className="transition hover:text-purple-600">
+                <div className="flex items-center gap-3 text-sm font-medium text-brand-heading">
+                  <Link href="/login" className="transition hover:text-brand">
                     {nav.account.login}
                   </Link>
                   <span className="h-3 w-px bg-gray-300" aria-hidden="true" />
                   <Link
                     href="/register"
-                    className="rounded-full border border-purple-100 px-4 py-1.5 text-purple-600 transition hover:border-purple-200 hover:bg-purple-50"
+                    className="rounded-full border border-brand-border px-4 py-1.5 text-brand transition hover:border-brand hover:bg-brand-surface"
                   >
                     {nav.account.register}
                   </Link>
@@ -456,11 +456,11 @@ export default function Navbar() {
                   value={searchValue}
                   onChange={(event) => setSearchValue(event.target.value)}
                   placeholder={labels.searchPlaceholder}
-                  className="w-full rounded-full border border-gray-200 bg-gray-50 py-2 pl-4 pr-10 text-sm text-gray-900 transition focus:border-purple-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-100"
+                  className="w-full rounded-full border border-brand-border bg-brand-surface/60 py-2 pl-4 pr-10 text-sm text-brand-heading transition focus:border-brand focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/20"
                 />
                 <button
                   type="submit"
-                  className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-purple-600 text-white transition hover:bg-purple-500"
+                  className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-brand text-white transition hover:bg-brand-light"
                   aria-label="Ask AI"
                 >
                   <Search className="h-4 w-4" />
@@ -532,26 +532,26 @@ export default function Navbar() {
                 ) : null}
               </div>
               {user ? (
-                <div className="rounded-xl bg-purple-50 p-4 text-purple-700">
+                <div className="rounded-xl border border-brand-border bg-white p-4 text-brand-heading shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-600 text-sm font-semibold text-white">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand text-sm font-semibold text-white">
                       {accountInitial}
                     </span>
                     <div>
                       <p className="text-sm font-semibold">{user.username}</p>
-                      <p className="text-xs text-purple-300">{user.email}</p>
+                      <p className="text-xs text-brand-heading/60">{user.email}</p>
                     </div>
                   </div>
                   <Link
                     href="/panel"
-                    className="mt-3 inline-flex items-center justify-center rounded-lg bg-white/80 px-3 py-1.5 text-xs font-semibold text-purple-600 transition hover:bg-white"
+                    className="mt-3 inline-flex items-center justify-center rounded-lg border border-brand-border bg-white px-3 py-1.5 text-xs font-semibold text-brand transition hover:border-brand hover:text-brand-light"
                     onClick={() => setMenuOpen(false)}
                   >
                     {accountCopy.userCenter}
                   </Link>
                   <Link
                     href="/logout"
-                    className="mt-3 inline-flex items-center justify-center rounded-lg border border-purple-200 px-3 py-1.5 text-xs font-semibold text-purple-600 transition hover:border-purple-300 hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-200 focus:ring-offset-2"
+                    className="mt-3 inline-flex items-center justify-center rounded-lg border border-brand-border px-3 py-1.5 text-xs font-semibold text-brand transition hover:border-brand hover:bg-brand-surface focus:outline-none focus:ring-2 focus:ring-brand/30 focus:ring-offset-2"
                     onClick={() => setMenuOpen(false)}
                   >
                     {accountCopy.logout}
@@ -565,7 +565,7 @@ export default function Navbar() {
                   <span className="h-3 w-px bg-gray-300" aria-hidden="true" />
                   <Link
                     href="/register"
-                    className="rounded-full border border-purple-100 px-4 py-1.5 text-purple-600 transition hover:border-purple-200 hover:bg-purple-50"
+                    className="rounded-full border border-brand-border px-4 py-1.5 text-brand transition hover:border-brand hover:bg-brand-surface"
                     onClick={() => setMenuOpen(false)}
                   >
                     {nav.account.register}

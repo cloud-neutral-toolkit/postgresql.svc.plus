@@ -103,7 +103,7 @@ function QrPreview({ item, qrAltSuffix }: QrPreviewProps) {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="relative overflow-hidden rounded-2xl border border-blue-100 bg-white p-3 shadow-inner shadow-blue-100/60">
+      <div className="relative overflow-hidden rounded-2xl border border-brand-border bg-white p-3 shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
         <div className="relative aspect-square w-full">
           {item.qrImage ? (
             <Image
@@ -124,15 +124,15 @@ function QrPreview({ item, qrAltSuffix }: QrPreviewProps) {
               aria-hidden
             >
               {pattern!.flat().map((isFilled, index) => (
-                <span key={`${item.slug}-${index}`} className={`block ${isFilled ? 'bg-slate-900' : 'bg-slate-50'}`} />
+                <span key={`${item.slug}-${index}`} className={`block ${isFilled ? 'bg-brand-navy' : 'bg-brand-surface'}`} />
               ))}
             </div>
           )}
         </div>
       </div>
       <div className="space-y-1">
-        <p className="text-sm font-semibold text-slate-900">{item.title}</p>
-        {item.description ? <p className="text-xs text-slate-600">{item.description}</p> : null}
+        <p className="text-sm font-semibold text-brand-navy">{item.title}</p>
+        {item.description ? <p className="text-xs text-brand-heading/70">{item.description}</p> : null}
       </div>
     </div>
   )
@@ -141,23 +141,23 @@ function QrPreview({ item, qrAltSuffix }: QrPreviewProps) {
 function InfoCard({ item }: { item: ContactItemContent }) {
   const Icon = getIcon(item.icon)
   return (
-    <div className="flex items-start gap-3 rounded-2xl border border-blue-100 bg-blue-50/80 p-4">
-      <div className="mt-1 rounded-full bg-blue-100 p-2 text-blue-600">
+    <div className="flex items-start gap-3 rounded-2xl border border-brand-border bg-white p-4 shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
+      <div className="mt-1 rounded-full bg-brand-surface p-2 text-brand">
         <Icon className="h-5 w-5" aria-hidden />
       </div>
       <div className="flex-1">
-        <p className="text-sm font-semibold text-slate-900">{item.title}</p>
-        {item.description ? <p className="mt-1 text-xs text-slate-600">{item.description}</p> : null}
+        <p className="text-sm font-semibold text-brand-navy">{item.title}</p>
+        {item.description ? <p className="mt-1 text-xs text-brand-heading/70">{item.description}</p> : null}
         {item.bodyHtml ? (
           <div
-            className="prose prose-sm mt-2 max-w-none text-slate-700"
+            className="prose prose-sm mt-2 max-w-none text-brand-heading/80 [&_a]:text-brand [&_a]:no-underline hover:[&_a]:underline"
             dangerouslySetInnerHTML={{ __html: item.bodyHtml }}
           />
         ) : null}
         {item.ctaLabel && item.ctaHref ? (
           <Link
             href={item.ctaHref}
-            className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-blue-600 transition hover:text-blue-700"
+            className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-brand transition hover:text-brand-light"
           >
             {item.ctaLabel}
             <ChevronRight className="h-4 w-4" aria-hidden />
@@ -208,7 +208,7 @@ export default function ContactPanelClient({ panel, className }: ContactPanelCli
           <button
             type="button"
             onClick={() => setCollapsed(false)}
-            className="group inline-flex items-center gap-2 rounded-full border border-blue-300 bg-white px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm shadow-blue-200/70"
+            className="group inline-flex items-center gap-2 rounded-full border border-brand-border bg-white px-4 py-2 text-sm font-semibold text-brand shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition hover:border-brand hover:text-brand-light"
             aria-label={contactMarketing.expandLabel}
           >
             <span>{contactMarketing.buttonLabel}</span>
@@ -216,19 +216,19 @@ export default function ContactPanelClient({ panel, className }: ContactPanelCli
           </button>
         </div>
       ) : (
-        <section className="relative flex max-h-full min-h-0 flex-col overflow-hidden rounded-3xl border border-blue-100 bg-gradient-to-b from-white via-white to-blue-50 shadow-xl shadow-blue-200/60">
-          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-400 via-blue-500 to-indigo-400" aria-hidden />
-          <div className="flex items-start justify-between gap-3 px-5 pt-5">
+        <section className="relative flex max-h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-brand-border bg-white shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
+          <div className="absolute inset-x-0 top-0 h-1 bg-brand" aria-hidden />
+          <div className="flex items-start justify-between gap-3 px-6 pt-6">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-600">{localizedPanel.title}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.32em] text-brand">{localizedPanel.title}</p>
               {localizedPanel.subtitle ? (
-                <p className="mt-1 text-xs text-slate-600">{localizedPanel.subtitle}</p>
+                <p className="mt-1 text-xs text-brand-heading/70">{localizedPanel.subtitle}</p>
               ) : null}
             </div>
             <button
               type="button"
               onClick={() => setCollapsed(true)}
-              className="rounded-full border border-blue-100 bg-white/80 p-1 text-slate-400 transition hover:text-slate-600"
+              className="rounded-full border border-brand-border bg-white p-1 text-brand-heading/60 transition hover:border-brand hover:text-brand"
               aria-label={contactMarketing.collapseLabel}
             >
               <X className="h-4 w-4" aria-hidden />
@@ -237,11 +237,11 @@ export default function ContactPanelClient({ panel, className }: ContactPanelCli
           <div className="flex-1 overflow-y-auto">
             {localizedPanel.bodyHtml ? (
               <div
-                className="prose prose-sm px-5 pt-3 text-slate-700"
+                className="prose prose-sm px-6 pt-4 text-brand-heading/80"
                 dangerouslySetInnerHTML={{ __html: localizedPanel.bodyHtml }}
               />
             ) : null}
-            <div className="grid gap-4 px-5 pb-5 pt-4 sm:grid-cols-2">
+            <div className="grid gap-4 px-6 pb-6 pt-4 sm:grid-cols-2">
               {localizedPanel.items.map((item) => {
                 if (item.type === 'qr') {
                   return (

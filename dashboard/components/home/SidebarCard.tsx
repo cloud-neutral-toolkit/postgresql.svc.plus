@@ -36,13 +36,13 @@ export default function SidebarCard({ section }: SidebarCardProps) {
   const hasTagsLayout = localizedSection.layout === 'tags' && localizedSection.tags.length > 0
 
   return (
-    <section className="rounded-2xl border border-blue-100 bg-white/95 p-5 shadow-md shadow-blue-200/50">
+    <section className="rounded-2xl border border-brand-border bg-white p-5 text-brand-heading shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
       <header className="mb-4 flex items-center justify-between gap-3">
-        <h3 className="text-lg font-semibold text-slate-900">{localizedSection.title}</h3>
+        <h3 className="text-lg font-medium text-brand-heading">{localizedSection.title}</h3>
         {isValidCta(localizedSection) ? (
           <Link
             href={localizedSection.ctaHref}
-            className="text-sm font-medium text-blue-600 transition hover:text-blue-700"
+            className="text-sm font-medium text-brand transition hover:text-brand-light"
           >
             {localizedSection.ctaLabel}
           </Link>
@@ -53,7 +53,7 @@ export default function SidebarCard({ section }: SidebarCardProps) {
           {localizedSection.tags.map((tag) => (
             <span
               key={tag}
-              className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-slate-700"
+              className="inline-flex items-center rounded-full border border-brand-border bg-brand-surface px-3 py-1 text-xs font-medium text-brand-heading"
             >
               #{tag}
             </span>
@@ -61,7 +61,7 @@ export default function SidebarCard({ section }: SidebarCardProps) {
         </div>
       ) : (
         <div
-          className="prose prose-sm max-w-none text-slate-700 [&_a]:text-blue-600 [&_a]:no-underline hover:[&_a]:underline"
+          className="prose prose-sm max-w-none text-brand-heading/80 [&_a]:text-brand [&_a]:no-underline hover:[&_a]:underline"
           dangerouslySetInnerHTML={{ __html: localizedSection.bodyHtml }}
         />
       )}

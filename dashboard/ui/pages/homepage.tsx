@@ -1,6 +1,7 @@
 'use client'
 
 import MarkdownSection from '../components/MarkdownSection'
+import Footer from '@components/Footer'
 import { useLanguage, type Language } from '../../i18n/LanguageProvider'
 
 const SECTION_PATHS: Record<Language, {
@@ -36,29 +37,55 @@ export default function MarkdownHomepage() {
   const sections = SECTION_PATHS[language] ?? SECTION_PATHS[DEFAULT_LANGUAGE]
 
   return (
-    <main className="flex flex-col gap-16 bg-white py-16">
-      <header className="bg-slate-950 py-16 text-white">
-        <div className="mx-auto flex max-w-4xl flex-col gap-6 px-6">
+    <main className="flex flex-col bg-brand-surface text-brand-heading">
+      <header className="bg-brand py-16 text-white">
+        <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-8">
           <MarkdownSection
             src={sections.operations}
             headingLevel="h1"
             className="flex flex-col gap-4"
-            headingClassName="text-3xl font-semibold text-white sm:text-4xl"
-            contentClassName="prose-invert prose-headings:text-white prose-strong:text-white text-slate-100"
+            headingClassName="text-[36px] font-bold text-white"
+            contentClassName="prose-invert prose-headings:text-white prose-strong:text-white text-white/90"
           />
         </div>
       </header>
-      <section className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-6">
-        <MarkdownSection src={sections.productSpotlight} />
-        <div className="grid gap-12 lg:grid-cols-[2fr_1fr]">
-          <MarkdownSection src={sections.news} />
+      <section className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-8 py-16">
+        <MarkdownSection
+          src={sections.productSpotlight}
+          className="rounded-2xl border border-brand-border bg-white p-8 shadow-[0_4px_20px_rgba(0,0,0,0.04)]"
+          headingClassName="text-2xl font-semibold text-brand-navy"
+          contentClassName="prose prose-slate mt-6 max-w-none text-brand-heading/80"
+        />
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,2fr)_360px]">
+          <MarkdownSection
+            src={sections.news}
+            className="rounded-2xl border border-brand-border bg-white p-8 shadow-[0_4px_20px_rgba(0,0,0,0.04)]"
+            headingClassName="text-2xl font-semibold text-brand-navy"
+            contentClassName="prose prose-slate mt-6 max-w-none text-brand-heading/80"
+          />
           <div className="flex flex-col gap-12">
-            <MarkdownSection src={sections.support} />
-            <MarkdownSection src={sections.resources} />
+            <MarkdownSection
+              src={sections.support}
+              className="rounded-2xl border border-brand-border bg-white p-8 shadow-[0_4px_20px_rgba(0,0,0,0.04)]"
+              headingClassName="text-2xl font-semibold text-brand-navy"
+              contentClassName="prose prose-slate mt-6 max-w-none text-brand-heading/80"
+            />
+            <MarkdownSection
+              src={sections.resources}
+              className="rounded-2xl border border-brand-border bg-white p-8 shadow-[0_4px_20px_rgba(0,0,0,0.04)]"
+              headingClassName="text-2xl font-semibold text-brand-navy"
+              contentClassName="prose prose-slate mt-6 max-w-none text-brand-heading/80"
+            />
           </div>
         </div>
-        <MarkdownSection src={sections.community} />
+        <MarkdownSection
+          src={sections.community}
+          className="rounded-2xl border border-brand-border bg-white p-8 shadow-[0_4px_20px_rgba(0,0,0,0.04)]"
+          headingClassName="text-2xl font-semibold text-brand-navy"
+          contentClassName="prose prose-slate mt-6 max-w-none text-brand-heading/80"
+        />
       </section>
+      <Footer />
     </main>
   )
 }
