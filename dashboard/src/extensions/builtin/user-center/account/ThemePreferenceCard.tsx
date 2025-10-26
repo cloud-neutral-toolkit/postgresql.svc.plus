@@ -116,7 +116,7 @@ export default function ThemePreferenceCard() {
   const normalizedPreference = useMemo<ThemePreference>(() => preference ?? 'system', [preference])
 
   return (
-    <Card className="space-y-6">
+    <Card className="space-y-8">
       <div className="space-y-2">
         <h2 className="text-lg font-semibold text-[var(--color-text)]">主题偏好</h2>
         <p className="text-sm text-[var(--color-text-subtle)]">
@@ -124,34 +124,38 @@ export default function ThemePreferenceCard() {
         </p>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        {THEME_OPTIONS.map((option) => {
-          const isSelected = normalizedPreference === option.value
+      <div className="rounded-[var(--radius-2xl)] border border-[color:var(--color-surface-border)] bg-[var(--color-surface-muted)] p-2">
+        <div className="flex flex-col gap-2 md:flex-row">
+          {THEME_OPTIONS.map((option) => {
+            const isSelected = normalizedPreference === option.value
 
-          return (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => setPreference(option.value)}
-              className={`flex flex-col items-start gap-2 rounded-[var(--radius-lg)] border px-4 py-3 text-left transition-colors ${
-                isSelected
-                  ? 'border-[color:var(--color-primary)] bg-[var(--color-primary-muted)] text-[var(--color-primary)] shadow-[var(--shadow-sm)]'
-                  : 'border-[color:var(--color-surface-border)] text-[var(--color-text-subtle)] hover:border-[color:var(--color-primary-border)] hover:text-[var(--color-primary)]'
-              }`}
-            >
-              <span className="text-sm font-semibold">{option.label}</span>
-              <span className="text-xs text-[var(--color-text-subtle)] opacity-80">{option.description}</span>
-              {option.value === 'system' && preference === 'system' ? (
-                <span className="rounded-full bg-[var(--color-surface-muted)] px-2 py-0.5 text-[10px] font-medium text-[var(--color-text-subtle)] opacity-80">
-                  当前匹配：{theme === 'dark' ? '深色' : '浅色'}
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => setPreference(option.value)}
+                className={`flex flex-1 flex-col items-start gap-2 rounded-[var(--radius-xl)] border px-4 py-4 text-left transition-all md:min-h-[140px] ${
+                  isSelected
+                    ? 'border-[color:var(--color-primary)] bg-white text-[var(--color-primary)] shadow-[var(--shadow-md)] dark:bg-[color:var(--color-surface-elevated)]'
+                    : 'border-transparent text-[var(--color-text-subtle)] hover:border-[color:var(--color-primary-border)] hover:text-[var(--color-primary)]'
+                }`}
+              >
+                <span className="text-sm font-semibold">{option.label}</span>
+                <span className="text-xs leading-relaxed text-[var(--color-text-subtle)] opacity-80">
+                  {option.description}
                 </span>
-              ) : null}
-            </button>
-          )
-        })}
+                {option.value === 'system' && preference === 'system' ? (
+                  <span className="rounded-full bg-[var(--color-surface-muted)] px-2 py-0.5 text-[10px] font-medium text-[var(--color-text-subtle)] opacity-80">
+                    当前匹配：{theme === 'dark' ? '深色' : '浅色'}
+                  </span>
+                ) : null}
+              </button>
+            )
+          })}
+        </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2">
         {(Object.keys(PREVIEW_DEFINITIONS) as ThemeName[]).map((name) => {
           const definition = PREVIEW_DEFINITIONS[name]
           return <ThemePreview key={name} definition={definition} active={theme === name} />

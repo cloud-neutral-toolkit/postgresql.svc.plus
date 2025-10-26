@@ -1,4 +1,4 @@
-import { Code, CreditCard, Home, Server, Settings, Shield, User } from 'lucide-react'
+import { Code, CreditCard, Home, Palette, Server, Settings, Shield, User } from 'lucide-react'
 
 import type { DashboardExtension } from '../../types'
 
@@ -32,6 +32,16 @@ export const userCenterExtension: DashboardExtension = {
       guard: { requireLogin: true },
       redirect: { unauthenticated: '/login' },
       sidebar: { section: '权限设置', order: 0 },
+    },
+    {
+      path: '/panel/appearance',
+      label: 'Appearance',
+      description: '个性化主题设置',
+      icon: Palette,
+      loader: () => import('./routes/theme'),
+      guard: { requireLogin: true },
+      redirect: { unauthenticated: '/login' },
+      sidebar: { section: '个性化设置', order: 0 },
     },
     {
       path: '/panel/agent',
