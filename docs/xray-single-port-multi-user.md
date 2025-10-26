@@ -19,12 +19,13 @@ The XControl platform manages access to an Xray proxy node that exposes a single
 
 ## Data Model
 
-| Field        | Source        | Notes                                                     |
-|--------------|---------------|-----------------------------------------------------------|
-| `id`         | Account table | Stored as UUID v4 for compatibility with Xray clients.    |
-| `email`      | Account table | Optional identifier; used for auditing and debugging.     |
-| `flow`       | Derived       | Optional; defaults to `xtls-rprx-vision` for Vision mode. |
-| `enabled`    | Account table | Only enabled users contribute to the generated array.     |
+| Field        | Source        | Notes                                                                  |
+|--------------|---------------|------------------------------------------------------------------------|
+| `id`         | Account table | Stored as UUID v4 for compatibility with Xray clients.                 |
+| `email`      | Account table | Optional identifier; used for auditing and debugging.                  |
+| `flow`       | Derived       | Optional; defaults to `xtls-rprx-vision` for Vision mode.              |
+| `encryption` | Derived       | Required by Xray; defaults to `none` when not explicitly configured.   |
+| `enabled`    | Account table | Only enabled users contribute to the generated array.                  |
 
 The backend queries all enabled accounts and materializes the JSON payload expected by Xray.
 
@@ -54,8 +55,8 @@ The backend queries all enabled accounts and materializes the JSON payload expec
 4. **Generate Configuration**:
    - Load the base template for `/usr/local/etc/xray/config.json`.
    - Replace the `outbounds[].settings.vnext[].users[]` node with the freshly computed array. New registrations simply append to the
-     slice composed in memory before the generator writes it back. Each client entry includes the UUID, optional email, and any
-     flow directive required by the transport profile.
+     slice composed in memory before the generator writes it back. Each client entry includes the UUID, optional email, required `encryption`
+     flag (defaulting to `none`), and any flow directive required by the transport profile.
    - Persist the resulting JSON atomically (write to temp file then move into place).
 5. **Validate JSON**:
    - Run `jq . /usr/local/etc/xray/config.json` or an equivalent Go `json.Unmarshal` check to confirm syntax correctness.
@@ -72,9 +73,10 @@ The backend queries all enabled accounts and materializes the JSON payload expec
 ```go
 // Client represents an entry in outbounds[].settings.vnext[].users[].
 type Client struct {
-    ID    string `json:"id"`
-    Email string `json:"email"`
-    Flow  string `json:"flow"`
+    ID          string `json:"id"`
+    Email       string `json:"email"`
+    Flow        string `json:"flow"`
+    Encryption  string `json:"encryption"`
 }
 
 func SyncXrayClients(ctx context.Context, db *sql.DB, fs afero.Fs, runner command.Runner) error {
@@ -92,6 +94,9 @@ func SyncXrayClients(ctx context.Context, db *sql.DB, fs afero.Fs, runner comman
     for i := range cfg.Outbounds[0].Settings.VNext[0].Users {
         if cfg.Outbounds[0].Settings.VNext[0].Users[i].Flow == "" {
             cfg.Outbounds[0].Settings.VNext[0].Users[i].Flow = "xtls-rprx-vision"
+        }
+        if cfg.Outbounds[0].Settings.VNext[0].Users[i].Encryption == "" {
+            cfg.Outbounds[0].Settings.VNext[0].Users[i].Encryption = "none"
         }
     }
 
