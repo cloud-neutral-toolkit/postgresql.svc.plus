@@ -17,6 +17,7 @@ export type VlessQrCopy = {
   label: string
   description: string
   linkLabel: string
+  linkHelper: string
   copyLink: string
   copied: string
   downloadQr: string
@@ -24,9 +25,7 @@ export type VlessQrCopy = {
   generating: string
   error: string
   missingUuid: string
-  warning: string
-  macPath: string
-  linuxPath: string
+  downloadTooltip: string
   qrAlt: string
 }
 
@@ -185,14 +184,8 @@ export default function VlessQrCard({ uuid, copy }: VlessQrCardProps) {
               <div className="flex flex-1 flex-col gap-2 text-xs text-[var(--color-text-subtle)]">
                 <div className="rounded-[var(--radius-lg)] border border-[color:var(--color-surface-border)] bg-[var(--color-surface-muted)] p-3 text-[11px] text-[var(--color-text)]">
                   <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--color-text-subtle)]">{copy.linkLabel}</p>
-                  <p className="break-all font-mono text-xs">{vlessUri}</p>
+                  <p className="font-mono text-xs text-[var(--color-text-subtle)]">{copy.linkHelper}</p>
                 </div>
-                <p className="flex items-start gap-2 text-[var(--color-warning-foreground)]">
-                  <span aria-hidden className="mt-[2px] inline-flex h-2 w-2 rounded-full bg-[var(--color-warning-foreground)]" />
-                  <span>{copy.warning}</span>
-                </p>
-                <p>{copy.macPath}</p>
-                <p>{copy.linuxPath}</p>
               </div>
             </div>
 
@@ -220,6 +213,8 @@ export default function VlessQrCard({ uuid, copy }: VlessQrCardProps) {
                 onClick={handleDownloadConfig}
                 disabled={isDisabled}
                 className="inline-flex items-center gap-2 rounded-md border border-[color:var(--color-surface-border)] px-3 py-2 text-xs font-medium text-[var(--color-text)] transition-colors hover:border-[color:var(--color-primary-border)] hover:text-[var(--color-primary)] disabled:cursor-not-allowed disabled:opacity-60"
+                title={copy.downloadTooltip}
+                aria-label={copy.downloadTooltip}
               >
                 <Download className="h-3.5 w-3.5" />
                 {copy.downloadConfig}

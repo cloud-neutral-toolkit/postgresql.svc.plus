@@ -308,6 +308,7 @@ type UserCenterOverviewTranslation = {
       label: string
       description: string
       linkLabel: string
+      linkHelper: string
       copyLink: string
       copied: string
       downloadQr: string
@@ -315,6 +316,7 @@ type UserCenterOverviewTranslation = {
       generating: string
       error: string
       missingUuid: string
+      downloadTooltip: string
       warning: string
       macPath: string
       linuxPath: string
@@ -789,9 +791,10 @@ export const translations: Record<'en' | 'zh', Translation> = {
             action: 'Manage MFA',
           },
           vless: {
-            label: 'VLESS access',
-            description: 'Scan to connect instantly with the Tokyo Vision node over TLS.',
+            label: 'VLESS QR code',
+            description: 'Scan to import the accelerator configuration instantly.',
             linkLabel: 'VLESS URI',
+            linkHelper: 'Click “Copy link” to copy your private VLESS URI.',
             copyLink: 'Copy link',
             copied: 'Link copied',
             downloadQr: 'Download QR',
@@ -799,9 +802,8 @@ export const translations: Record<'en' | 'zh', Translation> = {
             generating: 'Generating QR code…',
             error: 'We could not generate the QR code. Try again later.',
             missingUuid: 'We could not locate your UUID. Refresh the page or sign in again.',
-            warning: 'Your UUID is the only credential required to access this node. Keep it private and do not share it.',
-            macPath: 'macOS: /opt/homebrew/etc/config.json',
-            linuxPath: 'Linux: /usr/local/etc/config.json',
+            downloadTooltip:
+              'Your UUID is the only credential required to access this node. Keep it private and do not share it.\nmacOS: /opt/homebrew/etc/config.json\nLinux: /usr/local/etc/config.json',
             qrAlt: 'VLESS connection QR code',
           },
         },
@@ -1378,8 +1380,9 @@ export const translations: Record<'en' | 'zh', Translation> = {
           },
           vless: {
             label: 'VLESS 二维码',
-            description: '扫码即可连接东京 Vision 节点（TLS）。',
+            description: 'VLESS 二维码 - 扫码即可导入加速器配置',
             linkLabel: 'VLESS 链接',
+            linkHelper: '点击「复制链接」即可获取专属 VLESS 链接。',
             copyLink: '复制链接',
             copied: '链接已复制',
             downloadQr: '下载二维码',
@@ -1387,9 +1390,8 @@ export const translations: Record<'en' | 'zh', Translation> = {
             generating: '二维码生成中…',
             error: '二维码生成失败，请稍后重试。',
             missingUuid: '无法获取您的 UUID，请刷新页面或重新登录。',
-            warning: 'UUID 是访问节点的唯一凭证，请谨慎保存，勿随意分发。',
-            macPath: 'macOS：/opt/homebrew/etc/config.json',
-            linuxPath: 'Linux：/usr/local/etc/config.json',
+            downloadTooltip:
+              'UUID 是访问节点的唯一凭证，请谨慎保存，勿随意分发。\nmacOS：/opt/homebrew/etc/config.json\nLinux：/usr/local/etc/config.json',
             qrAlt: 'VLESS 连接二维码',
           },
         },
