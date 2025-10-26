@@ -2,7 +2,7 @@
 
 ## Background
 
-The XControl platform manages access to an Xray proxy node that exposes a single inbound port while supporting multiple end users. Xray allows sharing the same inbound by enumerating client credentials under `inbounds.settings.clients`. Each client entry contains a UUID (`id`) and an optional label (`email`). Keeping the Xray configuration aligned with the account database requires an automated synchronization mechanism.
+The XControl platform manages access to an Xray proxy node that exposes a single inbound port while supporting multiple end users. Xray allows sharing the same outbound tunnel by enumerating client credentials under `outbounds[].settings.vnext[].users[]`. Each client entry contains a UUID (`id`) and an optional label (`email`). Keeping the Xray configuration aligned with the account database requires an automated synchronization mechanism.
 
 ## Goals
 
@@ -13,7 +13,7 @@ The XControl platform manages access to an Xray proxy node that exposes a single
 
 ## Non-Goals
 
-- Managing multiple inbound listeners or transport protocols. The scope is limited to updating `inbounds.settings.clients` for a single inbound.
+- Managing multiple inbound listeners or transport protocols. The scope is limited to updating the VLESS user list under `outbounds[].settings.vnext[].users[]`.
 - Modifying other parts of the Xray configuration (e.g., routing, outbound settings).
 - Providing UI flows for manual configuration edits; the process is backend-driven.
 
@@ -50,12 +50,12 @@ The backend queries all enabled accounts and materializes the JSON payload expec
 
 1. **Trigger**: Any operation that creates, updates, or deletes a user credential triggers the synchronization. Hook into existing user management flows (e.g., registration endpoint).
 2. **Load Active Users**: Fetch all enabled users from the database, retrieving their UUID and email.
-3. **Merge Clients Array**: Construct the `clients` slice (`[]Client`) ordered deterministically (e.g., sorted by creation time) to keep diffs stable.
+3. **Merge Users Array**: Construct the user slice (`[]Client`) ordered deterministically (e.g., sorted by creation time) to keep diffs stable.
 4. **Generate Configuration**:
    - Load the base template for `/usr/local/etc/xray/config.json`.
-   - Replace the `inbounds.settings.clients` node with the freshly computed array. New registrations simply append to the slice
-     composed in memory before the generator writes it back. Each client entry includes the UUID, optional email, and any flow
-     directive required by the transport profile.
+   - Replace the `outbounds[].settings.vnext[].users[]` node with the freshly computed array. New registrations simply append to the
+     slice composed in memory before the generator writes it back. Each client entry includes the UUID, optional email, and any
+     flow directive required by the transport profile.
    - Persist the resulting JSON atomically (write to temp file then move into place).
 5. **Validate JSON**:
    - Run `jq . /usr/local/etc/xray/config.json` or an equivalent Go `json.Unmarshal` check to confirm syntax correctness.
@@ -70,7 +70,7 @@ The backend queries all enabled accounts and materializes the JSON payload expec
 ## Implementation Sketch (Go)
 
 ```go
-// Client represents an entry in inbounds.settings.clients.
+// Client represents an entry in outbounds[].settings.vnext[].users[].
 type Client struct {
     ID    string `json:"id"`
     Email string `json:"email"`
@@ -88,10 +88,10 @@ func SyncXrayClients(ctx context.Context, db *sql.DB, fs afero.Fs, runner comman
         return fmt.Errorf("load base config: %w", err)
     }
 
-    cfg.Inbounds[0].Settings.Clients = clients
-    for i := range cfg.Inbounds[0].Settings.Clients {
-        if cfg.Inbounds[0].Settings.Clients[i].Flow == "" {
-            cfg.Inbounds[0].Settings.Clients[i].Flow = "xtls-rprx-vision"
+    cfg.Outbounds[0].Settings.VNext[0].Users = clients
+    for i := range cfg.Outbounds[0].Settings.VNext[0].Users {
+        if cfg.Outbounds[0].Settings.VNext[0].Users[i].Flow == "" {
+            cfg.Outbounds[0].Settings.VNext[0].Users[i].Flow = "xtls-rprx-vision"
         }
     }
 
@@ -115,7 +115,7 @@ func SyncXrayClients(ctx context.Context, db *sql.DB, fs afero.Fs, runner comman
 The concrete implementation should wire in dependency-injected collaborators for database access, filesystem operations, validation, and command execution to simplify testing.
 
 The initial `Config Generator` module lives at `account/internal/xrayconfig`. It loads `account/config/xray.config.template.json`,
-overwrites the client array with the current database view (setting `flow` to `xtls-rprx-vision` unless callers request a
+overwrites the VLESS user array with the current database view (setting `flow` to `xtls-rprx-vision` unless callers request a
 different value), and writes the merged document to `/usr/local/etc/xray/config.json` using an atomic rename so that Xray always
 observes a complete file.
 
