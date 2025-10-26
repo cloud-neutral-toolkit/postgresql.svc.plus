@@ -119,6 +119,36 @@ overwrites the client array with the current database view (setting `flow` to `x
 different value), and writes the merged document to `/usr/local/etc/xray/config.json` using an atomic rename so that Xray always
 observes a complete file.
 
+### Periodic Synchronization
+
+While real-time triggers keep the configuration fresh, some deployments prefer an asynchronous polling model. The account service
+now exposes a background syncer that periodically rebuilds the Xray config by:
+
+1. Pulling all user UUIDs through a `ClientSource` (the default implementation reads from the `users` table via GORM).
+2. Regenerating the config with the existing generator.
+3. Optionally validating the JSON and restarting Xray using commands defined in configuration.
+
+The cadence and command hooks are controlled through `account/config/account.yaml`:
+
+```yaml
+xray:
+  sync:
+    enabled: true
+    interval: 5m
+    templatePath: "account/config/xray.config.template.json"
+    outputPath: "/usr/local/etc/xray/config.json"
+    validateCommand:
+      - "jq"
+      - "."
+      - "/usr/local/etc/xray/config.json"
+    restartCommand:
+      - "systemctl"
+      - "restart"
+      - "xray.service"
+```
+
+When `enabled` is true the service launches the periodic sync loop on startup, logging each run with the number of clients written.
+
 ## Operational Considerations
 
 - **Atomic Writes**: Write the new configuration to `/usr/local/etc/xray/config.json.tmp` and `os.Rename` it into place to avoid partial files.
