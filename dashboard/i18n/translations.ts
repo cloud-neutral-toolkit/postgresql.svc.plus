@@ -304,6 +304,22 @@ type UserCenterOverviewTranslation = {
       description: string
       action: string
     }
+    vless: {
+      label: string
+      description: string
+      linkLabel: string
+      copyLink: string
+      copied: string
+      downloadQr: string
+      downloadConfig: string
+      generating: string
+      error: string
+      missingUuid: string
+      warning: string
+      macPath: string
+      linuxPath: string
+      qrAlt: string
+    }
   }
 }
 
@@ -771,6 +787,22 @@ export const translations: Record<'en' | 'zh', Translation> = {
             label: 'Multi-factor authentication',
             description: 'Secure the console by pairing an authenticator app.',
             action: 'Manage MFA',
+          },
+          vless: {
+            label: 'VLESS access',
+            description: 'Scan to connect instantly with the Tokyo Vision node over TLS.',
+            linkLabel: 'VLESS URI',
+            copyLink: 'Copy link',
+            copied: 'Link copied',
+            downloadQr: 'Download QR',
+            downloadConfig: 'Download config',
+            generating: 'Generating QR code…',
+            error: 'We could not generate the QR code. Try again later.',
+            missingUuid: 'We could not locate your UUID. Refresh the page or sign in again.',
+            warning: 'Your UUID is the only credential required to access this node. Keep it private and do not share it.',
+            macPath: 'macOS: /opt/homebrew/etc/config.json',
+            linuxPath: 'Linux: /usr/local/etc/config.json',
+            qrAlt: 'VLESS connection QR code',
           },
         },
       },
@@ -1343,6 +1375,22 @@ export const translations: Record<'en' | 'zh', Translation> = {
             label: '多因素认证',
             description: '绑定认证器即可保护控制台访问。',
             action: '前往设置',
+          },
+          vless: {
+            label: 'VLESS 二维码',
+            description: '扫码即可连接东京 Vision 节点（TLS）。',
+            linkLabel: 'VLESS 链接',
+            copyLink: '复制链接',
+            copied: '链接已复制',
+            downloadQr: '下载二维码',
+            downloadConfig: '下载配置',
+            generating: '二维码生成中…',
+            error: '二维码生成失败，请稍后重试。',
+            missingUuid: '无法获取您的 UUID，请刷新页面或重新登录。',
+            warning: 'UUID 是访问节点的唯一凭证，请谨慎保存，勿随意分发。',
+            macPath: 'macOS：/opt/homebrew/etc/config.json',
+            linuxPath: 'Linux：/usr/local/etc/config.json',
+            qrAlt: 'VLESS 连接二维码',
           },
         },
       },

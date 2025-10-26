@@ -5,10 +5,12 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Copy } from 'lucide-react'
 
-import Card from './Card'
 import { useLanguage } from '@i18n/LanguageProvider'
 import { translations } from '@i18n/translations'
 import { useUser } from '@lib/userStore'
+
+import Card from './Card'
+import VlessQrCard from './VlessQrCard'
 
 function resolveDisplayName(
   user: {
@@ -42,6 +44,7 @@ export default function UserOverview() {
 
   const displayName = useMemo(() => resolveDisplayName(user), [user])
   const uuid = user?.uuid ?? user?.id ?? '—'
+  const vlessUuid = user?.uuid ?? user?.id ?? null
   const username = user?.username ?? '—'
   const email = user?.email ?? '—'
   const docsUrl = mfaCopy.actions.docsUrl
@@ -160,6 +163,8 @@ export default function UserOverview() {
           </div>
           <p className="mt-3 text-xs text-[var(--color-text-subtle)]">{copy.cards.uuid.description}</p>
         </Card>
+
+        <VlessQrCard uuid={vlessUuid} copy={copy.cards.vless} />
 
         <Card>
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-primary)]">{copy.cards.username.label}</p>
