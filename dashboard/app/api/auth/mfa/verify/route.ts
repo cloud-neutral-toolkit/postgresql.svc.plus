@@ -20,6 +20,16 @@ type VerifyPayload = {
   totp?: string
 }
 
+type AccountVerifyResponse = {
+  token?: string
+  expiresAt?: string
+  mfaToken?: string
+  error?: string
+  retryAt?: string
+  user?: Record<string, unknown> | null
+  mfa?: Record<string, unknown> | null
+}
+
 function normalizeString(value: unknown) {
   return typeof value === 'string' ? value.trim() : ''
 }
@@ -60,17 +70,20 @@ export async function POST(request: NextRequest) {
       cache: 'no-store',
     })
 
-    const data = (await response.json().catch(() => ({}))) as { token?: string; expiresAt?: string; mfaToken?: string; error?: string }
+    const data = (await response.json().catch(() => ({}))) as AccountVerifyResponse
 
     if (response.ok && typeof data?.token === 'string' && data.token.length > 0) {
-      const result = NextResponse.json({ success: true, error: null, needMfa: false })
+      const result = NextResponse.json({ success: true, error: null, needMfa: false, data })
       applySessionCookie(result, data.token, deriveMaxAgeFromExpires(data?.expiresAt))
       clearMfaCookie(result)
       return result
     }
 
     const errorCode = typeof data?.error === 'string' ? data.error : 'mfa_verification_failed'
-    const result = NextResponse.json({ success: false, error: errorCode, needMfa: true }, { status: response.status || 400 })
+    const result = NextResponse.json(
+      { success: false, error: errorCode, needMfa: true, data },
+      { status: response.status || 400 },
+    )
 
     if (typeof data?.mfaToken === 'string' && data.mfaToken.trim()) {
       applyMfaCookie(result, data.mfaToken)

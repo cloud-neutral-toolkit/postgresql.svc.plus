@@ -27,6 +27,20 @@ type ProvisionResponse = {
   user?: { mfa?: TotpStatus }
 }
 
+type VerifyResponse = {
+  success?: boolean
+  error?: string | null
+  needMfa?: boolean
+  data?: {
+    user?: {
+      mfa?: TotpStatus
+      mfaEnabled?: boolean
+      mfaPending?: boolean
+    } | null
+    mfa?: TotpStatus | null
+  }
+}
+
 const DEFAULT_TOTP_ISSUER = 'svc.plus'
 
 function applyTotpUriOverrides(originalUri: string, issuer: string, accountName: string) {
@@ -282,17 +296,27 @@ export default function MfaSetupPanel() {
           credentials: 'include',
           body: JSON.stringify({ code: normalizedCode }),
         })
-        const payload = (await response.json().catch(() => ({}))) as {
-          success?: boolean
-          error?: string | null
-          needMfa?: boolean
-        }
+        const payload = (await response.json().catch(() => ({}))) as VerifyResponse
         if (!payload?.success || !response.ok) {
           setError(resolveErrorMessage(payload?.error))
           void fetchStatus()
           return
         }
-        setStatus({ totpEnabled: true, totpPending: false })
+        const responseStatus = payload?.data?.mfa ?? payload?.data?.user?.mfa ?? null
+        const normalizedStatus: TotpStatus = responseStatus
+          ? {
+              ...responseStatus,
+              totpEnabled: Boolean(
+                responseStatus.totpEnabled ?? payload?.data?.user?.mfaEnabled ?? true,
+              ),
+              totpPending:
+                Boolean(responseStatus.totpPending ?? payload?.data?.user?.mfaPending) &&
+                !Boolean(
+                  responseStatus.totpEnabled ?? payload?.data?.user?.mfaEnabled ?? true,
+                ),
+            }
+          : { totpEnabled: true, totpPending: false }
+        setStatus(normalizedStatus)
         setSecret('')
         setUri('')
         setIssuer('')
