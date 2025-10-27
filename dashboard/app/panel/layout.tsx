@@ -104,8 +104,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
         <main className="flex flex-1 flex-col space-y-6 bg-[var(--color-surface-translucent)] px-3 py-5 text-[var(--color-text)] transition-colors sm:px-4 md:px-6 lg:px-8">
           {requiresSetup ? (
             <div className="rounded-[var(--radius-lg)] border border-[color:var(--color-warning-muted)] bg-[var(--color-warning-muted)] p-4 text-sm text-[var(--color-warning-foreground)] transition-colors">
-              <p className="font-semibold">{copy.pendingHint}</p>
-              <p className="mt-1 text-sm">{copy.lockedMessage}</p>
+              <p className="text-sm">{copy.lockedMessage}</p>
               <div className="mt-3 flex flex-wrap gap-2 text-xs">
                 <button
                   type="button"

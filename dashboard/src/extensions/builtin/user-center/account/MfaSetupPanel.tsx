@@ -435,7 +435,7 @@ export default function MfaSetupPanel() {
     return (
       <Card>
         <h2 className="text-xl font-semibold text-[var(--color-text)]">{copy.title}</h2>
-        <p className="mt-2 text-sm text-[var(--color-text-subtle)]">{copy.pendingHint}</p>
+        <p className="mt-2 text-sm text-[var(--color-text-subtle)]">{copy.subtitle}</p>
       </Card>
     )
   }
@@ -478,7 +478,7 @@ export default function MfaSetupPanel() {
                 {displayStatus?.totpEnabled ? copy.summary.manage : copy.summary.bind}
               </button>
               {requiresSetup ? (
-                <p className="text-xs text-[var(--color-warning-foreground)]">{copy.pendingHint}</p>
+                <p className="text-xs text-[var(--color-warning-foreground)]">{copy.lockedMessage}</p>
               ) : null}
             </div>
           </div>
@@ -548,7 +548,7 @@ export default function MfaSetupPanel() {
                 ) : (
                   <div className="space-y-5">
                     <p className="rounded-lg border border-[color:var(--color-warning-muted)] bg-[var(--color-warning-muted)] p-3 text-sm text-[var(--color-warning-foreground)]">
-                      {hasPendingMfa ? copy.pendingHint : copy.subtitle}
+                      {hasPendingMfa ? copy.lockedMessage : copy.subtitle}
                     </p>
 
                     {lockoutActive ? (
