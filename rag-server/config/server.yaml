@@ -1,7 +1,7 @@
 server:
   addr: ":8090"
-  readTimeout: 15s
-  writeTimeout: 15s
+  readTimeout: 120s
+  writeTimeout: 120s
   publicUrl: "https://www.svc.plus"
   allowedOrigins:
     - "https://www.svc.plus"
