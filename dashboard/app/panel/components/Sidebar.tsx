@@ -87,16 +87,6 @@ export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
       .filter((value): value is NavSection => Boolean(value))
   }, [requiresSetup, user])
 
-  const pendingHint = copy.pendingHint.trim()
-  const lockedMessage = copy.lockedMessage.trim()
-  const setupLabel = copy.actions.setup.trim()
-  const docsLabel = copy.actions.docs.trim()
-  const hasBannerContent =
-    pendingHint.length > 0 ||
-    lockedMessage.length > 0 ||
-    setupLabel.length > 0 ||
-    docsLabel.length > 0
-
   return (
     <aside
       className={`flex h-full w-64 flex-col gap-6 border-r border-[color:var(--color-surface-border)] bg-[var(--color-surface-elevated)] p-6 text-[var(--color-text)] shadow-[var(--shadow-md)] backdrop-blur transition-colors ${className}`}
@@ -107,33 +97,27 @@ export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
         <p className="text-sm text-[var(--color-text-subtle)]">在同一处掌控权限与功能特性。</p>
       </div>
 
-      {requiresSetup && hasBannerContent ? (
+      {requiresSetup ? (
         <div className="rounded-[var(--radius-lg)] border border-[color:var(--color-warning-muted)] bg-[var(--color-warning-muted)] p-3 text-xs text-[var(--color-warning-foreground)] transition-colors">
-          {pendingHint.length > 0 ? <p className="font-semibold">{pendingHint}</p> : null}
-          {lockedMessage.length > 0 ? <p className="mt-1">{lockedMessage}</p> : null}
-          {setupLabel.length > 0 || docsLabel.length > 0 ? (
-            <div className="mt-2 flex flex-wrap gap-2">
-              {setupLabel.length > 0 ? (
-                <Link
-                  href="/panel/account?setupMfa=1"
-                  onClick={onNavigate}
-                  className="inline-flex items-center justify-center rounded-md bg-[var(--color-primary)] px-3 py-1.5 text-xs font-medium text-[var(--color-primary-foreground)] shadow-[var(--shadow-sm)] transition-colors hover:bg-[var(--color-primary-hover)]"
-                >
-                  {setupLabel}
-                </Link>
-              ) : null}
-              {docsLabel.length > 0 ? (
-                <a
-                  href={copy.actions.docsUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-primary-border)] px-3 py-1.5 text-xs font-medium text-[var(--color-primary)] transition-colors hover:border-[color:var(--color-primary)] hover:bg-[var(--color-primary-muted)]"
-                >
-                  {docsLabel}
-                </a>
-              ) : null}
-            </div>
-          ) : null}
+          <p className="font-semibold">{copy.pendingHint}</p>
+          <p className="mt-1">{copy.lockedMessage}</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Link
+              href="/panel/account?setupMfa=1"
+              onClick={onNavigate}
+              className="inline-flex items-center justify-center rounded-md bg-[var(--color-primary)] px-3 py-1.5 text-xs font-medium text-[var(--color-primary-foreground)] shadow-[var(--shadow-sm)] transition-colors hover:bg-[var(--color-primary-hover)]"
+            >
+              {copy.actions.setup}
+            </Link>
+            <a
+              href={copy.actions.docsUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-primary-border)] px-3 py-1.5 text-xs font-medium text-[var(--color-primary)] transition-colors hover:border-[color:var(--color-primary)] hover:bg-[var(--color-primary-muted)]"
+            >
+              {copy.actions.docs}
+            </a>
+          </div>
         </div>
       ) : null}
 

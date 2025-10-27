@@ -98,15 +98,6 @@ export default function UserOverview() {
     router.refresh()
   }, [logout, router])
 
-  const lockBannerBody = copy.lockBanner.body.trim()
-  const lockBannerAction = copy.lockBanner.action.trim()
-  const lockBannerDocs = copy.lockBanner.docs.trim()
-  const lockBannerLogout = copy.lockBanner.logout.trim()
-  const hasLockBannerActions =
-    lockBannerAction.length > 0 ||
-    lockBannerDocs.length > 0 ||
-    lockBannerLogout.length > 0
-
   return (
     <div className="space-y-6 text-[var(--color-text)] transition-colors">
       <div>
@@ -124,39 +115,31 @@ export default function UserOverview() {
       {requiresSetup ? (
         <div className="rounded-[var(--radius-xl)] border border-[color:var(--color-warning-muted)] bg-[var(--color-warning-muted)] p-4 text-sm text-[var(--color-warning-foreground)] transition-colors">
           <p className="text-base font-semibold">{copy.lockBanner.title}</p>
-          {lockBannerBody.length > 0 ? <p className="mt-1 text-sm">{lockBannerBody}</p> : null}
-          {hasLockBannerActions ? (
-            <div className="mt-3 flex flex-wrap gap-2 text-xs">
-              {lockBannerAction.length > 0 ? (
-                <button
-                  type="button"
-                  onClick={handleGoToSetup}
-                  className="inline-flex items-center justify-center rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-foreground)] shadow-[var(--shadow-sm)] transition-colors hover:bg-[var(--color-primary-hover)]"
-                >
-                  {lockBannerAction}
-                </button>
-              ) : null}
-              {lockBannerDocs.length > 0 ? (
-                <a
-                  href={docsUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-primary-border)] px-4 py-2 text-sm font-medium text-[var(--color-primary)] transition-colors hover:border-[color:var(--color-primary)] hover:bg-[var(--color-primary-muted)]"
-                >
-                  {lockBannerDocs}
-                </a>
-              ) : null}
-              {lockBannerLogout.length > 0 ? (
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="inline-flex items-center justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-[var(--color-warning-foreground)] transition-colors hover:bg-[var(--color-warning-muted)]"
-                >
-                  {lockBannerLogout}
-                </button>
-              ) : null}
-            </div>
-          ) : null}
+          <p className="mt-1 text-sm">{copy.lockBanner.body}</p>
+          <div className="mt-3 flex flex-wrap gap-2 text-xs">
+            <button
+              type="button"
+              onClick={handleGoToSetup}
+              className="inline-flex items-center justify-center rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-foreground)] shadow-[var(--shadow-sm)] transition-colors hover:bg-[var(--color-primary-hover)]"
+            >
+              {copy.lockBanner.action}
+            </button>
+            <a
+              href={docsUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-primary-border)] px-4 py-2 text-sm font-medium text-[var(--color-primary)] transition-colors hover:border-[color:var(--color-primary)] hover:bg-[var(--color-primary-muted)]"
+            >
+              {copy.lockBanner.docs}
+            </a>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="inline-flex items-center justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-[var(--color-warning-foreground)] transition-colors hover:bg-[var(--color-warning-muted)]"
+            >
+              {copy.lockBanner.logout}
+            </button>
+          </div>
         </div>
       ) : null}
 

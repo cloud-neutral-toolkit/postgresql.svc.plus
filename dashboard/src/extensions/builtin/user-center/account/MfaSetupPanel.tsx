@@ -103,9 +103,6 @@ export default function MfaSetupPanel() {
   const searchParams = useSearchParams()
   const { user, refresh, logout } = useUser()
 
-  const lockedMessage = copy.lockedMessage.trim()
-  const actionDocs = copy.actions.docs.trim()
-
   const [status, setStatus] = useState<TotpStatus | null>(null)
   const [secret, setSecret] = useState('')
   const [uri, setUri] = useState('')
@@ -480,8 +477,8 @@ export default function MfaSetupPanel() {
               >
                 {displayStatus?.totpEnabled ? copy.summary.manage : copy.summary.bind}
               </button>
-              {requiresSetup && lockedMessage.length > 0 ? (
-                <p className="text-xs text-[var(--color-warning-foreground)]">{lockedMessage}</p>
+              {requiresSetup ? (
+                <p className="text-xs text-[var(--color-warning-foreground)]">{copy.lockedMessage}</p>
               ) : null}
             </div>
           </div>
@@ -551,7 +548,7 @@ export default function MfaSetupPanel() {
                 ) : (
                   <div className="space-y-5">
                     <p className="rounded-lg border border-[color:var(--color-warning-muted)] bg-[var(--color-warning-muted)] p-3 text-sm text-[var(--color-warning-foreground)]">
-                      {hasPendingMfa ? (lockedMessage.length > 0 ? lockedMessage : copy.subtitle) : copy.subtitle}
+                      {hasPendingMfa ? copy.lockedMessage : copy.subtitle}
                     </p>
 
                     {lockoutActive ? (
@@ -690,16 +687,14 @@ export default function MfaSetupPanel() {
                     >
                       {copy.actions.logout}
                     </button>
-                    {actionDocs.length > 0 ? (
-                      <a
-                        href={copy.actions.docsUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center justify-center rounded-md border border-transparent bg-[var(--color-primary)] px-3 py-2 text-xs font-medium text-[var(--color-primary-foreground)] transition hover:bg-[var(--color-primary-hover)]"
-                      >
-                        {actionDocs}
-                      </a>
-                    ) : null}
+                    <a
+                      href={copy.actions.docsUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center justify-center rounded-md border border-transparent bg-[var(--color-primary)] px-3 py-2 text-xs font-medium text-[var(--color-primary-foreground)] transition hover:bg-[var(--color-primary-hover)]"
+                    >
+                      {copy.actions.docs}
+                    </a>
                   </div>
                 </div>
               </div>

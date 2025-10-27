@@ -765,10 +765,10 @@ export const translations: Record<'en' | 'zh', Translation> = {
         uuidNote: 'Your UUID uniquely identifies you across XControl services.',
         lockBanner: {
           title: 'Finish MFA setup',
-          body: 'Enable multi-factor authentication to strengthen your account security.',
-          action: '',
-          docs: '',
-          logout: '',
+          body: 'Complete multi-factor authentication to unlock every panel section.',
+          action: 'Set up MFA',
+          docs: 'View setup guide',
+          logout: 'Sign out',
         },
         cards: {
           uuid: {
@@ -811,7 +811,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
       mfa: {
         title: 'Multi-factor authentication',
         subtitle: 'Bind Google Authenticator to finish securing your account.',
-        pendingHint: 'Enable multi-factor authentication to safeguard your account.',
+        pendingHint: 'Complete this step to unlock the user center and other console features.',
         enabledHint: 'Authenticator codes are now required for every sign-in.',
         summary: {
           description: 'View your authenticator status and manage binding without leaving the dashboard.',
@@ -856,7 +856,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
           disabled: 'Not enabled',
         },
         qrLabel: 'Authenticator QR code',
-        lockedMessage: 'Complete the setup to keep your account protected.',
+        lockedMessage: 'Finish the binding flow before exploring other sections.',
         steps: {
           intro: 'Complete these two steps to secure your account:',
           provision: '1. Generate a secret and scan the QR code with Google Authenticator.',
@@ -864,11 +864,11 @@ export const translations: Record<'en' | 'zh', Translation> = {
         },
         actions: {
           help: 'Need help staying secure?',
-          description: 'If you run into issues, try signing out and starting again.',
+          description: 'If you run into issues, sign out or review the setup documentation.',
           logout: 'Sign out',
-          docs: '',
+          docs: 'View setup guide',
           docsUrl: '/docs/account-service-configuration/latest',
-          setup: '',
+          setup: 'Resume setup',
         },
         modal: {
           title: 'Manage multi-factor authentication',
@@ -1353,10 +1353,10 @@ export const translations: Record<'en' | 'zh', Translation> = {
         uuidNote: 'UUID 是你在 XControl 中的唯一身份凭证，后续的所有服务都与它关联在一起。',
         lockBanner: {
           title: '完成多因素认证',
-          body: '启用多因素认证保护你的账号安全。',
-          action: '',
-          docs: '',
-          logout: '',
+          body: '完成 MFA 绑定后即可访问所有控制台板块。',
+          action: '立即设置',
+          docs: '查看操作指引',
+          logout: '退出登录',
         },
         cards: {
           uuid: {
@@ -1399,7 +1399,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
       mfa: {
         title: '多因素认证',
         subtitle: '绑定 Google Authenticator，完成账号安全校验。',
-        pendingHint: '启用多因素认证以提升账号安全。',
+        pendingHint: '启用多因素认证后即可访问用户中心和更多控制台功能。',
         enabledHint: '以后登录都需要输入动态验证码。',
         summary: {
           description: '在此查看当前绑定状态，并随时完成认证器的绑定或解绑。',
@@ -1440,7 +1440,7 @@ export const translations: Record<'en' | 'zh', Translation> = {
           disabled: '未开启',
         },
         qrLabel: '认证二维码',
-        lockedMessage: '完成绑定即可持续守护账号安全。',
+        lockedMessage: '请先完成绑定流程，再访问其他板块。',
         steps: {
           intro: '按照以下两步完成账号安全加固：',
           provision: '1. 生成密钥并在认证器中扫描二维码。',
@@ -1448,11 +1448,11 @@ export const translations: Record<'en' | 'zh', Translation> = {
         },
         actions: {
           help: '需要帮助？',
-          description: '遇到问题时可以退出重新登录，再次尝试。',
+          description: '遇到问题时可以退出重新登录，或查看绑定指引。',
           logout: '退出登录',
-          docs: '',
+          docs: '查看操作指引',
           docsUrl: '/docs/account-service-configuration/latest',
-          setup: '',
+          setup: '继续设置',
         },
         modal: {
           title: '管理多因素认证',
