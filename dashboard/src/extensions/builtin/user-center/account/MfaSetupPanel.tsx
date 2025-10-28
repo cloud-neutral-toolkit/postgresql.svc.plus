@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toDataURL as generateQrCode } from 'qrcode'
 
@@ -115,6 +115,7 @@ export default function MfaSetupPanel() {
   const [isDisabling, setIsDisabling] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const inputRefs = useRef<Array<HTMLInputElement | null>>([])
 
   const setupRequested = searchParams.get('setupMfa') === '1'
   const hasPendingMfa = Boolean(status?.totpPending && !status?.totpEnabled)
@@ -499,9 +500,9 @@ export default function MfaSetupPanel() {
             <button
               type="button"
               onClick={closeDialog}
+              aria-label={copy.modal.close}
               className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-[color:var(--color-surface-border)] bg-[var(--color-surface)] text-xl text-[var(--color-text-subtle)] opacity-80 transition hover:border-[color:var(--color-surface-border)] hover:text-[var(--color-text-subtle)]"
             >
-              <span className="sr-only">{copy.modal.close}</span>
               ×
             </button>
             <div className="max-h-[85vh] overflow-y-auto p-6 sm:p-8">
@@ -641,24 +642,124 @@ export default function MfaSetupPanel() {
                           className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4"
                         >
                           <div className="flex-1">
-                            <label className="block text-sm font-medium text-[var(--color-text-subtle)]" htmlFor="mfa-code">
+                            <label className="block text-sm font-medium text-[var(--color-text-subtle)]" htmlFor="mfa-code-0">
                               {copy.codeLabel}
                             </label>
+                            <div className="mt-2 flex gap-2 sm:gap-3">
+                              {Array.from({ length: 6 }).map((_, index) => {
+                                const digit = code[index] ?? ''
+                                return (
+                                  <input
+                                    key={index}
+                                    id={`mfa-code-${index}`}
+                                    type="text"
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
+                                    maxLength={1}
+                                    value={digit}
+                                    ref={(element) => {
+                                      inputRefs.current[index] = element
+                                    }}
+                                    onChange={(event) => {
+                                      const sanitized = event.target.value.replace(/\D/g, '')
+                                      if (!sanitized) {
+                                        setCode((prev) => {
+                                          const digits = Array.from({ length: 6 }, (_, i) => prev[i] ?? '')
+                                          digits[index] = ''
+                                          return digits.join('')
+                                        })
+                                        return
+                                      }
+
+                                      const normalized = sanitized.slice(0, 6 - index)
+                                      setCode((prev) => {
+                                        const digits = Array.from({ length: 6 }, (_, i) => prev[i] ?? '')
+                                        normalized.split('').forEach((value, offset) => {
+                                          const targetIndex = index + offset
+                                          if (targetIndex < 6) {
+                                            digits[targetIndex] = value
+                                          }
+                                        })
+                                        return digits.join('')
+                                      })
+
+                                      const nextIndex = Math.min(index + normalized.length, 5)
+                                      if (nextIndex !== index) {
+                                        setTimeout(() => {
+                                          inputRefs.current[nextIndex]?.focus()
+                                          inputRefs.current[nextIndex]?.select()
+                                        }, 0)
+                                      }
+                                    }}
+                                    onKeyDown={(event) => {
+                                      const isDigit = /\d/.test(event.key)
+                                      if (event.key === 'Backspace') {
+                                        event.preventDefault()
+                                        if (code[index]) {
+                                          setCode((prev) => {
+                                            const digits = Array.from({ length: 6 }, (_, i) => prev[i] ?? '')
+                                            digits[index] = ''
+                                            return digits.join('')
+                                          })
+                                        } else if (index > 0) {
+                                          setCode((prev) => {
+                                            const digits = Array.from({ length: 6 }, (_, i) => prev[i] ?? '')
+                                            digits[index - 1] = ''
+                                            return digits.join('')
+                                          })
+                                          setTimeout(() => {
+                                            inputRefs.current[index - 1]?.focus()
+                                          }, 0)
+                                        }
+                                        return
+                                      }
+
+                                      if (event.key === 'ArrowLeft' && index > 0) {
+                                        event.preventDefault()
+                                        inputRefs.current[index - 1]?.focus()
+                                        return
+                                      }
+
+                                      if (event.key === 'ArrowRight' && index < 5) {
+                                        event.preventDefault()
+                                        inputRefs.current[index + 1]?.focus()
+                                        return
+                                      }
+
+                                      if (event.key === 'Enter') {
+                                        return
+                                      }
+
+                                      if (!isDigit && event.key.length === 1) {
+                                        event.preventDefault()
+                                      }
+                                    }}
+                                    onPaste={(event) => {
+                                      const pasted = event.clipboardData?.getData('text') ?? ''
+                                      const digitsOnly = pasted.replace(/\D/g, '').slice(0, 6)
+                                      if (!digitsOnly) {
+                                        return
+                                      }
+                                      event.preventDefault()
+                                      setCode(digitsOnly)
+                                      const targetIndex = Math.min(digitsOnly.length - 1, 5)
+                                      setTimeout(() => {
+                                        inputRefs.current[targetIndex]?.focus()
+                                        inputRefs.current[targetIndex]?.select()
+                                      }, 0)
+                                    }}
+                                    onFocus={(event) => event.currentTarget.select()}
+                                    className="h-14 w-12 rounded-lg border border-[color:var(--color-surface-border)] bg-[var(--color-surface)] text-center text-2xl font-mono text-[var(--color-text)] shadow-[var(--shadow-sm)] focus:border-[color:var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-muted)]"
+                                  />
+                                )
+                              })}
+                            </div>
                             <input
                               id="mfa-code"
                               name="code"
-                              type="text"
-                              inputMode="numeric"
-                              pattern="[0-9]*"
-                              maxLength={6}
-                              autoComplete="one-time-code"
+                              type="hidden"
                               value={code}
-                              onChange={(event) => {
-                                const digitsOnly = event.target.value.replace(/\D/g, '').slice(0, 6)
-                                setCode(digitsOnly)
-                              }}
-                              placeholder={copy.codePlaceholder}
-                              className="mt-2 w-full rounded-lg border border-[color:var(--color-surface-border)] px-4 py-3 text-center text-2xl font-mono tracking-[0.6em] text-[var(--color-text)] shadow-[var(--shadow-sm)] focus:border-[color:var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-muted)]"
+                              autoComplete="one-time-code"
                             />
                           </div>
                           <button
