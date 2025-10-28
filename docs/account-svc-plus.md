@@ -1,6 +1,6 @@
-# account.svc.plus 设计文档
+# accounts.svc.plus 设计文档
 
-本文档基于现有项目结构，描述一个轻量级的账号服务 **account.svc.plus** 的设计方案。
+本文档基于现有项目结构，描述一个轻量级的账号服务 **accounts.svc.plus** 的设计方案。
 
 ## 1. 功能概述
 
@@ -14,7 +14,7 @@
 
 ```
 +---------------+         +------------------+
-| LDAP / OIDC / |  Auth   |   account.svc    |
+| LDAP / OIDC / |  Auth   |  accounts.svc    |
 |    SAML IdP   +-------->+------------------+-----> PostgreSQL
 +---------------+         |   REST / gRPC    |
                            |   gin + goroutine|

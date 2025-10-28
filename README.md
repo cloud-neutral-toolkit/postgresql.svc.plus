@@ -60,11 +60,11 @@ make init-db   # initialize database (optional)
 The Next.js dashboard now resolves service endpoints through `dashboard/config/runtime-service-config.yaml`. The runtime
 configuration selects values based on `NEXT_PUBLIC_RUNTIME_ENV` (falling back to `NODE_ENV` and the file's
 `defaultEnvironment`). Use `NEXT_PUBLIC_ACCOUNT_SERVICE_URL` for ad-hoc overrides, otherwise adjust the YAML file to specify
-environment-specific URLs such as `http://localhost:8080` for development/test and `https://account.svc.plus` for production.
+environment-specific URLs such as `http://localhost:8080` for development/test and `https://accounts.svc.plus` for production.
 
 ## Account service configuration
 
-`account/config/account.yaml` now accepts a `server.publicUrl` value such as `https://account.svc.plus:8443`. The account service
+`account/config/account.yaml` now accepts a `server.publicUrl` value such as `https://accounts.svc.plus:8443`. The account service
 uses this URL to derive a default CORS origin and to document the externally reachable host. Set `server.allowedOrigins` when you
 need to expose additional browser clients; omit it to fall back to the public URL or the local development origins
 (`http://localhost:3001` and `http://127.0.0.1:3001`).

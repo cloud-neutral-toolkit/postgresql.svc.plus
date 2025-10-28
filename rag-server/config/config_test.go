@@ -44,7 +44,7 @@ func TestLoad(t *testing.T) {
 	wantOrigins := []string{
 		"https://www.svc.plus",
 		"https://global-homepage.svc.plus",
-		"https://account.svc.plus",
+                "https://accounts.svc.plus",
 		"http://localhost:3000",
 		"http://127.0.0.1:3000",
 		"http://localhost:3001",

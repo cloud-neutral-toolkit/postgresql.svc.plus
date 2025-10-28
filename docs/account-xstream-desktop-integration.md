@@ -1,6 +1,6 @@
 # XStream Desktop 同步集成方案（跨项目执行手册）
 
-本手册将 `account` 服务与 XStream Desktop App 的改造步骤拆分为两条执行线，并给出跨项目协作时所需的接口契约、目录定位和数据格式。目标是在托管域名 `account.svc.plus` 以及自建部署中，以最小增量实现安全的 xray-core 配置同步，且在 URL 层不泄露任何敏感字段。
+本手册将 `account` 服务与 XStream Desktop App 的改造步骤拆分为两条执行线，并给出跨项目协作时所需的接口契约、目录定位和数据格式。目标是在托管域名 `accounts.svc.plus` 以及自建部署中，以最小增量实现安全的 xray-core 配置同步，且在 URL 层不泄露任何敏感字段。
 
 ## 1. 账户服务改造（xcontrol/account）
 

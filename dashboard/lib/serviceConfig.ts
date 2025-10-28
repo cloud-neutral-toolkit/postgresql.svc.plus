@@ -67,7 +67,7 @@ const runtimeEnvironments: Record<string, EnvironmentRuntimeConfig> =
 
 type ServiceKey = keyof EnvironmentRuntimeConfig
 
-const FALLBACK_ACCOUNT_SERVICE_URL = 'http://localhost:8080'
+const FALLBACK_ACCOUNT_SERVICE_URL = 'https://accounts.svc.plus'
 const FALLBACK_SERVER_SERVICE_URL = 'http://localhost:8090'
 const FALLBACK_SERVER_SERVICE_INTERNAL_URL = 'http://127.0.0.1:8090'
 
