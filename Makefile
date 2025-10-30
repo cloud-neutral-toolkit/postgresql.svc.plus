@@ -6,12 +6,105 @@ NODE_MAJOR ?= 22
 ARCH := $(shell dpkg --print-architecture)
 PG_DSN ?= postgres://shenlan:password@127.0.0.1:5432/xserver?sslmode=disable
 
+ifeq ($(shell id -u),0)
+SUDO :=
+else
+SUDO ?= sudo
+endif
+
+HOSTS_FILE ?= /etc/hosts
+HOSTS_IP ?= 127.0.0.1
+HOSTS_DOMAINS ?= accounts.svc.plus api.svc.plus accounts-dev.svc.plus dev-api.svc.plus
+
+NGINX_CONF_DIR ?= /usr/local/openresty/nginx/conf/conf.d
+NGINX_SIT_CONFIGS := example/sit/nginx/accounts-dev.svc.plus.conf example/sit/nginx/dev.svc.plus.conf example/sit/nginx/dev-api.svc.plus.conf
+NGINX_PROD_CONFIGS := example/prod/nginx/accounts.svc.plus.conf example/prod/nginx/api.svc.plus.conf
+NGINX_ALL_CONFIGS := $(NGINX_SIT_CONFIGS) $(NGINX_PROD_CONFIGS)
+
 export PATH := $(GO_BIN):$(PATH)
 
+# -----------------------------------------------------------------------------
+# Environment bootstrap (hosts & services)
+# -----------------------------------------------------------------------------
+
+init: configure-hosts init-nginx init-account init-rag-server
+
+install-services: configure-hosts install-nginx install-account install-rag-server
+
+upgrade-services: configure-hosts upgrade-nginx upgrade-account upgrade-rag-server
+
+configure-hosts:
+	@set -e; \
+	if [ ! -f "$(HOSTS_FILE)" ]; then \
+		echo "⚠️ Hosts file $(HOSTS_FILE) not found; skipping host configuration."; \
+	else \
+		for domain in $(HOSTS_DOMAINS); do \
+			if grep -qE "^[[:space:]]*$(HOSTS_IP)[[:space:]]+.*\b$$domain\b" "$(HOSTS_FILE)"; then \
+				echo "✅ Hosts entry exists for $$domain"; \
+			else \
+				echo "➕ Adding $(HOSTS_IP) $$domain to $(HOSTS_FILE)"; \
+				echo "$(HOSTS_IP) $$domain" | $(SUDO) tee -a "$(HOSTS_FILE)" >/dev/null; \
+			fi; \
+		done; \
+	fi
+
+init-nginx:
+	@$(SUDO) mkdir -p "$(NGINX_CONF_DIR)"
+	@for file in $(NGINX_ALL_CONFIGS); do \
+		dest="$(NGINX_CONF_DIR)/$$(basename $$file)"; \
+		if [ -f "$$dest" ]; then \
+			echo "✅ $$dest already exists; skipping"; \
+		else \
+			echo "➕ Installing $$dest"; \
+			$(SUDO) install -m 0644 "$$file" "$$dest"; \
+		fi; \
+	done
+
+install-nginx: init-nginx reload-openresty
+
+upgrade-nginx:
+	@$(SUDO) mkdir -p "$(NGINX_CONF_DIR)"
+	@for file in $(NGINX_ALL_CONFIGS); do \
+		dest="$(NGINX_CONF_DIR)/$$(basename $$file)"; \
+		echo "⬆️ Updating $$dest"; \
+		$(SUDO) install -m 0644 "$$file" "$$dest"; \
+	done
+	@$(MAKE) reload-openresty
+
+reload-openresty:
+	@echo "🔄 Reloading OpenResty/Nginx if available..."
+	@command -v systemctl >/dev/null 2>&1 && systemctl list-unit-files | grep -q '^openresty.service' && { \
+		$(SUDO) systemctl reload openresty 2>/dev/null || $(SUDO) systemctl restart openresty 2>/dev/null || true; \
+		echo "✅ openresty.service reloaded"; \
+	} || echo "ℹ️ openresty.service not managed by systemd or systemctl missing; please reload manually."
+
+init-account:
+	@$(MAKE) -C account init
+
+install-account:
+	@$(MAKE) -C account build
+
+upgrade-account:
+	@$(MAKE) -C account upgrade
+
+init-rag-server:
+	@$(MAKE) -C rag-server init
+
+install-rag-server:
+	@$(MAKE) -C rag-server build
+
+upgrade-rag-server:
+	@$(MAKE) -C rag-server build
+	@$(MAKE) -C rag-server restart
+
 .PHONY: install install-openresty install-redis install-postgresql init-db \
-build update-dashboard-manifests build-server build-dashboard \
-start start-openresty start-server start-dashboard \
-stop stop-server stop-dashboard stop-openresty restart lint-cms
+        build update-dashboard-manifests build-server build-dashboard \
+        start start-openresty start-server start-dashboard \
+        stop stop-server stop-dashboard stop-openresty restart lint-cms \
+        init init-nginx install-nginx upgrade-nginx reload-openresty \
+        init-account install-account upgrade-account \
+        init-rag-server install-rag-server upgrade-rag-server \
+        configure-hosts install-services upgrade-services
 
 # -----------------------------------------------------------------------------
 # Dependency installation
