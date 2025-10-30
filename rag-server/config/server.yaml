@@ -2,8 +2,9 @@ server:
   addr: ":8090"
   readTimeout: 120s
   writeTimeout: 120s
-  publicUrl: "https://www.svc.plus"
+  publicUrl: "https://api.svc.plus"
   allowedOrigins:
+    - "https://api.svc.plus"
     - "https://www.svc.plus"
     - "https://global-homepage.svc.plus"
     - "https://accounts.svc.plus"

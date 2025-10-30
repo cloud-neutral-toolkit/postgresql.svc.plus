@@ -32,19 +32,20 @@ func TestLoad(t *testing.T) {
 	if cfg.Server.Addr != ":8090" {
 		t.Fatalf("unexpected server addr %q", cfg.Server.Addr)
 	}
-        if cfg.Server.ReadTimeout.Duration != 120*time.Second {
-                t.Fatalf("unexpected server read timeout %s", cfg.Server.ReadTimeout)
-        }
-        if cfg.Server.WriteTimeout.Duration != 120*time.Second {
-                t.Fatalf("unexpected server write timeout %s", cfg.Server.WriteTimeout)
-        }
-	if cfg.Server.PublicURL != "https://www.svc.plus" {
+	if cfg.Server.ReadTimeout.Duration != 120*time.Second {
+		t.Fatalf("unexpected server read timeout %s", cfg.Server.ReadTimeout)
+	}
+	if cfg.Server.WriteTimeout.Duration != 120*time.Second {
+		t.Fatalf("unexpected server write timeout %s", cfg.Server.WriteTimeout)
+	}
+	if cfg.Server.PublicURL != "https://api.svc.plus" {
 		t.Fatalf("unexpected server public url %q", cfg.Server.PublicURL)
 	}
 	wantOrigins := []string{
+		"https://api.svc.plus",
 		"https://www.svc.plus",
 		"https://global-homepage.svc.plus",
-                "https://accounts.svc.plus",
+		"https://accounts.svc.plus",
 		"http://localhost:3000",
 		"http://127.0.0.1:3000",
 		"http://localhost:3001",

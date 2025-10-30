@@ -30,8 +30,8 @@
 - 多份文档（例如 `docs/account-svc-plus.md`、`docs/account-xstream-desktop-integration.md`）阐述账号服务部署契约，需要同步调整对控制台和下载域的描述。【F:docs/account-svc-plus.md†L1-L37】【F:docs/account-xstream-desktop-integration.md†L1-L52】
 
 ### 2.2 控制台（console.svc.plus）
-- Next.js 前端配置默认 `serverService.baseUrl` 为 `https://www.svc.plus`，并在 `serviceConfig` 中内建相同默认值；需切换到 `console.svc.plus`。【F:dashboard/config/runtime-service-config.yaml†L1-L27】【F:dashboard/lib/serviceConfig.ts†L63-L90】
-- RAG/后端服务公开地址为 `https://www.svc.plus`，与控制台共用域；迁移后应拆分出 `console.svc.plus` 并保留 API 网关代理。【F:rag-server/config/server.yaml†L1-L13】
+- Next.js 前端配置默认 `serverService.baseUrl` 为 `https://api.svc.plus`，并在 `serviceConfig` 中内建相同默认值；需切换到 `console.svc.plus`。【F:dashboard/config/runtime-service-config.yaml†L1-L27】【F:dashboard/lib/serviceConfig.ts†L63-L90】
+- RAG/后端服务公开地址为 `https://api.svc.plus`，与控制台共用域；迁移后应拆分出 `console.svc.plus` 并保留 API 网关代理。【F:rag-server/config/server.yaml†L1-L13】
 
 ### 2.3 观测系统（xscope.svc.plus）
 - 监控部署脚本默认 `grafana.svc.plus`、`metrics.svc.plus`，需统一到新的 `xscope.svc.plus` 子域并保留二级路径区分子系统。【F:docs/install_tiny_monitor_server.sh†L14-L228】【F:docs/observability-plan.md†L1-L33】
