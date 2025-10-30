@@ -16,8 +16,21 @@ HOSTS_FILE ?= /etc/hosts
 HOSTS_IP ?= 127.0.0.1
 HOSTS_DOMAINS ?= accounts.svc.plus api.svc.plus accounts-dev.svc.plus dev-api.svc.plus
 
-NGINX_CONF_DIR ?= /usr/local/openresty/nginx/conf/conf.d
-NGINX_SIT_CONFIGS := example/sit/nginx/accounts-dev.svc.plus.conf example/sit/nginx/dev.svc.plus.conf example/sit/nginx/dev-api.svc.plus.conf
+ifeq ($(OS),Darwin)
+NGINX_PREFIX ?= /opt/homebrew/openresty/nginx
+NGINX_MAIN_TEMPLATE ?= example/macos/openresty/nginx.conf
+else
+NGINX_PREFIX ?= /usr/local/openresty/nginx
+endif
+
+NGINX_CONF_ROOT ?= $(NGINX_PREFIX)/conf
+NGINX_CONF_DIR ?= $(NGINX_CONF_ROOT)/conf.d
+NGINX_MAIN_CONF ?= $(NGINX_CONF_ROOT)/nginx.conf
+
+NGINX_SIT_CONFIGS := example/sit/nginx/accounts-dev.svc.plus.conf
+NGINX_SIT_CONFIGS += example/sit/nginx/dev.svc.plus.conf
+NGINX_SIT_CONFIGS += example/sit/nginx/dev-api.svc.plus.conf
+
 NGINX_PROD_CONFIGS := example/prod/nginx/accounts.svc.plus.conf example/prod/nginx/api.svc.plus.conf
 NGINX_ALL_CONFIGS := $(NGINX_SIT_CONFIGS) $(NGINX_PROD_CONFIGS)
 
@@ -50,25 +63,42 @@ configure-hosts:
 
 init-nginx:
 	@$(SUDO) mkdir -p "$(NGINX_CONF_DIR)"
+	@if [ -n "$(NGINX_MAIN_TEMPLATE)" ]; then \
+                if [ -f "$(NGINX_MAIN_CONF)" ]; then \
+                        if cmp -s "$(NGINX_MAIN_TEMPLATE)" "$(NGINX_MAIN_CONF)"; then \
+                                echo "✅ $(NGINX_MAIN_CONF) already up to date"; \
+                        else \
+                                echo "⬆️ Updating $(NGINX_MAIN_CONF) from template"; \
+                                $(SUDO) install -m 0644 "$(NGINX_MAIN_TEMPLATE)" "$(NGINX_MAIN_CONF)"; \
+                        fi; \
+                else \
+                        echo "➕ Installing $(NGINX_MAIN_CONF)"; \
+                        $(SUDO) install -m 0644 "$(NGINX_MAIN_TEMPLATE)" "$(NGINX_MAIN_CONF)"; \
+                fi; \
+        fi
 	@for file in $(NGINX_ALL_CONFIGS); do \
-		dest="$(NGINX_CONF_DIR)/$$(basename $$file)"; \
-		if [ -f "$$dest" ]; then \
-			echo "✅ $$dest already exists; skipping"; \
-		else \
-			echo "➕ Installing $$dest"; \
-			$(SUDO) install -m 0644 "$$file" "$$dest"; \
-		fi; \
-	done
+                dest="$(NGINX_CONF_DIR)/$$(basename $$file)"; \
+                if [ -f "$$dest" ]; then \
+                        echo "✅ $$dest already exists; skipping"; \
+                else \
+                        echo "➕ Installing $$dest"; \
+                        $(SUDO) install -m 0644 "$$file" "$$dest"; \
+                fi; \
+        done
 
 install-nginx: init-nginx reload-openresty
 
 upgrade-nginx:
 	@$(SUDO) mkdir -p "$(NGINX_CONF_DIR)"
+	@if [ -n "$(NGINX_MAIN_TEMPLATE)" ]; then \
+                echo "⬆️ Updating $(NGINX_MAIN_CONF)"; \
+                $(SUDO) install -m 0644 "$(NGINX_MAIN_TEMPLATE)" "$(NGINX_MAIN_CONF)"; \
+        fi
 	@for file in $(NGINX_ALL_CONFIGS); do \
-		dest="$(NGINX_CONF_DIR)/$$(basename $$file)"; \
-		echo "⬆️ Updating $$dest"; \
-		$(SUDO) install -m 0644 "$$file" "$$dest"; \
-	done
+                dest="$(NGINX_CONF_DIR)/$$(basename $$file)"; \
+                echo "⬆️ Updating $$dest"; \
+                $(SUDO) install -m 0644 "$$file" "$$dest"; \
+        done
 	@$(MAKE) reload-openresty
 
 reload-openresty:
