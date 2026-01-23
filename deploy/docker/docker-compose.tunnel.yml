@@ -16,9 +16,10 @@ services:
 
     volumes:
       - ./stunnel-server.conf:/etc/stunnel/stunnel.conf:ro
-      - ./certs:/etc/stunnel/certs:ro
+      - ${STUNNEL_CRT_FILE:-./certs/server-cert.pem}:/etc/stunnel/certs/server-cert.pem:ro
+      - ${STUNNEL_KEY_FILE:-./certs/server-key.pem}:/etc/stunnel/certs/server-key.pem:ro
       - stunnel_logs:/var/log/stunnel
-      # Mount Caddy data volume to access Let's Encrypt certificates if needed
+      # Optional: mount caddy_data for easier internal debugging if needed
       - caddy_data:/caddy_data:ro
 
     networks:

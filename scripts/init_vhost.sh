@@ -132,10 +132,44 @@ setup_project() {
 }
 
 # -----------------------------------------------------------------------------
-# 4. Build & Launch
+# 4. Certificate Detection & Mapping
 # -----------------------------------------------------------------------------
+find_acme_certs() {
+    local domain=$1
+    local found=0
+    
+    # Paths according to user-defined conventions
+    local search_paths=(
+        # Caddy (Docker volume or native)
+        "/var/lib/docker/volumes/caddy_data/_data/caddy/certificates/acme-v02.api.letsencrypt.org-directory/$domain"
+        "/var/lib/caddy/.local/share/caddy/certificates/acme-v02.api.letsencrypt.org-directory/$domain"
+        # Certbot
+        "/etc/letsencrypt/live/$domain"
+    )
+
+    for path in "${search_paths[@]}"; do
+        if [ -d "$path" ]; then
+            # Caddy style: domain.crt / domain.key
+            if [ -f "$path/$domain.crt" ] && [ -f "$path/$domain.key" ]; then
+                export STUNNEL_CRT_FILE="$path/$domain.crt"
+                export STUNNEL_KEY_FILE="$path/$domain.key"
+                log_info "Detected ACME (Caddy) certificates at $path"
+                return 0
+            # Certbot style: fullchain.pem / privkey.pem
+            elif [ -f "$path/fullchain.pem" ] && [ -f "$path/privkey.pem" ]; then
+                export STUNNEL_CRT_FILE="$path/fullchain.pem"
+                export STUNNEL_KEY_FILE="$path/privkey.pem"
+                log_info "Detected ACME (Certbot) certificates at $path"
+                return 0
+            fi
+        fi
+    done
+
+    return 1
+}
+
 # -----------------------------------------------------------------------------
-# 4. Build & Launch
+# 5. Build & Launch
 # -----------------------------------------------------------------------------
 launch_vhost() {
     cd "$PROJECT_ROOT"
@@ -244,48 +278,43 @@ launch_vhost() {
     
     # Check if we are using "localhost" or a real domain
     if [[ "$DOMAIN" == "localhost" || "$DOMAIN" == "127.0.0.1" ]]; then
-       log_info "Domain is localhost. Using self-signed generation."
+       log_info "Domain is localhost. Using self-signed generation as placeholder."
        ./generate-certs.sh "$DOMAIN"
+       export STUNNEL_CRT_FILE="$(pwd)/certs/server-cert.pem"
+       export STUNNEL_KEY_FILE="$(pwd)/certs/server-key.pem"
     else
-       # Check for existing Caddy certs in the named volume 'caddy_data'
-       # Since volume is opaque, easiest check is if we ran bootstrap before.
-       # Or we just run bootstrap if port 80 is available.
-       
        log_info "Real domain detected: $DOMAIN"
-       log_info "Starting Caddy Bootstrap for Let's Encrypt certificates..."
        
-       # Ensure caddy_data volume exists
-       docker volume create caddy_data >/dev/null 2>&1 || true
-       
-       # Run bootstrap (detached)
-       DOCKER_CMD="docker compose"
-       ! docker compose version &>/dev/null && DOCKER_CMD="docker-compose"
-       
-       $DOCKER_CMD -f docker-compose.bootstrap.yml up -d
-       
-       log_info "Waiting for certificate acquisition (Timeout: 60s)..."
-       # We can monitor logs or wait specific time. 
-       # Caddy usually gets certs within 10-20s if DNS is pointing correctly.
-       sleep 20
-       
-       # Verify if we should stop
-       # Ideally we check volume content, but that's hard from host without mounting.
-       # We proceed. If it failed, Stunnel will fail to start or fall back.
-       
-       $DOCKER_CMD -f docker-compose.bootstrap.yml down
-       log_info "Bootstrap complete."
-       
-       # For Stunnel to use these, we need to handle the symlinking or config inside the entrypoint.
-       # Currently, our stunnel config points to /etc/stunnel/certs/server-cert.pem
-       # We need a way to tell Stunnel "Use Caddy certs".
-       # We will create a marker or helper script.
-       # For now, we fallback to generate-certs if bootstrap likely failed (e.g. no DNS),
-       # OR we just rely on the mount we added in Step 418.
-       
-       # To make it robust: If Caddy failed, we might not have certs. 
-       # We'll run generate-certs.sh as fallback/placeholder so Stunnel doesn't crash on missing file.
-       if [ ! -f "certs/server-cert.pem" ]; then
-           ./generate-certs.sh "$DOMAIN"
+       # Try finding existing certs first
+       if find_acme_certs "$DOMAIN"; then
+           log_info "Using existing ACME certificates."
+       else
+           log_info "ACME certificates not found. Starting Caddy Bootstrap..."
+           
+           # Ensure caddy_data volume exists
+           docker volume create caddy_data >/dev/null 2>&1 || true
+           
+           DOCKER_CMD="docker compose"
+           ! docker compose version &>/dev/null && DOCKER_CMD="docker-compose"
+           
+           $DOCKER_CMD -f docker-compose.bootstrap.yml up -d
+           log_info "Waiting for certificate acquisition (60s)..."
+           sleep 20 # Minimum wait
+           
+           # Check again
+           if find_acme_certs "$DOMAIN"; then
+                log_info "Bootstrap successful. ACME certificates acquired."
+           else
+                log_err "FAIL-FAST: Certificates for $DOMAIN not found after bootstrap!"
+                log_err "Checked paths:"
+                log_err "  - /var/lib/docker/volumes/caddy_data/_data/caddy/certificates/..."
+                log_err "  - /var/lib/caddy/.local/share/caddy/certificates/..."
+                log_err "  - /etc/letsencrypt/live/..."
+                log_err "Please ensure DNS is pointing to this host and port 80 is open."
+                $DOCKER_CMD -f docker-compose.bootstrap.yml down || true
+                exit 1
+           fi
+           $DOCKER_CMD -f docker-compose.bootstrap.yml down
        fi
     fi
     cd ../..
@@ -302,13 +331,9 @@ launch_vhost() {
         fi
     fi
 
-    # Prepare Stunnel Cert Paths for real domains
-    if [[ "$DOMAIN" != "localhost" && "$DOMAIN" != "127.0.0.1" ]]; then
-        # Caddy certificate paths within the container volume mount
-        export STUNNEL_CRT="/caddy_data/caddy/certificates/acme-v02.api.letsencrypt.org-directory/${DOMAIN}/${DOMAIN}.crt"
-        export STUNNEL_KEY="/caddy_data/caddy/certificates/acme-v02.api.letsencrypt.org-directory/${DOMAIN}/${DOMAIN}.key"
-        log_info "Pointing Stunnel to Caddy certificates for $DOMAIN"
-    fi
+    log_info "Starting services with certificate mapping:"
+    log_info "  CRT: $STUNNEL_CRT_FILE"
+    log_info "  KEY: $STUNNEL_KEY_FILE"
 
     # Try standard up, fallback to sudo
     if ! $DOCKER_CMD -f deploy/docker/docker-compose.yml -f deploy/docker/docker-compose.tunnel.yml up -d; then
