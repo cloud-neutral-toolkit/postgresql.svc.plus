@@ -77,5 +77,12 @@ LABEL maintainer="Cloud-Neutral Toolkit" \
 COPY --from=builder /usr/lib/postgresql/${PG_MAJOR}/lib/ /usr/lib/postgresql/${PG_MAJOR}/lib/
 COPY --from=builder /usr/share/postgresql/${PG_MAJOR}/extension/ /usr/share/postgresql/${PG_MAJOR}/extension/
 
-# No need to specify USER, EXPOSE, or CMD as they are inherited from the base image
-# and correctly handled by the official entrypoint.
+# Fix collation version mismatch warning automatically on startup
+# We simply create a small script that the official entrypoint will run
+RUN echo '#!/bin/bash\n\
+    set -e\n\
+    echo "Fixing collation version mismatch..."\n\
+    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -c "ALTER DATABASE $POSTGRES_DB REFRESH COLLATION VERSION;" || true\n\
+    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "template1" -c "ALTER DATABASE template1 REFRESH COLLATION VERSION;" || true\n\
+    echo "Collation fix complete."' > /docker-entrypoint-initdb.d/fix-collation.sh && \
+    chmod +x /docker-entrypoint-initdb.d/fix-collation.sh
