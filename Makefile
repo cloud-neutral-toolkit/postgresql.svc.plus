@@ -1,7 +1,7 @@
 # PostgreSQL Service Plus - Simplified Makefile
 
 .PHONY: help build-postgres-image push-postgres-image test-postgres \
-        deploy-docker deploy-helm clean
+        deploy-docker deploy-helm clean init reset selftest selftest-strict
 
 # Image configuration
 POSTGRES_IMAGE_NAME ?= postgres-extensions
@@ -24,7 +24,11 @@ help:
 	@echo "  build-postgres-image  - Build the PostgreSQL runtime image with extensions"
 	@echo "  push-postgres-image   - Push image to registry (set DOCKER_REGISTRY)"
 	@echo "  test-postgres         - Run a test container locally"
-	@echo "  deploy-docker         - Deploy using Docker Compose"
+	@echo "  init                  - Interactive initialization (DOMAIN=db.example.com)"
+	@echo "  reset                 - Reset environment (clean containers, volumes, certs)"
+	@echo "  selftest              - Run linting and self-tests (Mode 1)"
+	@echo "  selftest-strict       - Run self-tests in strict mode (Mode 2)"
+	@echo "  deploy-docker         - Deploy using Docker Compose (legacy, use init instead)"
 	@echo "  deploy-helm           - Deploy using Helm chart"
 	@echo "  clean                 - Stop and remove test containers"
 	@echo ""
@@ -98,8 +102,35 @@ deploy-helm:
 	@echo "✅ PostgreSQL deployed via Helm. Check status with:"
 	@echo "   kubectl get pods -l app.kubernetes.io/name=postgresql"
 
+# Automation & Tests
+init:
+	@bash scripts/init_vhost.sh $(PG_MAJOR) $(DOMAIN)
+
+reset:
+	@bash scripts/init_vhost.sh reset
+
+selftest:
+	@STUNNEL_CONF=example/stunnel-client.conf \
+	LOCAL_PORT=15432 \
+	HOST=db.example.com \
+	TLS_PORT=443 \
+	OUTPUT_FILES="README.md docs/PROJECT_DETAILS.md scripts/init_vhost.sh" \
+	bash scripts/selftest.sh
+
+selftest-strict:
+	@# Generate temporary strict config for testing
+	@sed 's/; verifyChain = yes/verifyChain = yes/' example/stunnel-client.conf | \
+	 sed 's/; checkHost = db.example.com/checkHost = db.example.com/' > example/stunnel-client-strict.conf
+	@STRICT=1 \
+	STUNNEL_CONF=example/stunnel-client-strict.conf \
+	LOCAL_PORT=15432 \
+	HOST=db.example.com \
+	TLS_PORT=443 \
+	bash scripts/selftest.sh
+	@rm example/stunnel-client-strict.conf
+
 clean:
 	@echo "🧹 Cleaning up test containers..."
-	-docker stop postgres-test 2>/dev/null || true
-	-docker rm postgres-test 2>/dev/null || true
+	-@docker stop postgres-test 2>/dev/null || true
+	-@docker rm postgres-test 2>/dev/null || true
 	@echo "✅ Cleanup complete"
