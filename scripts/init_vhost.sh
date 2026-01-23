@@ -133,7 +133,7 @@ launch_vhost() {
     chmod +x deploy/docker/generate-certs.sh
     chmod +x scripts/*.sh
 
-    log_step "[Step 1/3] Building Docker Image..."
+    log_step "[Step 1/4] Building Docker Image..."
     # Attempt build using make. Warning: requires 'docker' access.
     # If user just added to group, they might need newgrp or sudo.
     # We try with sudo command if direct fails.
@@ -142,12 +142,32 @@ launch_vhost() {
         sudo make build-postgres-image
     fi
 
-    log_step "[Step 2/3] Generating Certificates..."
+    log_step "[Step 2/4] Configuring Environment..."
     cd deploy/docker
+    if [ ! -f .env ]; then
+        log_info "Creating .env from .env.example..."
+        cp .env.example .env
+        # Generate a random password
+        PG_PASS=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9')
+        # Replace the placeholder password
+        # Use simple sed, assuming standard format in .env.example
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            sed -i '' "s/POSTGRES_PASSWORD=changeme_secure_password/POSTGRES_PASSWORD=$PG_PASS/" .env
+        else
+            sed -i "s/POSTGRES_PASSWORD=changeme_secure_password/POSTGRES_PASSWORD=$PG_PASS/" .env
+        fi
+        log_info "Generated secure POSTGRES_PASSWORD in .env"
+    else
+        log_info "Existing .env found. Using existing configuration."
+        # Read the password specifically for the final output (simple grep/cut, not perfect but checking usually sufficient)
+        PG_PASS=$(grep '^POSTGRES_PASSWORD=' .env | cut -d '=' -f2)
+    fi
+
+    log_step "[Step 3/4] Generating Certificates..."
     ./generate-certs.sh
     cd ../..
 
-    log_step "[Step 3/3] Starting Services..."
+    log_step "[Step 4/4] Starting Services..."
     # We use 'docker compose' (v2) or fallback to 'docker-compose' (v1)
     DOCKER_CMD="docker compose"
     if ! docker compose version &>/dev/null; then
@@ -183,7 +203,13 @@ main() {
     echo -e "🔌 Connect to PostgreSQL via TLS Tunnel:"
     echo -e "   ${GREEN}psql \"host=localhost port=5433 user=postgres dbname=postgres\"${NC}"
     echo ""
-    echo "Note: Default password is set in docker-compose.yml (usually empty/trusted for localhost or 'postgres')"
+    echo "Note: A secure password has been generated in deploy/docker/.env"
+    if [ -n "$PG_PASS" ]; then
+        echo -e "   Password: ${YELLOW}$PG_PASS${NC}"
+        echo -e "   Connection String: ${GREEN}postgres://postgres:$PG_PASS@localhost:5433/postgres${NC}"
+    else
+        echo "   (Password not captured, check deploy/docker/.env)"
+    fi
     echo ""
 }
 
