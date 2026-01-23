@@ -189,6 +189,11 @@ launch_vhost() {
         
         # Add PG_MAJOR to .env
         echo "PG_MAJOR=$PG_MAJOR" >> .env
+
+        # Add default Stunnel variables
+        echo "STUNNEL_SERVICE=postgres-tls" >> .env
+        echo "STUNNEL_ACCEPT=5433" >> .env
+        echo "STUNNEL_CONNECT=postgres:5432" >> .env
         
         log_info "Generated secure POSTGRES_PASSWORD in .env"
     else

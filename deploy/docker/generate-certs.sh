@@ -5,16 +5,17 @@ set -e
 
 CERTS_DIR="./certs"
 DAYS=365
+DOMAIN="${1:-${DOMAIN:-postgresql.svc.plus}}"
 
 mkdir -p "$CERTS_DIR"
 
-echo "🔐 Generating self-signed certificates for stunnel..."
+echo "🔐 Generating self-signed certificates for $DOMAIN (stunnel)..."
 
 # Generate server certificate
 openssl req -new -x509 -days $DAYS -nodes \
     -out "$CERTS_DIR/server-cert.pem" \
     -keyout "$CERTS_DIR/server-key.pem" \
-    -subj "/C=US/ST=State/L=City/O=Organization/CN=postgres-server"
+    -subj "/C=US/ST=State/L=City/O=Organization/CN=$DOMAIN"
 
 # Combine cert and key for stunnel
 cat "$CERTS_DIR/server-cert.pem" "$CERTS_DIR/server-key.pem" > "$CERTS_DIR/server.pem"
