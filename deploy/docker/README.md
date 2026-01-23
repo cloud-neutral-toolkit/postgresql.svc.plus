@@ -251,38 +251,147 @@ docker-compose -f docker-compose.yml -f docker-compose.caddy.yml up -d
 - Automatic certificate renewal
 - Simple configuration
 
-## TLS Tunnel Deployment
+## TLS Tunnel Deployment (stunnel Server)
 
-Use stunnel to create encrypted TCP tunnels for PostgreSQL connections.
+**This is the SERVER-SIDE deployment.** Clients connect to this server using stunnel client configuration.
+
+### Architecture
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                    CLIENT SIDE (User's Machine)               │
+│  App (127.0.0.1:15432) → stunnel (client) → TLS encrypted    │
+└────────────────────────────────┬─────────────────────────────┘
+                                 │
+                          Internet (TLS)
+                                 │
+┌────────────────────────────────┼─────────────────────────────┐
+│                    SERVER SIDE (This Deployment)              │
+│  postgresql.svc.plus:443 → stunnel (server) → postgres:5432  │
+└──────────────────────────────────────────────────────────────┘
+```
 
 ### Use Cases
 
-- Secure connections to remote PostgreSQL instances
-- Encrypt PostgreSQL traffic without modifying the database
-- Connect to databases that don't support native TLS
+- **Secure remote PostgreSQL access** over the internet
+- **TLS encryption** for all database traffic
+- **Certificate-based authentication** (optional mTLS)
+- **No VPN required** - direct TLS connection
+- **Works through firewalls** - uses standard HTTPS port (443)
 
-### Configuration
+### Server-Side Setup (This Repository)
 
-Edit `stunnel.conf`:
+1. **Configure environment**:
+   ```bash
+   cp .env.example .env
+   nano .env
+   ```
+   
+   Set your domain and credentials:
+   ```bash
+   DOMAIN=postgresql.svc.plus
+   STUNNEL_PORT=443
+   POSTGRES_PASSWORD=your_secure_password
+   ```
 
-```ini
-[postgres-tunnel]
+2. **Start the server**:
+   ```bash
+   docker-compose -f docker-compose.yml -f docker-compose.tunnel.yml up -d
+   ```
+
+3. **Verify stunnel is running**:
+   ```bash
+   docker-compose ps
+   docker-compose logs stunnel
+   
+   # Test TLS endpoint
+   openssl s_client -connect postgresql.svc.plus:443
+   ```
+
+### Certificate Management
+
+The deployment automatically handles SSL/TLS certificates:
+
+- **Let's Encrypt/ACME**: Automatic certificate acquisition and renewal
+- **Self-signed**: For testing/development (localhost)
+- **Custom certificates**: Mount your own certificates via environment variables
+
+See [STUNNEL_GUIDE.md](./STUNNEL_GUIDE.md) for detailed certificate configuration.
+
+### Client-Side Setup (User's Machine)
+
+**For users connecting TO this server**, see the comprehensive client setup guide:
+
+📖 **[CLIENT_SETUP.md](./CLIENT_SETUP.md)** - Complete client installation and configuration guide
+
+Quick client example:
+
+```bash
+# On user's machine - create stunnel-client.conf
+[postgres-client]
 client = yes
-accept = 127.0.0.1:5433
-connect = remote-db.example.com:5432
+accept = 127.0.0.1:15432
+connect = postgresql.svc.plus:443
+verify = 2
+CAfile = /etc/ssl/certs/ca-certificates.crt
+checkHost = postgresql.svc.plus
+
+# Start stunnel client
+docker run -d \
+  -p 127.0.0.1:15432:15432 \
+  -v $(pwd)/stunnel-client.conf:/etc/stunnel/stunnel.conf:ro \
+  dweomer/stunnel:latest
+
+# Connect application
+psql "postgresql://postgres:PASSWORD@127.0.0.1:15432/postgres"
 ```
 
-### Start with Tunnel
+### Security Features
+
+- ✅ **TLS 1.2/1.3** encryption
+- ✅ **Certificate verification** (server and optional client)
+- ✅ **Perfect Forward Secrecy** (PFS)
+- ✅ **HSTS support**
+- ✅ **Optional mTLS** (mutual TLS authentication)
+- ✅ **Automatic certificate renewal**
+
+### Monitoring
 
 ```bash
-docker-compose -f docker-compose.yml -f docker-compose.tunnel.yml up -d
+# Check stunnel health
+docker-compose exec stunnel nc -zv 127.0.0.1 5433
+
+# View stunnel logs
+docker-compose logs -f stunnel
+
+# Monitor connections
+docker-compose exec stunnel netstat -an | grep 5433
 ```
 
-### Connect through Tunnel
+### Troubleshooting
 
+**Certificate issues**:
 ```bash
-psql -h localhost -p 5433 -U postgres -d postgres
+# Verify certificate
+openssl s_client -connect postgresql.svc.plus:443 -showcerts
+
+# Check certificate expiry
+echo | openssl s_client -connect postgresql.svc.plus:443 2>/dev/null | openssl x509 -noout -dates
 ```
+
+**Connection issues**:
+```bash
+# Test from server
+docker-compose exec stunnel nc -zv postgres 5432
+
+# Check firewall
+sudo ufw status
+sudo firewall-cmd --list-all
+
+# Verify DNS
+nslookup postgresql.svc.plus
+```
+
 
 ## Data Persistence
 
