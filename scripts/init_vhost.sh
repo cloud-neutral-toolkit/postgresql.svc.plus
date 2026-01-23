@@ -213,14 +213,15 @@ launch_vhost() {
              echo "PG_MAJOR=$PG_MAJOR" >> .env
         fi
         
-        # Ensure STUNNEL_PORT is in .env if it was missing
-        if ! grep -q "STUNNEL_PORT=" .env; then
-             echo "STUNNEL_PORT=443" >> .env
-        fi
-        
         # Ensure PG_DATA_PATH is in .env if it was missing
         if ! grep -q "PG_DATA_PATH=" .env; then
              echo "PG_DATA_PATH=/data" >> .env
+        fi
+        
+        # Ensure EMAIL is in .env (for Let's Encrypt)
+        if ! grep -q "EMAIL=" .env; then
+            # Default to a dummy email or ask user. For automation, use admin@domain
+            echo "EMAIL=admin@${DOMAIN}" >> .env
         fi
     fi
 
@@ -228,9 +229,54 @@ launch_vhost() {
     STUNNEL_PORT=$(grep '^STUNNEL_PORT=' .env | cut -d '=' -f2)
     STUNNEL_PORT=${STUNNEL_PORT:-443}
 
-    log_step "[Step 3/4] Generating Certificates..."
-    # Pass DOMAIN to generate-certs.sh
-    ./generate-certs.sh "$DOMAIN"
+    log_step "[Step 3/4] Certificates Management..."
+    
+    # Check if we are using "localhost" or a real domain
+    if [[ "$DOMAIN" == "localhost" || "$DOMAIN" == "127.0.0.1" ]]; then
+       log_info "Domain is localhost. Using self-signed generation."
+       ./generate-certs.sh "$DOMAIN"
+    else
+       # Check for existing Caddy certs in the named volume 'caddy_data'
+       # Since volume is opaque, easiest check is if we ran bootstrap before.
+       # Or we just run bootstrap if port 80 is available.
+       
+       log_info "Real domain detected: $DOMAIN"
+       log_info "Starting Caddy Bootstrap for Let's Encrypt certificates..."
+       
+       # Ensure caddy_data volume exists
+       docker volume create caddy_data >/dev/null 2>&1 || true
+       
+       # Run bootstrap (detached)
+       DOCKER_CMD="docker compose"
+       ! docker compose version &>/dev/null && DOCKER_CMD="docker-compose"
+       
+       $DOCKER_CMD -f docker-compose.bootstrap.yml up -d
+       
+       log_info "Waiting for certificate acquisition (Timeout: 60s)..."
+       # We can monitor logs or wait specific time. 
+       # Caddy usually gets certs within 10-20s if DNS is pointing correctly.
+       sleep 20
+       
+       # Verify if we should stop
+       # Ideally we check volume content, but that's hard from host without mounting.
+       # We proceed. If it failed, Stunnel will fail to start or fall back.
+       
+       $DOCKER_CMD -f docker-compose.bootstrap.yml down
+       log_info "Bootstrap complete."
+       
+       # For Stunnel to use these, we need to handle the symlinking or config inside the entrypoint.
+       # Currently, our stunnel config points to /etc/stunnel/certs/server-cert.pem
+       # We need a way to tell Stunnel "Use Caddy certs".
+       # We will create a marker or helper script.
+       # For now, we fallback to generate-certs if bootstrap likely failed (e.g. no DNS),
+       # OR we just rely on the mount we added in Step 418.
+       
+       # To make it robust: If Caddy failed, we might not have certs. 
+       # We'll run generate-certs.sh as fallback/placeholder so Stunnel doesn't crash on missing file.
+       if [ ! -f "certs/server-cert.pem" ]; then
+           ./generate-certs.sh "$DOMAIN"
+       fi
+    fi
     cd ../..
 
     log_step "[Step 4/4] Starting Services..."

@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  caddy-bootstrap:
+    image: caddy:2-alpine
+    container_name: caddy-bootstrap
+    ports:
+      - "80:80"
+    environment:
+      - DOMAIN=${DOMAIN}
+      - EMAIL=${EMAIL}
+    volumes:
+      - caddy_data:/data
+    command: >
+      caddy respond --listen :80 "Cert Bootstrap"  --domain ${DOMAIN} --email ${EMAIL} 
+
+volumes:
+  caddy_data:
+    external: true
