@@ -1,6 +1,0 @@
-qwen2.5:7b
-llama2:7b
-llama3:latest
-llama2:13b
-mistral-nemo:12b
-qwen2.5-coder:14b
