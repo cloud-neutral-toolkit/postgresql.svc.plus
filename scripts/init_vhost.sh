@@ -305,7 +305,7 @@ launch_vhost() {
            log_info "Waiting for ACME certificate acquisition (60s)..."
            
            # Check every 10 seconds for up to 60 seconds
-           local timeout=60
+           local timeout=120
            local elapsed=0
            while [ $elapsed -lt $timeout ]; do
                if find_acme_certs "$DOMAIN"; then
@@ -397,9 +397,11 @@ reset_vhost() {
     # Get PG_DATA_PATH from .env before we delete it (default to /data)
     CURRENT_DATA_PATH=$(grep "^PG_DATA_PATH=" .env | cut -d'=' -f2 || echo "/data")
     
-    docker volume rm docker_caddy_data 2>/dev/null || true
-    docker volume rm caddy_data 2>/dev/null || true
+    # Preserve ACME certificates to avoid rate limits
+    # docker volume rm docker_caddy_data 2>/dev/null || true
+    # docker volume rm caddy_data 2>/dev/null || true
     docker volume rm docker_stunnel_logs 2>/dev/null || true
+    docker volume rm stunnel_logs 2>/dev/null || true
     
     if [ -d "$CURRENT_DATA_PATH" ]; then
         log_warn "Cleaning PostgreSQL data directory: $CURRENT_DATA_PATH"
