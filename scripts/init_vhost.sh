@@ -299,6 +299,14 @@ launch_vhost() {
         fi
     fi
 
+    # Prepare Stunnel Cert Paths for real domains
+    if [[ "$DOMAIN" != "localhost" && "$DOMAIN" != "127.0.0.1" ]]; then
+        # Caddy certificate paths within the container volume mount
+        export STUNNEL_CRT="/caddy_data/caddy/certificates/acme-v02.api.letsencrypt.org-directory/${DOMAIN}/${DOMAIN}.crt"
+        export STUNNEL_KEY="/caddy_data/caddy/certificates/acme-v02.api.letsencrypt.org-directory/${DOMAIN}/${DOMAIN}.key"
+        log_info "Pointing Stunnel to Caddy certificates for $DOMAIN"
+    fi
+
     # Try standard up, fallback to sudo
     if ! $DOCKER_CMD -f deploy/docker/docker-compose.yml -f deploy/docker/docker-compose.tunnel.yml up -d; then
          log_warn "Docker compose failed, retrying with sudo..."
