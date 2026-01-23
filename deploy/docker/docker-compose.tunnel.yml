@@ -20,6 +20,8 @@ services:
       - ./stunnel-server.conf:/etc/stunnel/stunnel.conf:ro
       - ./certs:/etc/stunnel/certs:ro
       - stunnel_logs:/var/log/stunnel
+      # Mount Caddy data volume to access Let's Encrypt certificates if needed
+      - caddy_data:/caddy_data:ro
 
     networks:
       - postgres_network
@@ -57,3 +59,5 @@ services:
 volumes:
   stunnel_logs:
     driver: local
+  caddy_data:
+    external: true # Expects caddy to manage this volume
