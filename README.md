@@ -54,9 +54,18 @@ psql "host=localhost port=5433 user=postgres dbname=postgres"
 - ✅ 应用无需配置 SSL,透明加密
 - ✅ 支持三种 TLS 模式 (单向 TLS / 严格验证 / 双向 mTLS)
 
+
 ## 🔒 TLS 连接模式
 
 stunnel 提供三种安全级别,**默认使用单向 TLS**:
+
+### 模式总览
+
+| 模式 | 默认 | 客户端配置 | 服务端配置 |
+|------|------|-----------|-----------|
+| **TLS (单向认证)** | ✅ 是 | `CAfile` + `verify=2` | 仅服务端证书 |
+| **TLS + 严格验证** | 可选 | + `verifyChain` + `checkHost` | - |
+| **mTLS (双向认证)** | 可选 | + `cert` + `key` | + `verify=2` + `CAfile` |
 
 ### 模式 1: TLS (默认 - 服务端认证)
 
@@ -90,6 +99,14 @@ key  = /path/to/client-key.pem
 ```
 
 ⚠️ **mTLS 不是默认选项** - 仅在服务端明确要求时启用。
+
+### 配置文件参考
+
+| 文件 | 用途 | 默认模式 |
+|------|------|----------|
+| `deploy/docker/stunnel-server.conf` | 服务端配置 | TLS (单向) |
+| `deploy/docker/stunnel-client.conf` | 客户端配置模板 | TLS (单向) |
+| `example/stunnel-client.conf` | 完整示例 (含三种模式) | TLS (单向) |
 
 ### 设计原则
 
