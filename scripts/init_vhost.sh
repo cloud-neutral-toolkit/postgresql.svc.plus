@@ -9,9 +9,17 @@
 #   - Rocky Linux 8, 9, 10
 #
 # Usage:
-#   bash scripts/init_vhost.sh
-#   OR via curl:
-#   curl -fsSL https://your-repo/scripts/init_vhost.sh | bash
+#   bash scripts/init_vhost.sh [COMMAND] [PG_MAJOR] [DOMAIN]
+#
+# Commands:
+#   (default)  - Initialize/start services
+#   reset      - Stop all containers, remove volumes, regenerate certs, start fresh
+#   help       - Show this help message
+#
+# Examples:
+#   bash scripts/init_vhost.sh                          # Default init
+#   bash scripts/init_vhost.sh 17 postgresql.svc.plus   # Init with PG 17
+#   bash scripts/init_vhost.sh reset                    # Full reset
 
 set -e
 
@@ -299,15 +307,92 @@ launch_vhost() {
 }
 
 # -----------------------------------------------------------------------------
+# Reset Mode - Full cleanup and restart
+# -----------------------------------------------------------------------------
+reset_vhost() {
+    log_warn "🔄 RESET MODE: This will stop all containers and remove data!"
+    echo ""
+    read -p "Are you sure? (yes/no): " confirm
+    if [[ "$confirm" != "yes" ]]; then
+        log_info "Reset cancelled."
+        exit 0
+    fi
+
+    cd "$PROJECT_ROOT"
+    
+    log_step "[Reset 1/5] Stopping all containers..."
+    DOCKER_CMD="docker compose"
+    ! docker compose version &>/dev/null && DOCKER_CMD="docker-compose"
+    
+    cd deploy/docker
+    $DOCKER_CMD -f docker-compose.yml -f docker-compose.tunnel.yml down --remove-orphans || true
+    $DOCKER_CMD -f docker-compose.bootstrap.yml down --remove-orphans || true
+    
+    log_step "[Reset 2/5] Removing volumes..."
+    docker volume rm deploy_docker_stunnel_logs 2>/dev/null || true
+    docker volume rm caddy_data 2>/dev/null || true
+    docker volume rm deploy_docker_caddy_data 2>/dev/null || true
+    
+    log_step "[Reset 3/5] Cleaning certificates..."
+    rm -rf certs/*
+    
+    log_step "[Reset 4/5] Removing .env (will be regenerated)..."
+    rm -f .env
+    
+    cd ../..
+    
+    log_step "[Reset 5/5] Restarting fresh initialization..."
+    echo ""
+}
+
+show_help() {
+    echo "PostgreSQL Service Plus - Vhost Initialization Script"
+    echo ""
+    echo "Usage: bash scripts/init_vhost.sh [COMMAND] [PG_MAJOR] [DOMAIN]"
+    echo ""
+    echo "Commands:"
+    echo "  (default)    Initialize/start services"
+    echo "  reset        Stop all containers, remove volumes, regenerate certs, start fresh"
+    echo "  help         Show this help message"
+    echo ""
+    echo "Arguments:"
+    echo "  PG_MAJOR     PostgreSQL major version (16, 17, 18). Default: 16"
+    echo "  DOMAIN       Domain for certificates. Default: postgresql.svc.plus"
+    echo ""
+    echo "Examples:"
+    echo "  bash scripts/init_vhost.sh                          # Default init with PG 16"
+    echo "  bash scripts/init_vhost.sh 17 postgresql.svc.plus   # Init with PG 17"
+    echo "  bash scripts/init_vhost.sh reset                    # Full reset and reinit"
+    echo ""
+}
+
+# -----------------------------------------------------------------------------
 # Main Execution
 # -----------------------------------------------------------------------------
 main() {
-    log_info "Starting Vhost Initialization..."
-    
-    detect_os
-    install_deps
-    setup_project
-    launch_vhost "$@"
+    # Parse command
+    case "${1:-}" in
+        reset)
+            log_info "Starting Reset Mode..."
+            detect_os
+            install_deps
+            setup_project
+            reset_vhost
+            shift
+            launch_vhost "$@"
+            ;;
+        help|--help|-h)
+            show_help
+            exit 0
+            ;;
+        *)
+            log_info "Starting Vhost Initialization..."
+            detect_os
+            install_deps
+            setup_project
+            launch_vhost "$@"
+            ;;
+    esac
     
     echo ""
     log_step "✅ Service Ready!"
@@ -329,6 +414,13 @@ main() {
         echo -e "   client  = yes"
         echo -e "   accept  = 127.0.0.1:5432"
         echo -e "   connect = ${DOMAIN}:${STUNNEL_PORT}"
+        echo -e "   cert    = /path/to/client-cert.pem"
+        echo -e "   key     = /path/to/client-key.pem"
+        echo ""
+        echo -e "📦 ${CYAN}Client Certificate Files:${NC}"
+        echo -e "   ${YELLOW}deploy/docker/certs/client-cert.pem${NC}"
+        echo -e "   ${YELLOW}deploy/docker/certs/client-key.pem${NC}"
+        echo -e "   ${YELLOW}deploy/docker/certs/ca-cert.pem${NC}"
     else
         echo "   (Password not captured, check deploy/docker/.env)"
     fi
