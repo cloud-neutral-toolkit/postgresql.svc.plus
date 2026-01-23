@@ -9,7 +9,9 @@
 ```bash
 # 下载并运行初始化脚本
 curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/postgresql.svc.plus/main/scripts/init_vhost.sh | bash
+```
 
+```
 # 或指定 PostgreSQL 版本和域名
 bash scripts/init_vhost.sh 17 db.example.com
 ```
