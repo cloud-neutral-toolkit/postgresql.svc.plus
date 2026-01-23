@@ -349,10 +349,25 @@ launch_vhost() {
     log_info "  CRT: $STUNNEL_CRT_FILE"
     log_info "  KEY: $STUNNEL_KEY_FILE"
 
-    # Try standard up, fallback to sudo
+    # Persist mapping to .env so manual 'docker compose' commands work too
+    if [ -n "$STUNNEL_CRT_FILE" ]; then
+        sed -i "/^STUNNEL_CRT_FILE=/d" deploy/docker/.env || true
+        echo "STUNNEL_CRT_FILE=$STUNNEL_CRT_FILE" >> deploy/docker/.env
+    fi
+    if [ -n "$STUNNEL_KEY_FILE" ]; then
+        sed -i "/^STUNNEL_KEY_FILE=/d" deploy/docker/.env || true
+        echo "STUNNEL_KEY_FILE=$STUNNEL_KEY_FILE" >> deploy/docker/.env
+    fi
+
+    # Cleanup potential docker-created directories if they exist where files should be
+    # This happens if docker compose is run while variables are empty
+    [ -d "deploy/docker/certs/server-cert.pem" ] && sudo rm -rf "deploy/docker/certs/server-cert.pem"
+    [ -d "deploy/docker/certs/server-key.pem" ] && sudo rm -rf "deploy/docker/certs/server-key.pem"
+
+    # Try standard up, fallback to sudo -E to preserve env if needed (though .env is primary now)
     if ! $DOCKER_CMD -f deploy/docker/docker-compose.yml -f deploy/docker/docker-compose.tunnel.yml up -d; then
          log_warn "Docker compose failed, retrying with sudo..."
-         sudo $DOCKER_CMD -f deploy/docker/docker-compose.yml -f deploy/docker/docker-compose.tunnel.yml up -d
+         sudo -E $DOCKER_CMD -f deploy/docker/docker-compose.yml -f deploy/docker/docker-compose.tunnel.yml up -d
     fi
 }
 
