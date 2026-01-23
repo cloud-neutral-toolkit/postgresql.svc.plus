@@ -274,11 +274,15 @@ launch_vhost() {
     STUNNEL_PORT=$(grep '^STUNNEL_PORT=' .env | tail -n 1 | cut -d '=' -f2)
     STUNNEL_PORT=${STUNNEL_PORT:-443}
 
+    # Read final configuration for bootstrap
+    export EMAIL=$(grep '^EMAIL=' .env | cut -d '=' -f2)
+    export DOMAIN=$DOMAIN
+    
     log_step "[Step 3/4] Certificates Management..."
     
     # Check if we are using "localhost" or a real domain
     if [[ "$DOMAIN" == "localhost" || "$DOMAIN" == "127.0.0.1" ]]; then
-       log_info "Domain is localhost. Using self-signed generation as placeholder."
+       log_info "Domain is localhost. Using project certs."
        ./generate-certs.sh "$DOMAIN"
        export STUNNEL_CRT_FILE="$(pwd)/certs/server-cert.pem"
        export STUNNEL_KEY_FILE="$(pwd)/certs/server-key.pem"
@@ -298,21 +302,30 @@ launch_vhost() {
            ! docker compose version &>/dev/null && DOCKER_CMD="docker-compose"
            
            $DOCKER_CMD -f docker-compose.bootstrap.yml up -d
-           log_info "Waiting for certificate acquisition (60s)..."
-           sleep 20 # Minimum wait
+           log_info "Waiting for ACME certificate acquisition (60s)..."
+           
+           # Check every 10 seconds for up to 60 seconds
+           local timeout=60
+           local elapsed=0
+           while [ $elapsed -lt $timeout ]; do
+               if find_acme_certs "$DOMAIN"; then
+                   break
+               fi
+               sleep 10
+               elapsed=$((elapsed + 10))
+               log_info "Retrying certificate check... ($elapsed/$timeout s)"
+           done
            
            # Check again
            if find_acme_certs "$DOMAIN"; then
                 log_info "Bootstrap successful. ACME certificates acquired."
            else
-                log_err "FAIL-FAST: Certificates for $DOMAIN not found after bootstrap!"
-                log_err "Checked paths:"
-                log_err "  - /var/lib/docker/volumes/caddy_data/_data/caddy/certificates/..."
-                log_err "  - /var/lib/caddy/.local/share/caddy/certificates/..."
-                log_err "  - /etc/letsencrypt/live/..."
-                log_err "Please ensure DNS is pointing to this host and port 80 is open."
-                $DOCKER_CMD -f docker-compose.bootstrap.yml down || true
-                exit 1
+                log_warn "ACME bootstrap failed or timed out for $DOMAIN."
+                log_warn "Falling back to project self-signed certs for service availability."
+                # Fallback to local certs as safety measure
+                ./generate-certs.sh "$DOMAIN"
+                export STUNNEL_CRT_FILE="$(pwd)/certs/server-cert.pem"
+                export STUNNEL_KEY_FILE="$(pwd)/certs/server-key.pem"
            fi
            $DOCKER_CMD -f docker-compose.bootstrap.yml down
        fi
