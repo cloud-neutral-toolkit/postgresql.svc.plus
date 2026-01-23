@@ -73,6 +73,8 @@ ARG PG_VERSION
 LABEL maintainer="Cloud-Neutral Toolkit" \
     description="PostgreSQL ${PG_VERSION} + pgvector + pg_jieba + pgmq (Debian 12 Bookworm Base)"
 
+ARG CACHEBUST=1
+
 # Copy .so + extension files from builder
 COPY --from=builder /usr/lib/postgresql/${PG_MAJOR}/lib/ /usr/lib/postgresql/${PG_MAJOR}/lib/
 COPY --from=builder /usr/share/postgresql/${PG_MAJOR}/extension/ /usr/share/postgresql/${PG_MAJOR}/extension/
