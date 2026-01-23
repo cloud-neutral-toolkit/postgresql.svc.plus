@@ -49,7 +49,8 @@ psql "host=localhost port=5433 user=postgres dbname=postgres"
 ### 安全架构
 
 - ✅ PostgreSQL 只监听容器内部 (127.0.0.1:5432)
-- ✅ 所有外部访问通过 **stunnel TLS 隧道** (端口 443)
+- ✅ 所有外部访问通过 **stunnel TLS 隧道** (端口 5443)
+- ✅ 80/443 端口预留给 HTTP/HTTPS (Nginx/Caddy) 或 Web 管理端
 - ✅ 客户端使用本地 stunnel (localhost:15432)
 - ✅ 应用无需配置 SSL,透明加密
 - ✅ 支持三种 TLS 模式 (单向 TLS / 严格验证 / 双向 mTLS)
@@ -73,7 +74,7 @@ stunnel 提供三种安全级别,**默认使用单向 TLS**:
 [postgres-client]
 client  = yes
 accept  = 127.0.0.1:15432
-connect = db.example.com:443
+connect = db.example.com:5443
 verify  = 2
 # CAfile = ${STUNNEL_CA_FILE} (required only for private CA)
 ```
@@ -159,14 +160,14 @@ key  = ${STUNNEL_KEY_FILE}
 │  └──────┬───────┘                                          │
 └─────────┼─────────────────────────────────────────────────┘
           │
-          │ TLS 1.2+ 加密 (Internet, Port 443)
+          │ TLS 1.2+ 加密 (Internet, Port 5443)
           │ tls://${HOST}:${TLS_PORT}
           ↓
 ┌─────────────────────────────────────────────────────────────┐
 │  数据库服务器                                                 │
 │                                                             │
 │  ┌──────────────┐                                          │
-│  │ stunnel 服务端│  0.0.0.0:5433 → Host:443                  │
+│  │ stunnel 服务端│  0.0.0.0:5433 → Host:5443                 │
 │  └──────┬───────┘                                          │
 │         │ 解密转发                                           │
 │         ↓                                                   │
