@@ -74,11 +74,11 @@ stunnel 提供三种安全级别,**默认使用单向 TLS**:
 client  = yes
 accept  = 127.0.0.1:15432
 connect = db.example.com:443
-CAfile  = /path/to/ca-cert.pem
 verify  = 2
+# CAfile = ${STUNNEL_CA_FILE} (required only for private CA)
 ```
 
-客户端验证服务端证书,服务端无需验证客户端。
+客户端验证服务端证书 (Mode 1), 服务端无需验证客户端。连接通过 `tls://db.example.com:443` 进行。
 
 ### 模式 2: TLS + 严格验证 (可选)
 
@@ -94,11 +94,11 @@ checkHost = db.example.com
 
 ```ini
 # 在模式 1 基础上添加:
-cert = /path/to/client-cert.pem
-key  = /path/to/client-key.pem
+cert = ${STUNNEL_CERT_FILE}
+key  = ${STUNNEL_KEY_FILE}
 ```
 
-⚠️ **mTLS 不是默认选项** - 仅在服务端明确要求时启用。
+⚠️ **mTLS 不是默认选项** - 仅在服务端明确要求时通过 `Mode 3` 启用。
 
 ### 配置文件参考
 
@@ -160,6 +160,7 @@ key  = /path/to/client-key.pem
 └─────────┼─────────────────────────────────────────────────┘
           │
           │ TLS 1.2+ 加密 (Internet, Port 443)
+          │ tls://${HOST}:${TLS_PORT}
           ↓
 ┌─────────────────────────────────────────────────────────────┐
 │  数据库服务器                                                 │
@@ -221,11 +222,11 @@ import psycopg2
 
 # 通过 stunnel 客户端连接 - 无需 SSL 配置
 conn = psycopg2.connect(
-    host="localhost",  # stunnel 客户端
+    host="localhost",  # stunnel client
     port=15432,
     user="postgres",
-    password="password",
-    database="dbname"
+    password="${POSTGRES_PASSWORD}",
+    database="postgres"
 )
 ```
 
@@ -235,19 +236,18 @@ conn = psycopg2.connect(
 const { Client } = require('pg');
 
 const client = new Client({
-  host: 'localhost',  // stunnel 客户端
+  host: 'localhost',  // stunnel client
   port: 15432,
   user: 'postgres',
-  password: 'password',
-  database: 'dbname'
-  // 无需 SSL 配置
+  password: '${POSTGRES_PASSWORD}',
+  database: 'postgres'
 });
 ```
 
 ### 环境变量
 
 ```bash
-DATABASE_URL=postgresql://postgres:password@localhost:15432/dbname
+DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@localhost:15432/postgres
 ```
 
 ## 🔐 安全特性
