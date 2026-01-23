@@ -4,6 +4,18 @@
 
 ## 🚀 快速开始
 
+### 一键初始化 (推荐)
+
+```bash
+# 下载并运行初始化脚本
+curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/postgresql.svc.plus/main/scripts/init_vhost.sh | bash
+
+# 或指定 PostgreSQL 版本和域名
+bash scripts/init_vhost.sh 17 db.example.com
+```
+
+### 手动部署
+
 ```bash
 # 1. 构建镜像
 make build-postgres-image
@@ -37,12 +49,56 @@ psql "host=localhost port=5433 user=postgres dbname=postgres"
 ### 安全架构
 
 - ✅ PostgreSQL 只监听容器内部 (127.0.0.1:5432)
-- ✅ 所有外部访问通过 **stunnel4 TLS 隧道** (HTTPS 端点)
+- ✅ 所有外部访问通过 **stunnel TLS 隧道** (端口 443)
 - ✅ 客户端使用本地 stunnel (localhost:15432)
 - ✅ 应用无需配置 SSL,透明加密
-- ✅ 支持双向 TLS 认证
+- ✅ 支持三种 TLS 模式 (单向 TLS / 严格验证 / 双向 mTLS)
 
-### 6 种部署模式
+## 🔒 TLS 连接模式
+
+stunnel 提供三种安全级别,**默认使用单向 TLS**:
+
+### 模式 1: TLS (默认 - 服务端认证)
+
+```ini
+[postgres-client]
+client  = yes
+accept  = 127.0.0.1:15432
+connect = db.example.com:443
+CAfile  = /path/to/ca-cert.pem
+verify  = 2
+```
+
+客户端验证服务端证书,服务端无需验证客户端。
+
+### 模式 2: TLS + 严格验证 (可选)
+
+```ini
+# 在模式 1 基础上添加:
+verifyChain = yes
+checkHost = db.example.com
+```
+
+额外验证证书链和主机名匹配。
+
+### 模式 3: mTLS 双向认证 (高级 - 仅在需要时启用)
+
+```ini
+# 在模式 1 基础上添加:
+cert = /path/to/client-cert.pem
+key  = /path/to/client-key.pem
+```
+
+⚠️ **mTLS 不是默认选项** - 仅在服务端明确要求时启用。
+
+### 设计原则
+
+- 🔐 信任基于 CA 证书,而非叶子证书
+- 🔄 支持 ACME 证书自动轮换
+- 📦 使用基于文件的便携式 TLS 资产
+- 🚫 避免平台绑定的证书管理器
+
+## 🏗️ 部署模式
 
 | 模式 | 复杂度 | HTTPS | TLS隧道 | 适用场景 |
 |------|--------|-------|---------|----------|
@@ -68,37 +124,6 @@ psql "host=localhost port=5433 user=postgres dbname=postgres"
 
 **详细指南**: [CI/CD 配置](docs/guides/github-actions-cicd.md) | [快速参考](docs/guides/CICD_QUICKREF.md)
 
-## 📚 文档
-
-### 快速导航
-
-- **[快速开始](docs/QUICKSTART.md)** - 5分钟快速部署
-- **[项目结构](docs/PROJECT_STRUCTURE.md)** - 了解项目组织
-- **[完整文档索引](docs/README.md)** - 所有文档列表
-
-### 部署指南
-
-- **[Docker 部署](docs/deployment/docker-deployment.md)** - Docker Compose 完整指南
-- **[Helm 部署](docs/deployment/helm-deployment.md)** - Kubernetes 生产部署
-- **[基础镜像](docs/deployment/base-images.md)** - 镜像构建说明
-
-### 安全指南
-
-- **[Stunnel 服务端](docs/guides/stunnel-server.md)** - TLS 隧道服务端配置
-- **[Stunnel 客户端](docs/guides/stunnel-client.md)** - 客户端部署和应用连接
-
-## 🔧 Makefile 命令
-
-```bash
-make help                    # 显示帮助信息
-make build-postgres-image    # 构建 PostgreSQL 镜像
-make push-postgres-image     # 推送镜像到仓库
-make test-postgres          # 本地测试
-make deploy-docker          # Docker Compose 部署
-make deploy-helm            # Helm 部署
-make clean                  # 清理测试容器
-```
-
 ## 🏗️ 架构图
 
 ### 安全访问架构
@@ -113,17 +138,17 @@ make clean                  # 清理测试容器
 │  └──────┬───────┘  无需 sslmode                             │
 │         ↓                                                   │
 │  ┌──────────────┐                                          │
-│  │ stunnel 客户端│                                          │
+│  │ stunnel 客户端│  CAfile 验证服务端                         │
 │  └──────┬───────┘                                          │
 └─────────┼─────────────────────────────────────────────────┘
           │
-          │ HTTPS/TLS 加密 (Internet)
+          │ TLS 1.2+ 加密 (Internet, Port 443)
           ↓
 ┌─────────────────────────────────────────────────────────────┐
 │  数据库服务器                                                 │
 │                                                             │
 │  ┌──────────────┐                                          │
-│  │ stunnel 服务端│  0.0.0.0:5433 (HTTPS 端点)                │
+│  │ stunnel 服务端│  0.0.0.0:5433 → Host:443                  │
 │  └──────┬───────┘                                          │
 │         │ 解密转发                                           │
 │         ↓                                                   │
@@ -131,6 +156,43 @@ make clean                  # 清理测试容器
 │  │  PostgreSQL  │  127.0.0.1:5432 (内部隔离)                │
 │  └──────────────┘                                          │
 └─────────────────────────────────────────────────────────────┘
+```
+
+## 📚 文档
+
+### 快速导航
+
+- **[快速开始](docs/QUICKSTART.md)** - 5分钟快速部署
+- **[项目结构](docs/PROJECT_STRUCTURE.md)** - 了解项目组织
+- **[架构设计](docs/ARCHITECTURE.md)** - 技术架构详解
+
+### 部署指南
+
+- **[Docker 部署](docs/deployments/docker-compose.md)** - Docker Compose 完整指南
+- **[Helm 部署](docs/deployments/helm-chart.md)** - Kubernetes 生产部署
+
+## 🔧 Makefile 命令
+
+```bash
+make help                    # 显示帮助信息
+make build-postgres-image    # 构建 PostgreSQL 镜像
+make push-postgres-image     # 推送镜像到仓库
+make test-postgres          # 本地测试
+make deploy-docker          # Docker Compose 部署
+make deploy-helm            # Helm 部署
+make clean                  # 清理测试容器
+```
+
+## 🔧 脚本工具
+
+```bash
+scripts/init_vhost.sh           # 一键初始化部署
+scripts/init_vhost.sh reset     # 重置环境 (清理容器/证书)
+scripts/init_vhost.sh help      # 显示帮助
+
+scripts/fix_collation.sh        # 修复 collation 版本警告
+scripts/clean-git-secrets.sh    # 清理 Git 历史敏感信息
+scripts/generate-postgres-tls.sh # 生成 PostgreSQL TLS 证书
 ```
 
 ## 💡 使用示例
@@ -174,10 +236,10 @@ DATABASE_URL=postgresql://postgres:password@localhost:15432/dbname
 ## 🔐 安全特性
 
 1. **网络隔离**: PostgreSQL 不直接暴露
-2. **强制加密**: 所有连接通过 TLS 1.2/1.3
-3. **证书验证**: 支持双向 TLS 认证
+2. **强制加密**: 所有连接通过 TLS 1.2+
+3. **灵活认证**: 支持单向 TLS / 严格验证 / 双向 mTLS
 4. **审计日志**: 完整的连接日志
-5. **自动证书**: Nginx + Certbot 或 Caddy
+5. **自动证书**: 支持 ACME (Let's Encrypt) 自动续期
 
 ## 📊 性能优化
 
@@ -188,10 +250,10 @@ DATABASE_URL=postgresql://postgres:password@localhost:15432/dbname
 
 ## 🛠️ 技术栈
 
-- **PostgreSQL**: 16.4 (PGDG)
-- **扩展**: pgvector 0.8.1, pg_jieba 2.0.1, pgmq 1.8.0
+- **PostgreSQL**: 16/17/18 (PGDG)
+- **扩展**: pgvector, pg_jieba, pgmq, pg_cron
 - **TLS 隧道**: stunnel4
-- **反向代理**: Nginx + Certbot 或 Caddy
+- **证书管理**: Caddy (ACME) 或自签名
 - **容器编排**: Docker Compose 或 Kubernetes/Helm
 
 ## 📝 许可证
@@ -206,7 +268,7 @@ MIT License - 详见 [LICENSE](LICENSE) 文件
 
 - **文档**: [docs/](docs/)
 - **问题**: GitHub Issues
-- **中文文档**: [docs/精简总结.md](docs/精简总结.md)
+- **示例配置**: [example/](example/)
 
 ---
 
