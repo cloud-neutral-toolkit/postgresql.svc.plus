@@ -183,8 +183,8 @@ launch_vhost() {
     export PG_MAJOR="${1:-${PG_MAJOR:-16}}"
     
     # Validations for PG versions
-    if [[ ! "$PG_MAJOR" =~ ^(14|15|16|17)$ ]]; then
-        log_warn "PG_MAJOR=$PG_MAJOR is not in standard range (14, 15, 16, 17)."
+    if [[ ! "$PG_MAJOR" =~ ^(14|15|16|17|18)$ ]]; then
+        log_warn "PG_MAJOR=$PG_MAJOR is not in standard range (14, 15, 16, 17, 18)."
     fi
 
     # Support DOMAIN override
@@ -403,7 +403,7 @@ show_help() {
     echo "  init_vhost.sh reset"
     echo ""
     echo "Arguments:"
-    echo "  POSTGRES_VERSION  Support: 14 | 15 | 16 | 17 (Default: 16)"
+    echo "  POSTGRES_VERSION  Support: 14 | 15 | 16 | 17 | 18 (Default: 16)"
     echo "  DOMAIN            stunnel TLS endpoint (Default: current hostname)"
     echo ""
     echo "Commands:"
