@@ -142,7 +142,13 @@ launch_vhost() {
         log_warn "PG_MAJOR=$PG_MAJOR is not standard (16, 17, 18). Proceeding anyway..."
     fi
 
-    log_info "Configuration: PostgreSQL Version: $PG_MAJOR"
+    # Support DOMAIN override
+    # Usage: scripts/init_vhost.sh [PG_MAJOR] [DOMAIN]
+    export DOMAIN="${2:-${DOMAIN:-postgresql.svc.plus}}"
+
+    log_info "Configuration:"
+    log_info "  - PostgreSQL Ver : $PG_MAJOR"
+    log_info "  - Service Domain : $DOMAIN"
 
     # Update .env for docker-compose to pick up PG_MAJOR
     # We append or replace PG_MAJOR in .env to ensure persistence across restarts
@@ -218,7 +224,8 @@ launch_vhost() {
     STUNNEL_PORT=${STUNNEL_PORT:-443}
 
     log_step "[Step 3/4] Generating Certificates..."
-    ./generate-certs.sh
+    # Pass DOMAIN to generate-certs.sh
+    ./generate-certs.sh "$DOMAIN"
     cd ../..
 
     log_step "[Step 4/4] Starting Services..."
@@ -249,18 +256,28 @@ main() {
     detect_os
     install_deps
     setup_project
-    launch_vhost
+    launch_vhost "$@"
     
     echo ""
-    log_step "Done! Services should be up."
+    log_step "✅ Service Ready!"
     echo ""
-    echo -e "🔌 Connect to PostgreSQL via TLS Tunnel:"
-    echo -e "   ${GREEN}psql \"host=localhost port=$STUNNEL_PORT user=postgres dbname=postgres\"${NC}"
-    echo ""
-    echo "Note: A secure password has been generated in deploy/docker/.env"
+    
     if [ -n "$PG_PASS" ]; then
-        echo -e "   Password: ${YELLOW}$PG_PASS${NC}"
-        echo -e "   Connection String: ${GREEN}postgres://postgres:$PG_PASS@localhost:$STUNNEL_PORT/postgres${NC}"
+        echo -e "🌍 ${CYAN}Server Endpoint (Stunnel):${NC}"
+        echo -e "   https://${DOMAIN}:${STUNNEL_PORT}"
+        echo ""
+        echo -e "🔑 ${CYAN}Credentials:${NC}"
+        echo -e "   User: ${GREEN}postgres${NC}"
+        echo -e "   Pass: ${YELLOW}$PG_PASS${NC}"
+        echo ""
+        echo -e "💻 ${CYAN}Client Connection String (After Stunnel Setup):${NC}"
+        echo -e "   ${GREEN}postgres://postgres:$PG_PASS@127.0.0.1:5432/postgres${NC}"
+        echo ""
+        echo -e "📝 ${CYAN}Stunnel Client Config Reference:${NC}"
+        echo -e "   [postgres-client]"
+        echo -e "   client  = yes"
+        echo -e "   accept  = 127.0.0.1:5432"
+        echo -e "   connect = ${DOMAIN}:${STUNNEL_PORT}"
     else
         echo "   (Password not captured, check deploy/docker/.env)"
     fi
