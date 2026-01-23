@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres-extensions:16
+    image: postgres-extensions:${PG_MAJOR:-16}
     container_name: postgresql-svc-plus
     restart: unless-stopped
 

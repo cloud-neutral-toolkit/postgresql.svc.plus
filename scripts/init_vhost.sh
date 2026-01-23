@@ -126,20 +126,51 @@ setup_project() {
 # -----------------------------------------------------------------------------
 # 4. Build & Launch
 # -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# 4. Build & Launch
+# -----------------------------------------------------------------------------
 launch_vhost() {
     cd "$PROJECT_ROOT"
+
+    # Support PG_MAJOR override
+    # Usage: scripts/init_vhost.sh [PG_MAJOR]
+    # Default: 16
+    export PG_MAJOR="${1:-${PG_MAJOR:-16}}"
+    
+    # Validations for PG versions
+    if [[ ! "$PG_MAJOR" =~ ^(16|17|18)$ ]]; then
+        log_warn "PG_MAJOR=$PG_MAJOR is not standard (16, 17, 18). Proceeding anyway..."
+    fi
+
+    log_info "Configuration: PostgreSQL Version: $PG_MAJOR"
+
+    # Update .env for docker-compose to pick up PG_MAJOR
+    # We append or replace PG_MAJOR in .env to ensure persistence across restarts
+    if [ -d "deploy/docker" ]; then
+        if [ -f "deploy/docker/.env" ]; then
+             if grep -q "PG_MAJOR=" "deploy/docker/.env"; then
+                 if [[ "$OSTYPE" == "darwin"* ]]; then
+                    sed -i '' "s/^PG_MAJOR=.*/PG_MAJOR=$PG_MAJOR/" "deploy/docker/.env"
+                 else
+                    sed -i "s/^PG_MAJOR=.*/PG_MAJOR=$PG_MAJOR/" "deploy/docker/.env"
+                 fi
+             else
+                 echo "PG_MAJOR=$PG_MAJOR" >> "deploy/docker/.env"
+             fi
+        fi
+    fi
 
     # Fix permissions for scripts just in case
     chmod +x deploy/docker/generate-certs.sh
     chmod +x scripts/*.sh
 
-    log_step "[Step 1/4] Building Docker Image..."
+    log_step "[Step 1/4] Building Docker Image (PG $PG_MAJOR)..."
     # Attempt build using make. Warning: requires 'docker' access.
-    # If user just added to group, they might need newgrp or sudo.
-    # We try with sudo command if direct fails.
-    if ! make build-postgres-image; then
+    
+    # Ensure make sees the variable
+    if ! make build-postgres-image PG_MAJOR=$PG_MAJOR; then
         log_warn "Build failed, retrying with sudo..."
-        sudo make build-postgres-image
+        sudo make build-postgres-image PG_MAJOR=$PG_MAJOR
     fi
 
     log_step "[Step 2/4] Configuring Environment..."
@@ -150,17 +181,25 @@ launch_vhost() {
         # Generate a random password
         PG_PASS=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9')
         # Replace the placeholder password
-        # Use simple sed, assuming standard format in .env.example
         if [[ "$OSTYPE" == "darwin"* ]]; then
             sed -i '' "s/POSTGRES_PASSWORD=changeme_secure_password/POSTGRES_PASSWORD=$PG_PASS/" .env
         else
             sed -i "s/POSTGRES_PASSWORD=changeme_secure_password/POSTGRES_PASSWORD=$PG_PASS/" .env
         fi
+        
+        # Add PG_MAJOR to .env
+        echo "PG_MAJOR=$PG_MAJOR" >> .env
+        
         log_info "Generated secure POSTGRES_PASSWORD in .env"
     else
         log_info "Existing .env found. Using existing configuration."
-        # Read the password specifically for the final output (simple grep/cut, not perfect but checking usually sufficient)
+        # Read the password specifically for the final output
         PG_PASS=$(grep '^POSTGRES_PASSWORD=' .env | cut -d '=' -f2)
+        
+        # Ensure PG_MAJOR is in .env if it was missing
+        if ! grep -q "PG_MAJOR=" .env; then
+             echo "PG_MAJOR=$PG_MAJOR" >> .env
+        fi
     fi
 
     log_step "[Step 3/4] Generating Certificates..."
