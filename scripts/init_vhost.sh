@@ -320,12 +320,13 @@ launch_vhost() {
            if find_acme_certs "$DOMAIN"; then
                 log_info "Bootstrap successful. ACME certificates acquired."
            else
-                log_warn "ACME bootstrap failed or timed out for $DOMAIN."
-                log_warn "Falling back to project self-signed certs for service availability."
-                # Fallback to local certs as safety measure
-                ./generate-certs.sh "$DOMAIN"
-                export STUNNEL_CRT_FILE="$(pwd)/certs/server-cert.pem"
-                export STUNNEL_KEY_FILE="$(pwd)/certs/server-key.pem"
+                log_err "FAIL-FAST: ACME certificates for $DOMAIN not found after bootstrap!"
+                log_err "Please ensure:"
+                log_err "  1. DNS is pointing to this host"
+                log_err "  2. Port 80 is open and not occupied"
+                log_err "  3. The domain name is correct"
+                $DOCKER_CMD -f docker-compose.bootstrap.yml down || true
+                exit 1
            fi
            $DOCKER_CMD -f docker-compose.bootstrap.yml down
        fi

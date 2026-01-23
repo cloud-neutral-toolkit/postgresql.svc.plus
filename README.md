@@ -47,10 +47,8 @@ curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/postgresql.sv
 
 | 模式 | 复杂度 | TLS隧道 | 适用场景 |
 | :--- | :--- | :--- | :--- |
-| 基础 + Stunnel | ⭐ | ✅ | 开发测试 |
-| Nginx + Certbot | ⭐⭐ | ✅ | 小型生产 |
-| Caddy | ⭐⭐ | ✅ | 小型生产 |
-| Kubernetes/Helm | ⭐⭐⭐ | ✅ | 企业生产 |
+| **Stunnel + ACME** | ⭐ | ✅ (自动证书) | 个人/生产单机 |
+| **Kubernetes/Helm** | ⭐⭐⭐ | ✅ (Sidecar) | 企业级生产 |
 
 ### 🔄 CI/CD 自动化
 GitHub Actions 工作流:

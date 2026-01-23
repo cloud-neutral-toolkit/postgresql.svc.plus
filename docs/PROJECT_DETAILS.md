@@ -27,8 +27,8 @@ curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/postgresql.sv
 # 1. 构建镜像
 make build-postgres-image
 
-# 2. 生成证书
-cd deploy/docker && ./generate-certs.sh
+# 2. 获取证书 (推荐使用 ACME)
+# 使用 init_vhost.sh 自动化获取，或手动放置证书至 deploy/docker/certs/
 
 # 3. 启动服务 (PostgreSQL + Stunnel TLS 隧道)
 docker-compose -f docker-compose.yml -f docker-compose.tunnel.yml up -d
@@ -126,11 +126,9 @@ key  = ${STUNNEL_KEY_FILE}
 ## 🏗️ 部署模式
 
 | 模式 | 复杂度 | TLS隧道 | 适用场景 |
-|------|--------|---------|----------|
-| 基础 + Stunnel | ⭐ | ✅ | 开发测试 |
-| Nginx + Certbot | ⭐⭐ | ✅ | 小型生产 |
-| Caddy | ⭐⭐ | ✅ | 小型生产 |
-| Kubernetes/Helm | ⭐⭐⭐ | ✅ | 企业生产 |
+| :--- | :--- | :--- | :--- |
+| **Stunnel + ACME** | ⭐ | ✅ (自动证书) | 个人/生产单机 |
+| **Kubernetes/Helm** | ⭐⭐⭐ | ✅ (Sidecar) | 企业级生产 |
 
 ### 🔄 CI/CD 自动化
 
@@ -288,7 +286,7 @@ DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@localhost:15432/postgres
 - **PostgreSQL**: 16/17/18 (PGDG)
 - **扩展**: pgvector, pg_jieba, pgmq, pg_cron
 - **TLS 隧道**: stunnel4
-- **证书管理**: Caddy (ACME) 或自签名
+- **证书管理**: Caddy (ACME) 或 Certbot
 - **容器编排**: Docker Compose 或 Kubernetes/Helm
 
 ## 📝 许可证
