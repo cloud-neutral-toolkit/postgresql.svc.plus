@@ -10,7 +10,7 @@ services:
     volumes:
       - caddy_data:/data
     command: >
-      caddy respond --listen :80 "Cert Bootstrap"  --domain ${DOMAIN} --email ${EMAIL} 
+      caddy reverse-proxy --from ${DOMAIN} --to 127.0.0.1:2019
 
 volumes:
   caddy_data:
