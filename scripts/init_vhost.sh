@@ -379,9 +379,17 @@ reset_vhost() {
     $DOCKER_CMD -f docker-compose.bootstrap.yml down --remove-orphans || true
     
     log_step "[Reset 2/5] Removing volumes..."
-    docker volume rm deploy_docker_stunnel_logs 2>/dev/null || true
+    # Get PG_DATA_PATH from .env before we delete it (default to /data)
+    CURRENT_DATA_PATH=$(grep "^PG_DATA_PATH=" .env | cut -d'=' -f2 || echo "/data")
+    
+    docker volume rm docker_caddy_data 2>/dev/null || true
     docker volume rm caddy_data 2>/dev/null || true
-    docker volume rm deploy_docker_caddy_data 2>/dev/null || true
+    docker volume rm docker_stunnel_logs 2>/dev/null || true
+    
+    if [ -d "$CURRENT_DATA_PATH" ]; then
+        log_warn "Cleaning PostgreSQL data directory: $CURRENT_DATA_PATH"
+        sudo rm -rf "${CURRENT_DATA_PATH:?}"/* || true
+    fi
     
     log_step "[Reset 3/5] Cleaning certificates..."
     rm -rf certs/*
