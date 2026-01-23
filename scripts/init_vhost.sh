@@ -233,8 +233,8 @@ launch_vhost() {
         fi
     fi
 
-    # Read final port for display
-    STUNNEL_PORT=$(grep '^STUNNEL_PORT=' .env | cut -d '=' -f2)
+    # Read final port for display (handle duplicates if any)
+    STUNNEL_PORT=$(grep '^STUNNEL_PORT=' .env | tail -n 1 | cut -d '=' -f2)
     STUNNEL_PORT=${STUNNEL_PORT:-443}
 
     log_step "[Step 3/4] Certificates Management..."
@@ -407,12 +407,12 @@ main() {
         echo -e "   Pass: ${YELLOW}\${POSTGRES_PASSWORD}${NC} (See deploy/docker/.env)"
         echo ""
         echo -e "💻 ${CYAN}Client Connection String (After Stunnel Setup):${NC}"
-        echo -e "   ${GREEN}postgres://postgres:\${POSTGRES_PASSWORD}@127.0.0.1:5432/postgres${NC}"
+        echo -e "   ${GREEN}postgres://postgres:\${POSTGRES_PASSWORD}@127.0.0.1:15432/postgres${NC}"
         echo ""
         echo -e "📝 ${CYAN}Stunnel Client Config (Mode 1: TLS - Default):${NC}"
         echo -e "   [postgres-client]"
         echo -e "   client  = yes"
-        echo -e "   accept  = 127.0.0.1:5432"
+        echo -e "   accept  = 127.0.0.1:15432"
         echo -e "   connect = ${DOMAIN}:${STUNNEL_PORT}"
         echo -e "   verify  = 2"
         echo -e "   # CAfile is required only if using a private/self-signed CA"
