@@ -8,7 +8,7 @@ services:
 
     ports:
       # TLS 加密端口 - 外部访问入口
-      - "${STUNNEL_PORT:-5433}:5433"
+      - "${STUNNEL_PORT:-443}:5433"
 
     environment:
       STUNNEL_SERVICE: ${STUNNEL_SERVICE:-postgres-tls}

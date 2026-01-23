@@ -194,6 +194,7 @@ launch_vhost() {
         echo "STUNNEL_SERVICE=postgres-tls" >> .env
         echo "STUNNEL_ACCEPT=5433" >> .env
         echo "STUNNEL_CONNECT=postgres:5432" >> .env
+        echo "STUNNEL_PORT=443" >> .env
         
         log_info "Generated secure POSTGRES_PASSWORD in .env"
     else
@@ -205,7 +206,16 @@ launch_vhost() {
         if ! grep -q "PG_MAJOR=" .env; then
              echo "PG_MAJOR=$PG_MAJOR" >> .env
         fi
+        
+        # Ensure STUNNEL_PORT is in .env if it was missing
+        if ! grep -q "STUNNEL_PORT=" .env; then
+             echo "STUNNEL_PORT=443" >> .env
+        fi
     fi
+
+    # Read final port for display
+    STUNNEL_PORT=$(grep '^STUNNEL_PORT=' .env | cut -d '=' -f2)
+    STUNNEL_PORT=${STUNNEL_PORT:-443}
 
     log_step "[Step 3/4] Generating Certificates..."
     ./generate-certs.sh
@@ -245,12 +255,12 @@ main() {
     log_step "Done! Services should be up."
     echo ""
     echo -e "🔌 Connect to PostgreSQL via TLS Tunnel:"
-    echo -e "   ${GREEN}psql \"host=localhost port=5433 user=postgres dbname=postgres\"${NC}"
+    echo -e "   ${GREEN}psql \"host=localhost port=$STUNNEL_PORT user=postgres dbname=postgres\"${NC}"
     echo ""
     echo "Note: A secure password has been generated in deploy/docker/.env"
     if [ -n "$PG_PASS" ]; then
         echo -e "   Password: ${YELLOW}$PG_PASS${NC}"
-        echo -e "   Connection String: ${GREEN}postgres://postgres:$PG_PASS@localhost:5433/postgres${NC}"
+        echo -e "   Connection String: ${GREEN}postgres://postgres:$PG_PASS@localhost:$STUNNEL_PORT/postgres${NC}"
     else
         echo "   (Password not captured, check deploy/docker/.env)"
     fi
