@@ -1,7 +1,8 @@
 # PostgreSQL Service Plus - Simplified Makefile
 
 .PHONY: help build-postgres-image push-postgres-image test-postgres \
-        deploy-docker deploy-helm clean init reset selftest selftest-strict
+        deploy-docker deploy-helm clean init reset selftest selftest-strict \
+        gitleaks-detect git-purge
 
 # Image configuration
 POSTGRES_IMAGE_NAME ?= postgres-extensions
@@ -28,6 +29,8 @@ help:
 	@echo "  reset                 - Reset environment (clean containers, volumes, certs)"
 	@echo "  selftest              - Run linting and self-tests (Mode 1)"
 	@echo "  selftest-strict       - Run self-tests in strict mode (Mode 2)"
+	@echo "  gitleaks-detect       - Scan for secrets in Git history"
+	@echo "  git-purge             - Purge history of specific paths (e.g., make git-purge PATHS=\"file1 dir2\")"
 	@echo "  deploy-docker         - Deploy using Docker Compose (legacy, use init instead)"
 	@echo "  deploy-helm           - Deploy using Helm chart"
 	@echo "  clean                 - Stop and remove test containers"
@@ -128,6 +131,17 @@ selftest-strict:
 	TLS_PORT=443 \
 	bash scripts/selftest.sh
 	@rm example/stunnel-client-strict.conf
+
+gitleaks-detect:
+	@echo "🔍 Scanning for secrets..."
+	@gitleaks detect -v
+
+git-purge:
+	@if [ -z "$(PATHS)" ]; then \
+		echo "❌ Error: PATHS variable is required. Example: make git-purge PATHS=\"dir1 file2\""; \
+		exit 1; \
+	fi
+	@bash scripts/clean_git_history.sh $(PATHS)
 
 clean:
 	@echo "🧹 Cleaning up test containers..."
