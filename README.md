@@ -15,17 +15,14 @@
 
 ## 🚀 快速开始
 
-### 一键初始化 (推荐)
+### 一键初始化
 
 ```bash
 # 下载并运行初始化脚本
 curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/postgresql.svc.plus/main/scripts/init_vhost.sh | bash
 ```
 
-```
-# 或指定 PostgreSQL 版本和域名
-bash scripts/init_vhost.sh 17 db.example.com
-```
+可指定 PostgreSQL 版本和域名： bash scripts/init_vhost.sh 17 db.example.com
 
 > **详细指南**: 查看 [docs/QUICKSTART.md](docs/QUICKSTART.md) | [完整指南](docs/PROJECT_DETAILS.md)
 
