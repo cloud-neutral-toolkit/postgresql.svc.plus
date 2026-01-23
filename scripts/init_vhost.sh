@@ -217,6 +217,11 @@ launch_vhost() {
         if ! grep -q "STUNNEL_PORT=" .env; then
              echo "STUNNEL_PORT=443" >> .env
         fi
+        
+        # Ensure PG_DATA_PATH is in .env if it was missing
+        if ! grep -q "PG_DATA_PATH=" .env; then
+             echo "PG_DATA_PATH=/data" >> .env
+        fi
     fi
 
     # Read final port for display

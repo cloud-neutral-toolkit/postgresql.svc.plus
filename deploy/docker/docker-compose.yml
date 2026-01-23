@@ -18,7 +18,7 @@ services:
       - "5432"
 
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ${PG_DATA_PATH:-/data}:/var/lib/postgresql/data
       - ./init-scripts:/docker-entrypoint-initdb.d:ro
       - ./postgresql.conf:/etc/postgresql/postgresql.conf:ro
 
@@ -73,8 +73,6 @@ services:
       - admin
 
 volumes:
-  postgres_data:
-    driver: local
   pgadmin_data:
     driver: local
 
