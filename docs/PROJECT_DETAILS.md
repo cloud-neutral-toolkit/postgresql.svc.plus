@@ -4,15 +4,22 @@
 
 ## 🚀 快速开始
 
-### 一键初始化 (推荐)
+### 一键安装 (默认)
 
 ```bash
-# 下载并运行初始化脚本
+# 默认安装最新稳定版 (PG 16)，使用当前主机名作为域名
 curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/postgresql.svc.plus/main/scripts/init_vhost.sh | bash
-
-# 或指定 PostgreSQL 版本和域名
-bash scripts/init_vhost.sh 17 db.example.com
 ```
+
+### 指定版本与域名 (推荐)
+
+```bash
+# bash -s -- <POSTGRES_VERSION> <DOMAIN>
+curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/postgresql.svc.plus/main/scripts/init_vhost.sh \
+  | bash -s -- 17 db.example.com
+```
+
+> **等价于**: `bash init_vhost.sh 17 db.example.com`
 
 ### 手动部署
 
@@ -205,13 +212,23 @@ make clean                  # 清理测试容器
 ## 🔧 脚本工具
 
 ```bash
-scripts/init_vhost.sh           # 一键初始化部署
-scripts/init_vhost.sh reset     # 重置环境 (清理容器/证书)
-scripts/init_vhost.sh help      # 显示帮助
+## ⚙️ 参数详解
 
-scripts/fix_collation.sh        # 修复 collation 版本警告
-scripts/clean-git-secrets.sh    # 清理 Git 历史敏感信息
-scripts/generate-postgres-tls.sh # 生成 PostgreSQL TLS 证书
+### 脚本参数 (init_vhost.sh)
+
+| 参数 | 支持值 | 说明 | 默认值 |
+| :--- | :--- | :--- | :--- |
+| **POSTGRES_VERSION** | 14, 15, 16, 17 | PostgreSQL 主版本号 | `16` |
+| **DOMAIN** | 任意有效域名 | 用于生成证书的域名 (Stunnel Endpoint) | 当前主机名 (`hostname -f`) |
+
+### 环境变量 (.env)
+
+| 变量名 | 说明 | 默认值 |
+| :--- | :--- | :--- |
+| `POSTGRES_PASSWORD` | 数据库超级用户密码 | 自动随机生成 |
+| `STUNNEL_PORT` | Stunnel 对外暴露的 TLS 端口 | `443` |
+| `PG_DATA_PATH` | 数据库数据挂载路径 | `/data` |
+| `EMAIL` | ACME 证书申请邮箱 | `admin@${DOMAIN}` |
 ```
 
 ## 💡 使用示例

@@ -15,14 +15,18 @@
 
 ## 🚀 快速开始
 
-### 一键初始化
-
+### 一键安装 (默认)
 ```bash
-# 下载并运行初始化脚本
+# 默认安装最新稳定版 (PG 16)，使用当前主机名作为域名
 curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/postgresql.svc.plus/main/scripts/init_vhost.sh | bash
 ```
 
-可指定 PostgreSQL 版本和域名： bash scripts/init_vhost.sh 17 db.example.com
+### 指定版本与域名 (安装建议)
+```bash
+# bash -s -- <PG版本> <域名>
+curl -fsSL https://raw.githubusercontent.com/cloud-neutral-toolkit/postgresql.svc.plus/main/scripts/init_vhost.sh \
+  | bash -s -- 17 db.example.com
+```
 
 > **详细指南**: 查看 [docs/QUICKSTART.md](docs/QUICKSTART.md) | [完整指南](docs/PROJECT_DETAILS.md)
 

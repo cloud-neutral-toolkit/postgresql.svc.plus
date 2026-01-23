@@ -140,19 +140,22 @@ setup_project() {
 launch_vhost() {
     cd "$PROJECT_ROOT"
 
+    # Detect default domain if not provided
+    LOCAL_HOSTNAME=$(hostname -f 2>/dev/null || hostname 2>/dev/null || echo "localhost")
+
     # Support PG_MAJOR override
     # Usage: scripts/init_vhost.sh [PG_MAJOR]
-    # Default: 16
+    # Default: 16 (Latest stable)
     export PG_MAJOR="${1:-${PG_MAJOR:-16}}"
     
     # Validations for PG versions
-    if [[ ! "$PG_MAJOR" =~ ^(16|17|18)$ ]]; then
-        log_warn "PG_MAJOR=$PG_MAJOR is not standard (16, 17, 18). Proceeding anyway..."
+    if [[ ! "$PG_MAJOR" =~ ^(14|15|16|17)$ ]]; then
+        log_warn "PG_MAJOR=$PG_MAJOR is not in standard range (14, 15, 16, 17)."
     fi
 
     # Support DOMAIN override
     # Usage: scripts/init_vhost.sh [PG_MAJOR] [DOMAIN]
-    export DOMAIN="${2:-${DOMAIN:-postgresql.svc.plus}}"
+    export DOMAIN="${2:-${DOMAIN:-$LOCAL_HOSTNAME}}"
 
     log_info "Configuration:"
     log_info "  - PostgreSQL Ver : $PG_MAJOR"
@@ -354,23 +357,24 @@ reset_vhost() {
 }
 
 show_help() {
-    echo "PostgreSQL Service Plus - Vhost Initialization Script"
+    echo -e "${CYAN}PostgreSQL Service Plus - Vhost Initialization Script${NC}"
     echo ""
-    echo "Usage: bash scripts/init_vhost.sh [COMMAND] [PG_MAJOR] [DOMAIN]"
-    echo ""
-    echo "Commands:"
-    echo "  (default)    Initialize/start services"
-    echo "  reset        Stop all containers, remove volumes, regenerate certs, start fresh"
-    echo "  help         Show this help message"
+    echo "Usage:"
+    echo "  init_vhost.sh [POSTGRES_VERSION] [DOMAIN]"
+    echo "  init_vhost.sh reset"
     echo ""
     echo "Arguments:"
-    echo "  PG_MAJOR     PostgreSQL major version (16, 17, 18). Default: 16"
-    echo "  DOMAIN       Domain for certificates. Default: postgresql.svc.plus"
+    echo "  POSTGRES_VERSION  Support: 14 | 15 | 16 | 17 (Default: 16)"
+    echo "  DOMAIN            stunnel TLS endpoint (Default: current hostname)"
+    echo ""
+    echo "Commands:"
+    echo "  reset             Stop all containers, remove volumes, regenerate certs, start fresh"
+    echo "  help              Show this help message"
     echo ""
     echo "Examples:"
-    echo "  bash scripts/init_vhost.sh                          # Default init with PG 16"
-    echo "  bash scripts/init_vhost.sh 17 postgresql.svc.plus   # Init with PG 17"
-    echo "  bash scripts/init_vhost.sh reset                    # Full reset and reinit"
+    echo "  bash scripts/init_vhost.sh 17 db.example.com"
+    echo "  bash scripts/init_vhost.sh 16 postgres.mycompany.net"
+    echo "  curl -fsSL https://.../init_vhost.sh | bash -s -- 17 db.example.com"
     echo ""
 }
 
