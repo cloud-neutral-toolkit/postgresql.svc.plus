@@ -113,7 +113,7 @@ selftest:
 	@STUNNEL_CONF=example/stunnel-client.conf \
 	LOCAL_PORT=15432 \
 	HOST=db.example.com \
-	TLS_PORT=5443 \
+	TLS_PORT=443 \
 	OUTPUT_FILES="README.md docs/PROJECT_DETAILS.md scripts/init_vhost.sh" \
 	bash scripts/selftest.sh
 
@@ -125,7 +125,7 @@ selftest-strict:
 	STUNNEL_CONF=example/stunnel-client-strict.conf \
 	LOCAL_PORT=15432 \
 	HOST=db.example.com \
-	TLS_PORT=5443 \
+	TLS_PORT=443 \
 	bash scripts/selftest.sh
 	@rm example/stunnel-client-strict.conf
 

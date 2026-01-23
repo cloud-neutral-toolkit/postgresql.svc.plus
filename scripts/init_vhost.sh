@@ -208,7 +208,7 @@ launch_vhost() {
         echo "STUNNEL_SERVICE=postgres-tls" >> .env
         echo "STUNNEL_ACCEPT=5433" >> .env
         echo "STUNNEL_CONNECT=postgres:5432" >> .env
-        echo "STUNNEL_PORT=5443" >> .env
+        echo "STUNNEL_PORT=443" >> .env
         
         log_info "Generated secure POSTGRES_PASSWORD in .env"
     else
@@ -235,7 +235,7 @@ launch_vhost() {
 
     # Read final port for display
     STUNNEL_PORT=$(grep '^STUNNEL_PORT=' .env | cut -d '=' -f2)
-    STUNNEL_PORT=${STUNNEL_PORT:-5443}
+    STUNNEL_PORT=${STUNNEL_PORT:-443}
 
     log_step "[Step 3/4] Certificates Management..."
     
