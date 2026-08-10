@@ -72,6 +72,21 @@ services:
     profiles:
       - admin
 
+  # PostgreSQL Metrics Exporter for VictoriaMetrics / Prometheus
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.16.0
+    container_name: postgresql_exporter
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-postgres}?sslmode=disable"
+    ports:
+      - "127.0.0.1:${PG_EXPORTER_PORT:-9187}:9187"
+    networks:
+      - postgres_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   pgadmin_data:
     driver: local
